@@ -1,44 +1,369 @@
-# Moltbot: What It Is, What It Costs, and Whether It's Worth It
+# Bridging Claude Chat, Claude Code, and Moltbot
 
-*A practical guide for developers considering Moltbot — January 30, 2026*
+*How to unify three Claude-powered tools with shared memory, semantic search, and automated prompt flow — January 30, 2026*
 
 ---
 
 ## Why This Document Exists
 
-You've heard the buzz about Moltbot (formerly Clawdbot). You're wondering if it could help you work smarter — whether that's planning your own projects or automating workflows for clients. This guide cuts through the hype and gives you the real picture: what Moltbot actually does, what it costs, where it shines, and where it falls short.
+You use Claude Chat for quick questions, Claude Code for development, and you're considering Moltbot for persistent memory and automation. The problem: each tool is an island. Context doesn't flow between them. You repeat yourself. Decisions made in one session are forgotten in the next.
 
-By the end, you'll know exactly whether Moltbot makes sense for your situation.
+This guide explains how to bridge all three tools into a unified workflow — with a single source of truth for memory, semantic search across all accumulated context, and automated prompt flow from your phone to your IDE.
 
 ---
 
 ## Quick Summary
 
-**What Moltbot is:** An open-source agent framework that connects AI models (Claude Haiku 4.5, Sonnet 4.5, Opus 4.5) to your messaging apps, browser, and local machine. It runs 24/7 and maintains persistent memory across weeks of conversations.
+**The bridge:** Moltbot (Haiku 4.5 via API, ~$3-5/month) acts as the memory and orchestration layer. Claude Code (Max subscription, $0 extra) does the coding. Claude Chat handles quick one-off questions.
 
-**What Moltbot is NOT:** It's not an AI model itself. It's not a Claude Code replacement. It's not magic.
-
-**The honest trade-offs:**
+**The key insight:** Moltbot can execute `claude -p` (Claude Code's headless mode) as a shell command. This means you can message Moltbot a rough idea from your phone, it refines the prompt with Haiku, injects persistent context from memory, and executes it via Claude Code — all without touching your IDE.
 
 ```
-┌─────────────────────────────────────────────────┬──────────────────────────────────────────────┐
-│ The Good                                        │ The Real Talk                                │
-├─────────────────────────────────────────────────┼──────────────────────────────────────────────┤
-│ Persistent memory across weeks                  │ Security concerns are documented and real    │
-│                                                 │                                              │
-│ Multi-channel access (WhatsApp, Telegram, etc.) │ Costs $100-750/month for serious use         │
-│                                                 │                                              │
-│ 24/7 autonomous operation                       │ Claude-only for best results                 │
-│                                                 │                                              │
-│ Great for repetitive, criteria-based workflows  │ Requires deliberate setup and security care  │
-└─────────────────────────────────────────────────┴──────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────┬───────────────────────────────────────────────────┐
+│ What You Get                                    │ What It Costs                                     │
+├─────────────────────────────────────────────────┼───────────────────────────────────────────────────┤
+│ Persistent memory across all sessions           │ ~$3-5/month (Moltbot + Haiku API)                 │
+│                                                 │                                                   │
+│ Semantic search over weeks of context           │ Max subscription for Claude Code (already paying) │
+│                                                 │                                                   │
+│ Automated prompt refinement before coding       │ One-time setup effort                             │
+│                                                 │                                                   │
+│ Send coding tasks from your phone               │ Mac Mini running 24/7 as the Moltbot host         │
+│                                                 │                                                   │
+│ Multi-machine support (Mac Mini + MacBook Pro)  │ Git repo for memory sync                          │
+│                                                 │                                                   │
+│ DRY — one source of truth, not three duplicates │                                                   │
+└─────────────────────────────────────────────────┴───────────────────────────────────────────────────┘
 ```
-
-**Bottom line:** Moltbot is genuinely useful for specific use cases. Serious use costs $100-750/month, but you can kick the tires with Haiku 4.5 for $5-20/month. It requires deliberate setup and attention to security.
 
 ---
 
-## Part 1: Understanding What Moltbot Actually Is
+## The Three Tools at a Glance
+
+```
+┌────────────────────┬─────────────────────────┬───────────────────────────┬────────────────────────────────┐
+│ Capability         │ Claude Chat (claude.ai) │ Claude Code (CLI/IDE)     │ Moltbot (daemon)               │
+├────────────────────┼─────────────────────────┼───────────────────────────┼────────────────────────────────┤
+│ Best for           │ One-off questions       │ Development work          │ Memory + automation + bridge   │
+│                    │                         │                           │                                │
+│ Runs on            │ Browser (any machine)   │ Terminal/IDE (either Mac) │ Mac Mini (always on)           │
+│                    │                         │                           │                                │
+│ Memory             │ Cloud (limited)         │ Session-based + CLAUDE.md │ Weeks/months (Markdown + vec)  │
+│                    │                         │                           │                                │
+│ Semantic search    │ No                      │ Via MCP server            │ Built-in (sqlite-vec)          │
+│                    │                         │                           │                                │
+│ Cost               │ Max subscription        │ Max subscription          │ ~$3-5/month (Haiku API)        │
+│                    │                         │                           │                                │
+│ Can execute code?  │ No                      │ Yes (full agent)          │ Yes (shell commands + browser) │
+│                    │                         │                           │                                │
+│ Role in the bridge │ Quick questions         │ Coding execution          │ Memory, refinement, dispatch   │
+└────────────────────┴─────────────────────────┴───────────────────────────┴────────────────────────────────┘
+```
+
+---
+
+## Part 1: The Bridge Architecture
+
+### The Flow (No Copy-Pasting)
+
+```
+You message Moltbot (WhatsApp / Telegram / CLI)
+  "add auth middleware with JWT"
+  ↓
+Moltbot (Haiku 4.5, ~$0.002)
+├── Searches memory for relevant context (semantic search)
+├── Refines your rough idea into a structured prompt
+└── Injects: recent decisions, architecture context, project rules
+  ↓
+Moltbot executes on Mac Mini:
+  claude -p "refined prompt" --output-format json
+  ↓
+Claude Code (Opus/Sonnet via Max, $0)
+├── Reads your codebase
+├── Edits files, runs tests, creates commits
+└── Returns structured output
+  ↓
+Moltbot captures output
+├── Logs to shared memory (what changed, what was decided)
+├── Auto-commits memory to git → syncs to MacBook Pro
+└── Messages you: "Done. Created auth.middleware.ts, tests passing."
+  ↓
+You review when ready:
+  - git diff (on either Mac)
+  - /resume in Claude Code IDE (on the Mac Mini that ran it)
+```
+
+### Multi-Machine Setup
+
+```
+Mac Mini (always on)                    MacBook Pro (mobile dev)
+├── Moltbot daemon (24/7)               ├── Claude Code IDE sessions
+├── claude -p execution                  ├── Reads CLAUDE.md from git
+├── ~/claude-memory/ (git repo)    ←→    ├── ~/claude-memory/ (git repo)
+│ Moltbot writes + auto-pushes │
+└── sqlite-vec semantic index            └── MCP server semantic index
+```
+
+- **Moltbot** runs on Mac Mini (always on, always listening)
+- **Claude Code** runs on whichever Mac you're sitting at
+- **Memory** syncs via git between both machines
+- **Claude Chat** works from any browser — no machine dependency
+
+### When to Use Each Tool
+
+```
+┌──────────────────────────────────────────────┬─────────────┐
+│ Task                                         │ Use This    │
+├──────────────────────────────────────────────┼─────────────┤
+│ Quick question while reading docs            │ Claude Chat │
+│                                              │             │
+│ Write, refactor, or debug code               │ Claude Code │
+│                                              │             │
+│ Send a coding task from your phone           │ Moltbot     │
+│                                              │             │
+│ "What did I decide about X last week?"       │ Moltbot     │
+│                                              │             │
+│ Deep codebase exploration                    │ Claude Code │
+│                                              │             │
+│ Automated morning summary / check-in         │ Moltbot     │
+│                                              │             │
+│ Create commits and PRs                       │ Claude Code │
+│                                              │             │
+│ Log a decision or context for later          │ Moltbot     │
+│                                              │             │
+│ Brainstorm with no persistent context needed │ Claude Chat │
+│                                              │             │
+│ Multi-step workflow triggered by phone       │ Moltbot     │
+└──────────────────────────────────────────────┴─────────────┘
+```
+
+---
+
+## Part 2: DRY Memory — Single Source of Truth
+
+### The Problem
+
+Without coordination, the same facts end up in three places:
+- Claude Chat conversation history (cloud, Anthropic servers)
+- Claude Code `CLAUDE.md` + session transcripts (local per machine)
+- Moltbot `MEMORY.md` + daily logs (local to Moltbot host)
+
+Change a decision in one, the others go stale. Classic DRY violation.
+
+### The Solution: Git-Backed Memory Repo
+
+One canonical memory store. All tools read from it. Only Moltbot writes to it.
+
+```
+~/claude-memory/                        ← Git repo (single source of truth)
+├── CLAUDE.md                           ← Symlinked into each project root
+├── context/
+│   ├── decisions.md                    ← Architecture & project decisions
+│   ├── active-work.md                  ← What's in progress right now
+│   └── preferences.md                  ← Coding style, tools, patterns
+├── memory/
+│   ├── 2026-01-30.md                   ← Daily logs (Moltbot writes)
+│   └── 2026-01-29.md
+└── prompts/
+└── refined/                        ← Moltbot's refined prompts for Claude Code
+```
+
+### How Each Tool Connects
+
+```
+┌─────────────┬─────────────────────────────────────────┬───────────────────────────────────┐
+│ Tool        │ Reads From                              │ Writes To                         │
+├─────────────┼─────────────────────────────────────────┼───────────────────────────────────┤
+│ Moltbot     │ ~/claude-memory/ (symlinked as ~/clawd) │ Daily logs, decisions, prompts    │
+│             │                                         │                                   │
+│ Claude Code │ Project CLAUDE.md (symlinked from repo) │ Nothing — read-only consumer      │
+│             │                                         │                                   │
+│ Claude Chat │ You paste relevant context manually     │ Nothing — cloud-only, can't write │
+└─────────────┴─────────────────────────────────────────┴───────────────────────────────────┘
+```
+
+### Multi-Machine Git Sync
+
+Moltbot auto-commits and pushes after every memory write:
+```bash
+git add -A && git commit -m "memory: <summary>" && git push
+```
+
+Claude Code can auto-pull on session start via a hook in `.claude/hooks/`:
+```bash
+cd ~/claude-memory && git pull --rebase
+```
+
+---
+
+## Part 3: Semantic Search
+
+### Why It Matters
+
+After weeks of accumulated memory, flat file loading isn't enough. You need retrieval — pulling the *relevant* 5% of context, not dumping 100% into the prompt.
+
+### Moltbot: Built-In Semantic Search
+
+Moltbot already has this:
+- **sqlite-vec** — SQLite with vector extensions
+- **Hybrid search** — vector similarity + BM25 keyword relevance
+- **Auto-indexing** — watches memory files, reindexes on change (1.5s debounce)
+- **memory_search tool** — available in every conversation
+
+No extra setup. Just point Moltbot at `~/claude-memory/` and it indexes everything.
+
+### Claude Code: MCP Server for Semantic Search
+
+Claude Code needs an MCP server to get semantic search. Add to `~/.claude/settings.json`:
+
+**Option A: Search past Claude Code sessions**
+```json
+{
+  "mcpServers": {
+    "conversation-search": {
+      "command": "npx",
+      "args": ["cc-conversation-search"]
+    }
+  }
+}
+```
+
+**Option B: Search the shared memory repo (recommended for bridge)**
+```json
+{
+  "mcpServers": {
+    "vector-memory": {
+      "command": "npx",
+      "args": ["claude-code-vector-memory", "--memory-dir", "~/claude-memory"]
+    }
+  }
+}
+```
+
+Option B indexes the same files Moltbot writes to — both tools search the same memory.
+
+### Claude Chat: No Semantic Search
+
+Claude Chat is the weakest link. Use it for quick questions where memory isn't needed. For anything requiring context, use Moltbot or Claude Code instead.
+
+---
+
+## Part 4: How Moltbot Calls Claude Code
+
+### Basic Execution
+
+```bash
+# Moltbot runs this as a shell command on Mac Mini
+claude -p "Add a dark mode toggle to the settings page. Use the existing ThemeContext." \
+  --output-format json
+```
+
+### Session Continuity (Multi-Step Tasks)
+
+```bash
+# First prompt — capture session ID
+session_id=$(claude -p "Scaffold the auth middleware" --output-format json | jq -r '.session_id')
+
+# Follow-up in same session (remembers previous context)
+claude -p "Now add JWT validation" --resume "$session_id" --output-format json
+```
+
+### With Tool Permissions
+
+```bash
+claude -p "Fix the failing test in cart.spec.ts" \
+  --allowedTools "Bash,Read,Edit" \
+  --output-format json
+```
+
+### Reviewing Results
+
+After Moltbot runs `claude -p`:
+- **Code changes** are on disk in your project — `git diff` shows them on either Mac
+- **`/resume`** in Claude Code IDE shows the full conversation transcript (only on the Mac that ran it)
+- **Moltbot messages you** a summary via WhatsApp/Telegram
+
+---
+
+## Part 5: Moltbot Configuration for the Bridge
+
+### SOUL.md — Bridge Role
+
+```markdown
+# Role
+You bridge messaging to Claude Code. You are the persistent memory layer.
+
+# On receiving a task:
+1. Search memory for relevant context (use memory_search)
+2. Refine the user's rough request into a structured prompt
+3. Execute: claude -p "<prompt>" --output-format json --allowedTools "Bash,Read,Edit,Write"
+4. Log the result to memory (what changed, what was decided)
+5. Report back with a short summary
+
+# Prompt format for Claude Code:
+Task: [one-line summary]
+Context: [retrieved from memory search]
+Requirements: [specific acceptance criteria]
+Files: [known relevant files/paths]
+Constraints: [project rules — TDD, accessibility, BJJ color system]
+
+# After execution:
+- Log result to ~/claude-memory/memory/YYYY-MM-DD.md
+- Auto-commit: git add -A && git commit -m "memory: <summary>" && git push
+```
+
+### Config — Haiku Model
+
+`~/.clawdbot/config.json`:
+```json
+{
+  "model": "claude-haiku-4-5-20241022"
+}
+```
+
+### Optional: Morning Context Cron
+
+```json
+{
+  "cron": {
+    "jobs": [
+      {
+        "id": "morning-context",
+        "schedule": "0 8 * * 1-5",
+        "timezone": "America/New_York",
+        "task": "Review this week's memory. Update ~/claude-memory/context/active-work.md with current priorities and blockers.",
+        "model": "anthropic/claude-haiku-4-5"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Part 6: Token Economics
+
+```
+┌───────────────────────────────────┬───────────────────┬──────────────┐
+│ Action                            │ Model             │ Monthly Cost │
+├───────────────────────────────────┼───────────────────┼──────────────┤
+│ Prompt refinement (Moltbot)       │ Haiku 4.5 (API)   │ ~$2-3        │
+│                                   │                   │              │
+│ Memory search + logging (Moltbot) │ Haiku 4.5 (API)   │ ~$1-2        │
+│                                   │                   │              │
+│ All Claude Code execution         │ Opus/Sonnet (Max) │ $0           │
+│                                   │                   │              │
+│ Claude Chat usage                 │ Max subscription  │ $0           │
+│                                   │                   │              │
+│ Total additional cost             │                   │ ~$3-5/month  │
+└───────────────────────────────────┴───────────────────┴──────────────┘
+```
+
+The entire bridge adds ~$3-5/month on top of your existing Max subscription.
+
+---
+
+## Appendix A: Understanding What Moltbot Actually Is
 
 ### The Name Change
 
@@ -104,14 +429,14 @@ Your Machine
 │   └── Memory: Markdown files on disk
 │
 └── AI Provider: Anthropic (Claude)
-    ├── Claude Haiku 4.5   ← budget
-    ├── Claude Sonnet 4.5  ← balanced
-    └── Claude Opus 4.5    ← max capability
+├── Claude Haiku 4.5   ← budget
+├── Claude Sonnet 4.5  ← balanced
+└── Claude Opus 4.5    ← max capability
 ```
 
 ---
 
-## Part 2: How the Memory System Works
+## Appendix B: How Moltbot's Memory System Works
 
 This is Moltbot's most distinctive feature, so it's worth understanding clearly.
 
@@ -127,8 +452,8 @@ There's no magic database. Moltbot stores everything in human-readable Markdown 
 ├── MEMORY.md        → Long-term decisions and context
 ├── HEARTBEAT.md     → Scheduled check-in prompts
 └── memory/
-    ├── 2026-01-29.md  → Today's conversation log
-    └── 2026-01-28.md  → Yesterday's log
+├── 2026-01-29.md  → Today's conversation log
+└── 2026-01-28.md  → Yesterday's log
 ```
 
 ### What Gets Loaded When
@@ -157,7 +482,7 @@ You can also version control them with git — which means your agent's memory i
 
 ---
 
-## Part 3: The Cost Reality
+## Appendix C: Moltbot Cost Reality (Standalone Use)
 
 Let's be direct about money. A Reddit post from this week put it plainly: *"Moltbot is an unaffordable novelty"* for many users. Here's the actual math.
 
@@ -189,7 +514,7 @@ Moltbot is "agentic" — it makes multiple API calls per interaction, re-sends c
 
 ---
 
-## Part 4: Where Moltbot Actually Shines
+## Appendix D: Where Moltbot Shines (Standalone Use Cases)
 
 Moltbot isn't for everything. Here's where it genuinely adds value.
 
@@ -275,12 +600,12 @@ Sample staging folder structure:
 ```
 ~/content-staging/
 └── YYYY-MM-DD/
-    ├── options.md          # Original 3 options
-    ├── selected-topic.md   # The chosen topic details
-    ├── linkedin-draft.md   # LinkedIn post
-    ├── facebook-draft.md   # Facebook post
-    ├── image-prompt.txt    # Prompt used
-    └── image.png           # Generated image
+├── options.md          # Original 3 options
+├── selected-topic.md   # The chosen topic details
+├── linkedin-draft.md   # LinkedIn post
+├── facebook-draft.md   # Facebook post
+├── image-prompt.txt    # Prompt used
+└── image.png           # Generated image
 ```
 
 **Cost note:** This workflow is light on tokens per run. With Haiku 4.5, expect $5-15/month for a daily cron job. A good candidate for the budget tier.
@@ -297,7 +622,7 @@ For actual development, Claude Code is better:
 
 ---
 
-## Part 5: Moltbot vs Claude Code
+## Appendix E: Moltbot vs Claude Code (Detailed Comparison)
 
 Since you're already a Claude Code user, here's the direct comparison.
 
@@ -355,7 +680,7 @@ Since you're already a Claude Code user, here's the direct comparison.
 
 ---
 
-## Part 5b: Multi-User Support — Can You and Your Boss Share One Moltbot?
+## Appendix F: Multi-User Support — Can You and Your Boss Share One Moltbot?
 
 **Short answer:** Yes, through multi-agent routing — not a shared conversation.
 
@@ -419,7 +744,7 @@ Multi-agent means more API calls since each agent maintains its own context wind
 
 ---
 
-## Part 6: Security — What You Need to Know
+## Appendix G: Security — What You Need to Know
 
 The security concerns are real and documented. This isn't FUD — security researchers have published findings.
 
@@ -461,24 +786,24 @@ The security concerns are real and documented. This isn't FUD — security resea
 
 ---
 
-## Part 7: Getting Started Tomorrow
+## Appendix H: Getting Started Tomorrow
 
 If you want to try Moltbot, here's a practical path.
 
 ```
-┌──────────────────┬────────────────────────────────┬─────────────────────────────────┬──────────────────────────────────┐
-│                  │ Option A: Budget Experiment     │ Option B: Balanced Setup        │ Option C: Full Power             │
-├──────────────────┼────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────┤
-│ Cost             │ $5-20/month (Haiku 4.5 API)    │ $100-150/month (Sonnet 4.5 API) │ $360-750/month (Opus 4.5 API)    │
-│                  │                                │                                 │                                  │
-│ Model            │ Claude Haiku 4.5               │ Claude Sonnet 4.5               │ Claude Opus 4.5                  │
-│                  │                                │                                 │                                  │
-│ TOS Risk         │ None                           │ None                            │ None                             │
-│                  │                                │                                 │                                  │
-│ Setup Difficulty │ Easy                           │ Easy                            │ Easy                             │
-│                  │                                │                                 │                                  │
-│ Quality          │ Adequate for testing workflows │ Great (Sonnet 4.5)              │ Best available (max capability)  │
-└──────────────────┴────────────────────────────────┴─────────────────────────────────┴──────────────────────────────────┘
+┌──────────────────┬────────────────────────────────┬─────────────────────────────────┬─────────────────────────────────┐
+│                  │ Option A: Budget Experiment    │ Option B: Balanced Setup        │ Option C: Full Power            │
+├──────────────────┼────────────────────────────────┼─────────────────────────────────┼─────────────────────────────────┤
+│ Cost             │ $5-20/month (Haiku 4.5 API)    │ $100-150/month (Sonnet 4.5 API) │ $360-750/month (Opus 4.5 API)   │
+│                  │                                │                                 │                                 │
+│ Model            │ Claude Haiku 4.5               │ Claude Sonnet 4.5               │ Claude Opus 4.5                 │
+│                  │                                │                                 │                                 │
+│ TOS Risk         │ None                           │ None                            │ None                            │
+│                  │                                │                                 │                                 │
+│ Setup Difficulty │ Easy                           │ Easy                            │ Easy                            │
+│                  │                                │                                 │                                 │
+│ Quality          │ Adequate for testing workflows │ Great (Sonnet 4.5)              │ Best available (max capability) │
+└──────────────────┴────────────────────────────────┴─────────────────────────────────┴─────────────────────────────────┘
 ```
 
 ### Option A: Budget Experiment with Haiku 4.5 ($5-20/month)
@@ -572,7 +897,7 @@ moltbot onboard --auth-choice anthropic-api-key
 
 ---
 
-## Part 8: Real-World Use Case — Influencer Outreach Agent
+## Appendix I: Real-World Use Case — Influencer Outreach Agent
 
 Here's a concrete example of configuring Moltbot for the influencer outreach workflow.
 
@@ -639,7 +964,7 @@ At $1000/month, you can process 150-200 influencers daily — far more than a hu
 
 ---
 
-## Part 11: First-Day Setup Checklist
+## Appendix J: First-Day Setup Checklist
 
 A practical checklist for getting Moltbot running tomorrow morning.
 
@@ -653,7 +978,7 @@ A practical checklist for getting Moltbot running tomorrow morning.
 │   │                                                                              │         │
 │ 3 │ Run QuickStart: `moltbot onboard`                                            │ 3 min   │
 │   │ — Choose auth method (API key recommended)                                   │         │
-│   │ — Select model (Haiku 4.5 for budget, Sonnet 4.5 for quality,                  │         │
+│   │ — Select model (Haiku 4.5 for budget, Sonnet 4.5 for quality,                │         │
 │   │   Opus 4.5 for max capability)                                               │         │
 │   │                                                                              │         │
 │ 4 │ Connect Telegram as first channel                                            │ 2-3 min │
@@ -690,11 +1015,11 @@ Don't try to automate everything on day one. Use a phased approach:
 
 **Phase 2 (Week 1):** Set up one cron job (e.g., morning check-in). Verify timing and delivery. Test the reply-triggers-action flow.
 
-**Phase 3 (Week 2):** Run your first real workflow end-to-end. Note friction points and adjust prompts/config. Run the model comparison test (Part 9) if considering upgrading tiers.
+**Phase 3 (Week 2):** Run your first real workflow end-to-end. Note friction points and adjust prompts/config. Run the model comparison test (Appendix L) if considering upgrading tiers.
 
 ---
 
-## Part 12: Common Gotchas
+## Appendix K: Common Gotchas
 
 Things that trip people up on day one.
 
@@ -720,7 +1045,7 @@ Things that trip people up on day one.
 
 ---
 
-## Part 9: How to Compare Models (Test Protocol)
+## Appendix L: How to Compare Models (Test Protocol)
 
 Before committing to a model tier, run the same workflow with Haiku, Sonnet, and Opus. This gives you real cost-vs-quality data instead of guessing.
 
@@ -760,7 +1085,7 @@ Or update config:
 ├──────────────────────┼─────────────────────────────────────────────────┤
 │ Input/output tokens  │ Determines actual cost per run                  │
 │                      │                                                 │
-│ Output quality (1-5) │ Does it meet your bar? Some tasks don't need 5 │
+│ Output quality (1-5) │ Does it meet your bar? Some tasks don't need 5  │
 │                      │                                                 │
 │ Task failures        │ Cheaper models may fail complex multi-step work │
 │                      │                                                 │
@@ -774,7 +1099,7 @@ Once you have per-run cost data, multiply by 30 for monthly projections. If your
 
 ---
 
-## Part 10: The Bottom Line
+## Appendix M: The Bottom Line (Standalone Moltbot Decision)
 
 ### Decision Matrix
 
@@ -796,7 +1121,7 @@ Once you have per-run cost data, multiply by 30 for monthly projections. If your
 │                                                                             │                             │
 │ You're not comfortable with the security trade-offs                         │ Skip Moltbot                │
 │                                                                             │                             │
-│ You need non-Claude model support                                          │ Skip Moltbot                │
+│ You need non-Claude model support                                           │ Skip Moltbot                │
 └─────────────────────────────────────────────────────────────────────────────┴─────────────────────────────┘
 ```
 
@@ -806,7 +1131,7 @@ Once you have per-run cost data, multiply by 30 for monthly projections. If your
 
 **For the client with deep pockets:** If they have $1000/month budget and a clear workflow (like influencer outreach), Moltbot with Opus 4.5 can genuinely deliver 10x ROI on repetitive, criteria-based work. The key is defining the workflow precisely in AGENTS.md.
 
-**For tomorrow morning:** Start with Haiku 4.5 via the Anthropic API ($5-20/month). Native Claude compatibility and cheap enough to just explore. Follow the First-Day Setup Checklist (Part 11) and see if the tool fits your thinking style before scaling up to Sonnet or Opus.
+**For tomorrow morning:** Start with Haiku 4.5 via the Anthropic API ($5-20/month). Native Claude compatibility and cheap enough to just explore. Follow the First-Day Setup Checklist (Appendix J) and see if the tool fits your thinking style before scaling up to Sonnet or Opus.
 
 ---
 
