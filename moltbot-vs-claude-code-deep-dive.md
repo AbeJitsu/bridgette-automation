@@ -20,12 +20,16 @@ By the end, you'll know exactly whether Moltbot makes sense for your situation.
 
 **The honest trade-offs:**
 
-| The Good | The Real Talk |
-|----------|---------------|
-| Persistent memory across weeks | Security concerns are documented and real |
-| Multi-channel access (WhatsApp, Telegram, etc.) | Costs $100-750/month for serious use |
-| 24/7 autonomous operation | Optimized for Claude; other models are janky |
-| Great for repetitive, criteria-based workflows | TOS gray area if using subscription OAuth |
+```
+┌──────────────────────────────────────────────────┬────────────────────────────────────────────────────┐
+│ The Good                                         │ The Real Talk                                      │
+├──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
+│ Persistent memory across weeks                   │ Security concerns are documented and real           │
+│ Multi-channel access (WhatsApp, Telegram, etc.)  │ Costs $100-750/month for serious use               │
+│ 24/7 autonomous operation                        │ Optimized for Claude; other models are janky        │
+│ Great for repetitive, criteria-based workflows   │ TOS gray area if using subscription OAuth           │
+└──────────────────────────────────────────────────┴────────────────────────────────────────────────────┘
+```
 
 **Bottom line:** Moltbot is genuinely useful for specific use cases — but it requires deliberate setup, a realistic budget, and attention to security. It's not a casual experiment.
 
@@ -43,21 +47,31 @@ Same tool. Same code. New name.
 
 Think of Moltbot as a control plane that sits between you and an AI model. You bring your own AI (Claude, GPT, Gemini, or local models via API), and Moltbot adds:
 
-- **24/7 operation** — Runs as a background daemon on your machine
-- **Multi-channel messaging** — Talk to it via WhatsApp, Telegram, Slack, Discord, iMessage, etc.
-- **Persistent memory** — Remembers conversations from weeks ago
-- **Tool access** — Can control your browser, run commands, manage files
-- **Scheduled automation** — Proactive check-ins, cron jobs, webhooks
+```
+┌─────────────────────────┬──────────────────────────────────────────────────────────────────┐
+│ Feature                 │ Description                                                      │
+├─────────────────────────┼──────────────────────────────────────────────────────────────────┤
+│ 24/7 operation          │ Runs as a background daemon on your machine                      │
+│ Multi-channel messaging │ Talk to it via WhatsApp, Telegram, Slack, Discord, iMessage, etc. │
+│ Persistent memory       │ Remembers conversations from weeks ago                           │
+│ Tool access             │ Can control your browser, run commands, manage files              │
+│ Scheduled automation    │ Proactive check-ins, cron jobs, webhooks                         │
+└─────────────────────────┴──────────────────────────────────────────────────────────────────┘
+```
 
 ### How It's Different from a Chatbot
 
-| Regular Chatbot | Moltbot |
-|-----------------|---------|
-| Responds when you ask | Can message you proactively |
-| Forgets between sessions | Remembers for weeks/months |
-| Lives in a browser tab | Runs on your machine 24/7 |
-| One interface | Any messaging app you want |
-| Suggests actions | Can actually execute them |
+```
+┌────────────────────────────┬────────────────────────────────┐
+│ Regular Chatbot            │ Moltbot                        │
+├────────────────────────────┼────────────────────────────────┤
+│ Responds when you ask      │ Can message you proactively    │
+│ Forgets between sessions   │ Remembers for weeks/months     │
+│ Lives in a browser tab     │ Runs on your machine 24/7      │
+│ One interface              │ Any messaging app you want     │
+│ Suggests actions           │ Can actually execute them      │
+└────────────────────────────┴────────────────────────────────┘
+```
 
 ### The Architecture (Simple Version)
 
@@ -101,10 +115,16 @@ There's no magic database. Moltbot stores everything in human-readable Markdown 
 
 Every session, Moltbot reads these files to "remember" context:
 
-1. `SOUL.md` — Who the agent is
-2. `USER.md` — Who you are
-3. `memory/` files — Recent daily logs (today + yesterday)
-4. `MEMORY.md` — Long-term memory (in direct chats only)
+```
+┌──────────────────┬────────────────────────────────────────────┬──────────────────┐
+│ File             │ Purpose                                    │ When Loaded      │
+├──────────────────┼────────────────────────────────────────────┼──────────────────┤
+│ `SOUL.md`        │ Who the agent is                           │ Every session    │
+│ `USER.md`        │ Who you are                                │ Every session    │
+│ `memory/` files  │ Recent daily logs (today + yesterday)      │ Every session    │
+│ `MEMORY.md`      │ Long-term decisions and context            │ Direct chats only │
+└──────────────────┴────────────────────────────────────────────┴──────────────────┘
+```
 
 ### Why This Matters
 
@@ -124,12 +144,16 @@ Moltbot is "agentic" — it makes multiple API calls per interaction, re-sends c
 
 ### Model Options and Monthly Costs
 
-| Model | API Pricing (per 1M tokens) | Monthly Cost (Heavy Use) | Moltbot Compatibility |
-|-------|----------------------------|-------------------------|----------------------|
-| **Claude Opus 4.5** | $5 in / $25 out | $360-750 | Native (best) |
-| **Claude Sonnet 4.5** | $3 in / $15 out | $100-150 | Native (great) |
-| **Gemini 2.5 Pro** | $1.25 in / $10 out | $70-100 | Requires workarounds |
-| **GPT-4o Mini** | $0.15 in / $0.60 out | $25-40 | Limited capability |
+```
+┌───────────────────┬────────────────────────────────┬──────────────────────────────┬───────────────────────┬──────────────────────────────────────────────┐
+│ Model             │ API Pricing (per 1M tokens)    │ Monthly Cost (Heavy Use)     │ Moltbot Compatibility │ Best For                                     │
+├───────────────────┼────────────────────────────────┼──────────────────────────────┼───────────────────────┼──────────────────────────────────────────────┤
+│ Claude Opus 4.5   │ $5 in / $25 out                │ $360-750                     │ Native (best)         │ Business workflows with budget               │
+│ Claude Sonnet 4.5 │ $3 in / $15 out                │ $100-150                     │ Native (great)        │ Personal experimentation                     │
+│ Gemini 2.5 Pro    │ $1.25 in / $10 out             │ $70-100                      │ Requires workarounds  │ Cost-conscious users willing to tinker        │
+│ GPT-4o Mini       │ $0.15 in / $0.60 out           │ $25-40                       │ Limited capability    │ Low-stakes testing only                       │
+└───────────────────┴────────────────────────────────┴──────────────────────────────┴───────────────────────┴──────────────────────────────────────────────┘
+```
 
 ### The Subscription Workaround (and Why It's Risky)
 
@@ -217,30 +241,101 @@ For actual development, Claude Code is better:
 
 Since you're already a Claude Code user, here's the direct comparison.
 
-| Aspect | Moltbot | Claude Code |
-|--------|---------|-------------|
-| **Primary purpose** | Life automation, persistent memory | Code development |
-| **AI model** | Bring your own (Claude, GPT, etc.) | Claude (built-in) |
-| **Runs as** | 24/7 background daemon | On-demand CLI |
-| **Messaging** | WhatsApp, Telegram, Slack, etc. | Terminal only |
-| **Memory** | Weeks/months (Markdown files) | Session-based (resets) |
-| **Codebase understanding** | Basic | Deep (agentic search) |
-| **Git integration** | Minimal | Native |
-| **Cost** | $100-750/month (API) | Included with subscription |
-| **Security** | Early-stage, concerns documented | Enterprise-grade |
+```
+┌─────────────────────────┬──────────────────────────────────────────┬──────────────────────────────┐
+│ Aspect                  │ Moltbot                                  │ Claude Code                  │
+├─────────────────────────┼──────────────────────────────────────────┼──────────────────────────────┤
+│ Primary purpose         │ Life automation, persistent memory        │ Code development             │
+│ AI model                │ Bring your own (Claude, GPT, etc.)       │ Claude (built-in)            │
+│ Runs as                 │ 24/7 background daemon                   │ On-demand CLI                │
+│ Messaging               │ WhatsApp, Telegram, Slack, etc.          │ Terminal only                │
+│ Memory                  │ Weeks/months (Markdown files)            │ Session-based (resets)       │
+│ Codebase understanding  │ Basic                                    │ Deep (agentic search)        │
+│ Git integration         │ Minimal                                  │ Native                       │
+│ Cost                    │ $100-750/month (API)                     │ Included with subscription   │
+│ Security                │ Early-stage, concerns documented         │ Enterprise-grade             │
+└─────────────────────────┴──────────────────────────────────────────┴──────────────────────────────┘
+```
 
 ### When to Use Which
 
-| Task | Use This |
-|------|----------|
-| Write or refactor code | Claude Code |
-| Understand a codebase | Claude Code |
-| Create commits and PRs | Claude Code |
-| Remember planning decisions across weeks | Moltbot |
-| Proactive morning summaries | Moltbot |
-| Quick updates via phone | Moltbot |
-| Automated notifications | Moltbot |
-| Deep debugging | Claude Code |
+```
+┌──────────────────────────────────────────────┬──────────────┐
+│ Task                                         │ Use This     │
+├──────────────────────────────────────────────┼──────────────┤
+│ Write or refactor code                       │ Claude Code  │
+│ Understand a codebase                        │ Claude Code  │
+│ Create commits and PRs                       │ Claude Code  │
+│ Remember planning decisions across weeks     │ Moltbot      │
+│ Proactive morning summaries                  │ Moltbot      │
+│ Quick updates via phone                      │ Moltbot      │
+│ Automated notifications                      │ Moltbot      │
+│ Deep debugging                               │ Claude Code  │
+└──────────────────────────────────────────────┴──────────────┘
+```
+
+---
+
+## Part 5b: Multi-User Support — Can You and Your Boss Share One Moltbot?
+
+**Short answer:** Yes, through multi-agent routing — not a shared conversation.
+
+Moltbot supports multiple users on a single Gateway instance. Here are three ways to set it up.
+
+### Option A: One Agent, Multiple Channels (Simplest)
+
+Run one Moltbot instance backed by the Claude API. Both users message the same agent via different channels (e.g., you on Telegram, boss on WhatsApp) or even the same channel.
+
+- Moltbot identifies users by **Peer ID** (phone number, username, etc.)
+- **Shared memory**: All conversations merge into the same `MEMORY.md` and `memory/` files
+- **Limitation**: No user-level memory isolation — what you tell it, your boss's sessions also see
+
+### Option B: Separate Agents Per User (Better Isolation)
+
+Run one Gateway with two agents, each getting its own workspace:
+
+```
+~/.clawdbot/agents.json  →  routing rules by Peer ID
+~/clawd-abiezer/         →  your agent's workspace (USER.md, MEMORY.md, SOUL.md)
+~/clawd-boss/            →  boss's agent's workspace
+```
+
+- Route DMs by phone number: your WhatsApp → your agent, boss's WhatsApp → boss's agent
+- Both agents share the same Claude API key (one bill)
+- Use the **shared-memory skill** (community plugin) if you want specific memories visible to both
+
+### Option C: Shared Group + Individual DMs (Hybrid — Recommended)
+
+- Create a **shared group chat** (Slack channel, Telegram group) bound to one agent for team topics
+- Each person also has a **private DM** routed to their own agent for personal context
+- Best of both worlds: shared planning context + individual privacy
+
+### Multi-User Cost Impact
+
+```
+┌──────────────────────┬────────────────────────────────┬─────────────────────────────┐
+│ Setup                │ Monthly Cost (Sonnet 4.5)      │ Monthly Cost (Opus 4.5)     │
+├──────────────────────┼────────────────────────────────┼─────────────────────────────┤
+│ One shared agent     │ $100-150                       │ $360-750                    │
+│ Two separate agents  │ $150-300                       │ $500-1500                   │
+└──────────────────────┴────────────────────────────────┴─────────────────────────────┘
+```
+
+Multi-agent means more API calls since each agent maintains its own context window.
+
+### Setup Steps (Claude API)
+
+1. Get an Anthropic API key from console.anthropic.com
+2. Install: `npm install -g moltbot@latest`
+3. Onboard: `moltbot onboard --auth-choice anthropic-api-key`
+4. Configure `agents.json` in `~/.clawdbot/` to define separate agents with routing rules based on Peer ID
+5. Connect messaging channels for both users
+
+### Relevant Docs
+
+- [Multi-Agent Routing](https://docs.molt.bot/concepts/multi-agent)
+- [Shared Memory Skill](https://github.com/VoltAgent/awesome-moltbot-skills)
+- [Moltbot FAQ](https://docs.molt.bot/help/faq)
 
 ---
 
@@ -250,25 +345,48 @@ The security concerns are real and documented. This isn't FUD — security resea
 
 ### The Main Issues
 
-1. **Plaintext credential storage** — API keys and secrets stored in readable Markdown/JSON files
-2. **Exposed admin ports** — Researchers found hundreds of instances with unauthenticated ports open to the internet
-3. **Supply chain attacks** — A proof-of-concept malicious skill achieved remote code execution via the ClawdHub registry
-4. **No default sandboxing** — Moltbot has the same permissions as your user account
-5. **Prompt injection** — Processing emails or web content can inject malicious instructions
+```
+┌──────────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────┬──────────┐
+│ Issue                            │ Description                                                                          │ Severity │
+├──────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────┤
+│ Plaintext credential storage     │ API keys and secrets stored in readable Markdown/JSON files                           │ High     │
+│ Exposed admin ports              │ Researchers found hundreds of instances with unauthenticated ports open to the internet │ Critical │
+│ Supply chain attacks             │ A proof-of-concept malicious skill achieved RCE via the ClawdHub registry             │ Critical │
+│ No default sandboxing            │ Moltbot has the same permissions as your user account                                 │ High     │
+│ Prompt injection                 │ Processing emails or web content can inject malicious instructions                    │ Medium   │
+└──────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────┴──────────┘
+```
 
 ### How to Mitigate
 
-- **Run in a VM or container** — Not on your primary machine
-- **Use dedicated accounts** — Separate email, calendar, etc. for Moltbot
-- **Firewall admin ports** — Don't expose to the internet
-- **Vet skills carefully** — Don't install unverified plugins
-- **Treat it as experimental** — Not production infrastructure
+```
+┌──────────────────────────────┬──────────────────────────────────────────────┐
+│ Mitigation                   │ Details                                      │
+├──────────────────────────────┼──────────────────────────────────────────────┤
+│ Run in a VM or container     │ Not on your primary machine                  │
+│ Use dedicated accounts       │ Separate email, calendar, etc. for Moltbot   │
+│ Firewall admin ports         │ Don't expose to the internet                 │
+│ Vet skills carefully         │ Don't install unverified plugins              │
+│ Treat it as experimental     │ Not production infrastructure                │
+└──────────────────────────────┴──────────────────────────────────────────────┘
+```
 
 ---
 
 ## Part 7: Getting Started Tomorrow
 
 If you want to try Moltbot, here's a practical path.
+
+```
+┌──────────────────┬───────────────────────────────────┬───────────────────────────────────────┐
+│                  │ Option A: Low-Stakes              │ Option B: Proper Setup                │
+├──────────────────┼───────────────────────────────────┼───────────────────────────────────────┤
+│ Cost             │ $20/month (ChatGPT Plus)          │ $100-150/month (Sonnet 4.5 API)       │
+│ Model            │ GPT-5.2 Codex via OAuth           │ Claude Sonnet 4.5                     │
+│ TOS Risk         │ High — possible account ban       │ None                                  │
+│ Setup Difficulty │ Easy                              │ Easy                                  │
+└──────────────────┴───────────────────────────────────┴───────────────────────────────────────┘
+```
 
 ### Option A: Low-Stakes Experiment ($20/month)
 
@@ -369,12 +487,16 @@ Log all outreach to memory/outreach-log.md:
 
 ### Cost Projection
 
-| Daily Volume | Monthly Cost (Opus 4.5) | Viable at $1000 Budget? |
-|--------------|-------------------------|------------------------|
-| 50 influencers | $125-175 | Yes |
-| 100 influencers | $250-350 | Yes |
-| 150 influencers | $400-500 | Yes |
-| 200 influencers | $500-700 | Yes |
+```
+┌───────────────────┬───────────────────────────────┬─────────────────────────────┐
+│ Daily Volume      │ Monthly Cost (Opus 4.5)       │ Viable at $1000 Budget?     │
+├───────────────────┼───────────────────────────────┼─────────────────────────────┤
+│ 50 influencers    │ $125-175                      │ Yes                         │
+│ 100 influencers   │ $250-350                      │ Yes                         │
+│ 150 influencers   │ $400-500                      │ Yes                         │
+│ 200 influencers   │ $500-700                      │ Yes                         │
+└───────────────────┴───────────────────────────────┴─────────────────────────────┘
+```
 
 At $1000/month, you can process 150-200 influencers daily — far more than a human.
 
@@ -382,19 +504,22 @@ At $1000/month, you can process 150-200 influencers daily — far more than a hu
 
 ## Part 9: The Bottom Line
 
-### Moltbot Is Worth Considering If:
+### Decision Matrix
 
-- You have a clear, repetitive workflow to automate
-- You're willing to spend $100-750/month on API costs
-- You'll run it in a sandboxed environment
-- You want persistent memory across sessions that Claude Code doesn't provide
-
-### Moltbot Probably Isn't For You If:
-
-- You want a cheap experiment (it's not cheap for real use)
-- Your main need is coding assistance (use Claude Code instead)
-- You're not comfortable with the security trade-offs
-- You expect it to work great with non-Claude models (it doesn't)
+```
+┌──────────────────────────────────────────────────────────────────────────────┬────────────────────────────────┐
+│ Scenario                                                                     │ Recommendation                 │
+├──────────────────────────────────────────────────────────────────────────────┼────────────────────────────────┤
+│ You have a clear, repetitive workflow to automate                            │ Consider Moltbot               │
+│ You're willing to spend $100-750/month on API costs                          │ Consider Moltbot               │
+│ You'll run it in a sandboxed environment                                     │ Consider Moltbot               │
+│ You want persistent memory across sessions that Claude Code doesn't provide  │ Consider Moltbot               │
+│ You want a cheap experiment (it's not cheap for real use)                     │ Skip Moltbot                   │
+│ Your main need is coding assistance                                          │ Use Claude Code instead        │
+│ You're not comfortable with the security trade-offs                          │ Skip Moltbot                   │
+│ You expect it to work great with non-Claude models                           │ Skip Moltbot (it doesn't)      │
+└──────────────────────────────────────────────────────────────────────────────┴────────────────────────────────┘
+```
 
 ### My Recommendation
 
