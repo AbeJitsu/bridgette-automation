@@ -1,0 +1,119 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Bash",
+      "WebSearch",
+      "WebFetch",
+      "Task",
+      "SlashCommand(/dac)",
+      "Skill(dac)",
+      "Skill(dac:*)",
+      "Skill(frontend-design)",
+      "Skill(launch-a-swarm)",
+      "Skill(think-ahead)",
+      "Skill(worktree-swarm)",
+      "Skill(pragmatic-audit)",
+      "mcp__context7",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git merge:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run storybook:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npx vitest:*)",
+      "Bash(cd app && npm run:*)",
+      "Bash(SKIP_WEBSERVER=true npx playwright:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(pwd:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(npm install:*)",
+      "Bash(cd app && npm install:*)",
+      "Bash(vercel:*)",
+      "Bash(railway:*)",
+      "Bash(supabase:*)",
+      "Bash(rm -rf .next:*)",
+      "Bash(rm -rf node_modules/.cache:*)",
+      "Glob",
+      "Grep",
+      "TodoWrite",
+      "NotebookEdit"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git branch -D:*)",
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)",
+      "Read(**/.env*)",
+      "Write(**/.env*)",
+      "Edit(**/.env*)",
+      "Read(**/secrets.*)",
+      "Write(**/secrets.*)",
+      "Edit(**/secrets.*)",
+      "Read(**/credentials.json)",
+      "Write(**/credentials.json)",
+      "Edit(**/credentials.json)",
+      "Read(**/service-account*.json)",
+      "Write(**/service-account*.json)",
+      "Edit(**/service-account*.json)",
+      "Read(**/*.pem)",
+      "Write(**/*.pem)",
+      "Edit(**/*.pem)",
+      "Read(**/*.key)",
+      "Write(**/*.key)",
+      "Edit(**/*.key)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "static-analysis@trailofbits": true,
+    "example-skills@anthropic-agent-skills": true,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  }
+}
