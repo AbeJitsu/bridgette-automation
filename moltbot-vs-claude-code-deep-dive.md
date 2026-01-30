@@ -14,7 +14,7 @@ By the end, you'll know exactly whether Moltbot makes sense for your situation.
 
 ## Quick Summary
 
-**What Moltbot is:** An open-source agent framework that connects AI models (Claude, GPT, Gemini) to your messaging apps, browser, and local machine. It runs 24/7 and maintains persistent memory across weeks of conversations.
+**What Moltbot is:** An open-source agent framework that connects AI models (Claude Haiku 4.5, Sonnet 4.5, Opus 4.5) to your messaging apps, browser, and local machine. It runs 24/7 and maintains persistent memory across weeks of conversations.
 
 **What Moltbot is NOT:** It's not an AI model itself. It's not a Claude Code replacement. It's not magic.
 
@@ -28,13 +28,13 @@ By the end, you'll know exactly whether Moltbot makes sense for your situation.
 │                                                 │                                              │
 │ Multi-channel access (WhatsApp, Telegram, etc.) │ Costs $100-750/month for serious use         │
 │                                                 │                                              │
-│ 24/7 autonomous operation                       │ Optimized for Claude; other models are janky │
+│ 24/7 autonomous operation                       │ Claude-only for best results                 │
 │                                                 │                                              │
-│ Great for repetitive, criteria-based workflows  │ TOS gray area if using subscription OAuth    │
+│ Great for repetitive, criteria-based workflows  │ Requires deliberate setup and security care  │
 └─────────────────────────────────────────────────┴──────────────────────────────────────────────┘
 ```
 
-**Bottom line:** Moltbot is genuinely useful for specific use cases. Serious use costs $100-750/month, but you can kick the tires with Haiku 3.5 for $5-20/month. It requires deliberate setup and attention to security.
+**Bottom line:** Moltbot is genuinely useful for specific use cases. Serious use costs $100-750/month, but you can kick the tires with Haiku 4.5 for $5-20/month. It requires deliberate setup and attention to security.
 
 ---
 
@@ -48,7 +48,7 @@ Same tool. Same code. New name.
 
 ### The Core Concept
 
-Think of Moltbot as a control plane that sits between you and an AI model. You bring your own AI (Claude, GPT, Gemini, or local models via API), and Moltbot adds:
+Think of Moltbot as a control plane that sits between you and an AI model. You bring your own Claude API key (Haiku 4.5, Sonnet 4.5, or Opus 4.5), and Moltbot adds:
 
 ```
 ┌─────────────────────────┬───────────────────────────────────────────────────────────────────┐
@@ -103,11 +103,10 @@ Your Machine
 │   ├── Tools: Browser control, file system, cron
 │   └── Memory: Markdown files on disk
 │
-└── AI Provider (you choose)
-    ├── Anthropic (Claude) ← best compatibility
-    ├── OpenAI (GPT)
-    ├── Google (Gemini)
-    └── Local models (Ollama, LM Studio)
+└── AI Provider: Anthropic (Claude)
+    ├── Claude Haiku 4.5   ← budget
+    ├── Claude Sonnet 4.5  ← balanced
+    └── Claude Opus 4.5    ← max capability
 ```
 
 ---
@@ -176,37 +175,17 @@ Moltbot is "agentic" — it makes multiple API calls per interaction, re-sends c
 │                   │                             │                          │                       │                                         │
 │ Claude Sonnet 4.5 │ $3 in / $15 out             │ $100-150                 │ Native (great)        │ Personal experimentation                │
 │                   │                             │                          │                       │                                         │
-│ Gemini 2.5 Pro    │ $1.25 in / $10 out          │ $70-100                  │ Requires workarounds  │ Cost-conscious users willing to tinker  │
-│                   │                             │                          │                       │                                         │
-│ GPT-4o Mini       │ $0.15 in / $0.60 out        │ $25-40                   │ Limited capability    │ Low-stakes testing only                 │
-│                   │                             │                          │                       │                                         │
 │ Claude Haiku 4.5  │ $1 in / $5 out              │ $5-20                    │ Native (good)         │ Budget experimentation, light workflows │
-│                   │                             │                          │                       │                                         │
-│ Claude Haiku 3.5  │ $0.80 in / $4 out           │ $5-15                    │ Native (good)         │ Cheapest Claude option, tire-kicking    │
 └───────────────────┴─────────────────────────────┴──────────────────────────┴───────────────────────┴─────────────────────────────────────────┘
 ```
 
-### The Subscription Workaround (and Why It's Risky)
-
-Moltbot supports OAuth login with Claude Max or ChatGPT Plus subscriptions — letting you use subscription tokens instead of paying per-API-call.
-
-**The problem:** This likely violates both Anthropic's and OpenAI's Terms of Service. The TOS prohibits accessing services "through a bot, script, or otherwise" when not using the API. Some users have reported account bans.
-
-**If you don't care about the risk:** ChatGPT Plus ($20/month) with `openai-codex` OAuth is the cheapest way to experiment with a capable model. Setup:
-
-```bash
-moltbot onboard --auth-choice openai-codex
-```
-
-This gives you access to GPT-5.2 Codex, which is legitimately good for agentic work.
-
 ### Recommended Starting Point
 
-**For personal experimentation:** Sonnet 4.5 API at $100-150/month. Native compatibility, no TOS risk, good enough for most workflows.
+**For budget experimentation:** Haiku 4.5 API at $5-20/month. Native compatibility, good enough to test workflows.
 
-**For business with budget:** Opus 4.5 API at $500-750/month. Best quality, highest reliability.
+**For personal experimentation:** Sonnet 4.5 API at $100-150/month. Strong reasoning, great for most workflows.
 
-**For low-stakes testing:** ChatGPT Plus ($20/month) via OAuth. Understand you might get banned.
+**For business with budget:** Opus 4.5 API at $360-750/month. Best quality, highest reliability.
 
 ---
 
@@ -278,7 +257,7 @@ Since you're already a Claude Code user, here's the direct comparison.
 ├────────────────────────┼────────────────────────────────────┼────────────────────────────┤
 │ Primary purpose        │ Life automation, persistent memory │ Code development           │
 │                        │                                    │                            │
-│ AI model               │ Bring your own (Claude, GPT, etc.) │ Claude (built-in)          │
+│ AI model               │ Claude (Haiku/Sonnet/Opus 4.5)     │ Claude (built-in)          │
 │                        │                                    │                            │
 │ Runs as                │ 24/7 background daemon             │ On-demand CLI              │
 │                        │                                    │                            │
@@ -359,13 +338,13 @@ Run one Gateway with two agents, each getting its own workspace:
 ### Multi-User Cost Impact
 
 ```
-┌─────────────────────┬───────────────────────────┬─────────────────────────┐
-│ Setup               │ Monthly Cost (Sonnet 4.5) │ Monthly Cost (Opus 4.5) │
-├─────────────────────┼───────────────────────────┼─────────────────────────┤
-│ One shared agent    │ $100-150                  │ $360-750                │
-│                     │                           │                         │
-│ Two separate agents │ $150-300                  │ $500-1500               │
-└─────────────────────┴───────────────────────────┴─────────────────────────┘
+┌─────────────────────┬──────────────────────────┬───────────────────────────┬─────────────────────────┐
+│ Setup               │ Monthly Cost (Haiku 4.5) │ Monthly Cost (Sonnet 4.5) │ Monthly Cost (Opus 4.5) │
+├─────────────────────┼──────────────────────────┼───────────────────────────┼─────────────────────────┤
+│ One shared agent    │ $5-20                    │ $100-150                  │ $360-750                │
+│                     │                          │                           │                         │
+│ Two separate agents │ $10-40                   │ $150-300                  │ $500-1500               │
+└─────────────────────┴──────────────────────────┴───────────────────────────┴─────────────────────────┘
 ```
 
 Multi-agent means more API calls since each agent maintains its own context window.
@@ -433,39 +412,24 @@ The security concerns are real and documented. This isn't FUD — security resea
 If you want to try Moltbot, here's a practical path.
 
 ```
-┌──────────────────┬─────────────────────────────┬─────────────────────────────────┬────────────────────────────────┐
-│                  │ Option A: Low-Stakes        │ Option B: Proper Setup          │ Option C: Budget Experiment    │
-├──────────────────┼─────────────────────────────┼─────────────────────────────────┼────────────────────────────────┤
-│ Cost             │ $20/month (ChatGPT Plus)    │ $100-150/month (Sonnet 4.5 API) │ $5-20/month (Haiku 3.5 API)    │
-│                  │                             │                                 │                                │
-│ Model            │ GPT-5.2 Codex via OAuth     │ Claude Sonnet 4.5               │ Claude Haiku 3.5               │
-│                  │                             │                                 │                                │
-│ TOS Risk         │ High — possible account ban │ None                            │ None                           │
-│                  │                             │                                 │                                │
-│ Setup Difficulty │ Easy                        │ Easy                            │ Easy                           │
-│                  │                             │                                 │                                │
-│ Quality          │ Good (GPT-5.2 Codex)        │ Great (Sonnet 4.5)              │ Adequate for testing workflows │
-└──────────────────┴─────────────────────────────┴─────────────────────────────────┴────────────────────────────────┘
+┌──────────────────┬────────────────────────────────┬─────────────────────────────────┬──────────────────────────────────┐
+│                  │ Option A: Budget Experiment     │ Option B: Balanced Setup        │ Option C: Full Power             │
+├──────────────────┼────────────────────────────────┼─────────────────────────────────┼──────────────────────────────────┤
+│ Cost             │ $5-20/month (Haiku 4.5 API)    │ $100-150/month (Sonnet 4.5 API) │ $360-750/month (Opus 4.5 API)    │
+│                  │                                │                                 │                                  │
+│ Model            │ Claude Haiku 4.5               │ Claude Sonnet 4.5               │ Claude Opus 4.5                  │
+│                  │                                │                                 │                                  │
+│ TOS Risk         │ None                           │ None                            │ None                             │
+│                  │                                │                                 │                                  │
+│ Setup Difficulty │ Easy                           │ Easy                            │ Easy                             │
+│                  │                                │                                 │                                  │
+│ Quality          │ Adequate for testing workflows │ Great (Sonnet 4.5)              │ Best available (max capability)  │
+└──────────────────┴────────────────────────────────┴─────────────────────────────────┴──────────────────────────────────┘
 ```
 
-### Option A: Low-Stakes Experiment ($20/month)
+### Option A: Budget Experiment with Haiku 4.5 ($5-20/month)
 
-Use ChatGPT Plus subscription via OAuth. Understand you might get banned.
-
-```bash
-# Install
-npm install -g moltbot@latest
-
-# Set up with ChatGPT OAuth
-moltbot onboard --auth-choice openai-codex
-
-# Test it
-moltbot chat
-```
-
-### Option B: Proper Setup with Sonnet 4.5 ($100-150/month)
-
-Use Anthropic API directly. No TOS risk, full compatibility.
+Use Claude Haiku 4.5 via the Anthropic API. Cheap enough to just try it.
 
 ```bash
 # Install
@@ -474,28 +438,40 @@ npm install -g moltbot@latest
 # Set up with Anthropic API key
 moltbot onboard --auth-choice anthropic-api-key
 
-# Or use Claude subscription token
-claude setup-token
-moltbot onboard  # Paste token when prompted
-```
-
-### Option C: Budget Experiment with Haiku ($5-20/month)
-
-Use Claude Haiku 3.5 via the Anthropic API. No TOS risk, native compatibility, and cheap enough to just try it.
-
-```bash
-# Install
-npm install -g moltbot@latest
-
-# Set up with Anthropic API key
-moltbot onboard --auth-choice anthropic-api-key
-
-# Select Haiku 3.5 as your model during onboard
+# Select Haiku 4.5 as your model during onboard
 # Or edit ~/.clawdbot/config.json afterward:
-#   "model": "claude-3-5-haiku-20241022"
+#   "model": "claude-haiku-4-5-20250501"
 ```
 
 Haiku won't match Sonnet's reasoning depth, but it's good enough to test whether Moltbot's memory system, messaging channels, and workflow automation fit your thinking style — all for the price of a coffee.
+
+### Option B: Balanced Setup with Sonnet 4.5 ($100-150/month)
+
+Use Anthropic API directly. Strong reasoning, great for most workflows.
+
+```bash
+# Install
+npm install -g moltbot@latest
+
+# Set up with Anthropic API key
+moltbot onboard --auth-choice anthropic-api-key
+
+# Select Sonnet 4.5 during onboard
+```
+
+### Option C: Full Power with Opus 4.5 ($360-750/month)
+
+Maximum capability for business workflows with budget.
+
+```bash
+# Install
+npm install -g moltbot@latest
+
+# Set up with Anthropic API key
+moltbot onboard --auth-choice anthropic-api-key
+
+# Select Opus 4.5 during onboard
+```
 
 ### After Installation
 
@@ -566,17 +542,17 @@ Log all outreach to memory/outreach-log.md:
 ### Cost Projection
 
 ```
-┌─────────────────┬─────────────────────────┬─────────────────────────┐
-│ Daily Volume    │ Monthly Cost (Opus 4.5) │ Viable at $1000 Budget? │
-├─────────────────┼─────────────────────────┼─────────────────────────┤
-│ 50 influencers  │ $125-175                │ Yes                     │
-│                 │                         │                         │
-│ 100 influencers │ $250-350                │ Yes                     │
-│                 │                         │                         │
-│ 150 influencers │ $400-500                │ Yes                     │
-│                 │                         │                         │
-│ 200 influencers │ $500-700                │ Yes                     │
-└─────────────────┴─────────────────────────┴─────────────────────────┘
+┌─────────────────┬──────────────────────────┬───────────────────────────┬─────────────────────────┐
+│ Daily Volume    │ Monthly Cost (Haiku 4.5) │ Monthly Cost (Sonnet 4.5) │ Monthly Cost (Opus 4.5) │
+├─────────────────┼──────────────────────────┼───────────────────────────┼─────────────────────────┤
+│ 50 influencers  │ $15-25                   │ $50-75                    │ $125-175                │
+│                 │                          │                           │                         │
+│ 100 influencers │ $30-50                   │ $100-150                  │ $250-350                │
+│                 │                          │                           │                         │
+│ 150 influencers │ $50-75                   │ $150-225                  │ $400-500                │
+│                 │                          │                           │                         │
+│ 200 influencers │ $65-100                  │ $200-300                  │ $500-700                │
+└─────────────────┴──────────────────────────┴───────────────────────────┴─────────────────────────┘
 ```
 
 At $1000/month, you can process 150-200 influencers daily — far more than a human.
@@ -597,7 +573,8 @@ A practical checklist for getting Moltbot running tomorrow morning.
 │   │                                                                              │         │
 │ 3 │ Run QuickStart: `moltbot onboard`                                            │ 3 min   │
 │   │ — Choose auth method (API key recommended)                                   │         │
-│   │ — Select model (Haiku 3.5 for budget, Sonnet 4.5 for quality)                │         │
+│   │ — Select model (Haiku 4.5 for budget, Sonnet 4.5 for quality,                  │         │
+│   │   Opus 4.5 for max capability)                                               │         │
 │   │                                                                              │         │
 │ 4 │ Connect Telegram as first channel                                            │ 2-3 min │
 │   │ — Open Telegram, message @BotFather                                          │         │
@@ -669,13 +646,13 @@ Things that trip people up on day one.
 │                                                                             │                             │
 │ You want persistent memory across sessions that Claude Code doesn't provide │ Consider Moltbot            │
 │                                                                             │                             │
-│ You want a cheap experiment before committing                               │ Try Haiku 3.5 ($5-20/month) │
+│ You want a cheap experiment before committing                               │ Try Haiku 4.5 ($5-20/month) │
 │                                                                             │                             │
 │ Your main need is coding assistance                                         │ Use Claude Code instead     │
 │                                                                             │                             │
 │ You're not comfortable with the security trade-offs                         │ Skip Moltbot                │
 │                                                                             │                             │
-│ You expect it to work great with non-Claude models                          │ Skip Moltbot (it doesn't)   │
+│ You need non-Claude model support                                          │ Skip Moltbot                │
 └─────────────────────────────────────────────────────────────────────────────┴─────────────────────────────┘
 ```
 
@@ -685,7 +662,7 @@ Things that trip people up on day one.
 
 **For the client with deep pockets:** If they have $1000/month budget and a clear workflow (like influencer outreach), Moltbot with Opus 4.5 can genuinely deliver 10x ROI on repetitive, criteria-based work. The key is defining the workflow precisely in AGENTS.md.
 
-**For tomorrow morning:** Start with Haiku 3.5 via the Anthropic API ($5-20/month). No TOS risk, native Claude compatibility, and cheap enough to just explore. Follow the First-Day Setup Checklist (Part 10) and see if the tool fits your thinking style before scaling up to Sonnet.
+**For tomorrow morning:** Start with Haiku 4.5 via the Anthropic API ($5-20/month). Native Claude compatibility and cheap enough to just explore. Follow the First-Day Setup Checklist (Part 10) and see if the tool fits your thinking style before scaling up to Sonnet or Opus.
 
 ---
 
@@ -707,8 +684,6 @@ Things that trip people up on day one.
 
 ### Pricing
 - [Anthropic API Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
-- [OpenAI API Pricing](https://openai.com/api/pricing/)
-- [Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
 
 ---
 
