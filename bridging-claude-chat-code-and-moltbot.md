@@ -176,7 +176,7 @@ One canonical memory store. All tools read from it. Only Moltbot writes to it.
 ├─────────────┼─────────────────────────────────────────┼───────────────────────────────────┤
 │ Moltbot     │ ~/claude-memory/ (symlinked as ~/clawd) │ Daily logs, decisions, prompts    │
 │             │                                         │                                   │
-│ Claude Code │ Project CLAUDE.md (symlinked from repo) │ Nothing — read-only consumer      │
+│ Claude Code │ Project CLAUDE.md (symlinked from repo) │ Session summaries (via hooks)     │
 │             │                                         │                                   │
 │ Claude Chat │ You paste relevant context manually     │ Nothing — cloud-only, can't write │
 └─────────────┴─────────────────────────────────────────┴───────────────────────────────────┘
@@ -449,6 +449,304 @@ Sit down at either Mac:
 - **MacBook Pro**: `git pull` to get the latest changes, then continue working in Claude Code IDE
 
 **Limitation:** `/resume` only works on the machine that ran the session (the Mac Mini). But the code changes themselves sync everywhere via git.
+
+---
+
+## Part 8: Closing the Memory Gap — IDE Sessions
+
+### The Problem
+
+When you use Claude Code directly in the IDE (not through Moltbot), memory doesn't update. Moltbot isn't in the loop — nobody writes to `~/claude-memory/`.
+
+```
+Via Moltbot (bridge):     Memory updates automatically ✓
+Via Claude Code IDE:       Memory does NOT update ✗
+```
+
+### The Solution: PreCompact Hook + CLAUDE.md Instruction
+
+Claude Code has **no session-end hook** — it's not implemented. But `PreCompact` fires before context compression, and that's enough.
+
+**Use both approaches (belt + suspenders):**
+
+#### A. PreCompact Hook (automatic on every compaction)
+
+This hook fires every time you run `/compact` or the context auto-compacts. It writes session state to the shared memory repo.
+
+Add to `.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact-memory.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The hook script (`.claude/hooks/pre-compact-memory.sh`):
+```bash
+#!/bin/bash
+# Writes session state to shared memory before compaction
+
+DATE=$(date +%Y-%m-%d)
+MEMORY_DIR="$HOME/claude-memory/memory"
+MEMORY_FILE="$MEMORY_DIR/$DATE.md"
+BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+PROJECT=$(basename "$(pwd)")
+
+# Ensure memory directory exists
+mkdir -p "$MEMORY_DIR"
+
+# Append session note
+cat >> "$MEMORY_FILE" << EOF
+
+## Claude Code IDE Session ($(date +%H:%M))
+- **Project:** $PROJECT
+- **Branch:** $BRANCH
+- **Working dir:** $(pwd)
+- **Modified files:** $(git diff --name-only 2>/dev/null | head -10 | tr '\n' ', ')
+
+EOF
+
+# Auto-commit and push memory
+cd "$HOME/claude-memory" && git add -A && git commit -m "memory: IDE session $PROJECT @ $BRANCH" && git push 2>/dev/null
+
+# Echo for Claude to see
+echo "Memory updated: $MEMORY_FILE"
+```
+
+**Limitation:** Only fires on compaction. Short sessions that don't compact won't trigger it. Get in the habit of running `/compact` before closing a session.
+
+#### B. CLAUDE.md Instruction (backup for intentional wrap-ups)
+
+Add this to your project's `CLAUDE.md` so Claude Code writes a summary when it can:
+
+```markdown
+## Memory Protocol
+Before ending a session, append a summary to ~/claude-memory/memory/YYYY-MM-DD.md:
+- What was done (files changed, features added, bugs fixed)
+- Decisions made and why
+- What's left to do
+Then: cd ~/claude-memory && git add -A && git commit -m "memory: <summary>" && git push
+```
+
+**Limitation:** Relies on Claude Code following the instruction. Not guaranteed every time, but catches sessions where you explicitly wrap up.
+
+### The Habit
+
+```
+Working in IDE → /compact often → memory updates automatically
+Wrapping up   → Claude Code may write summary via CLAUDE.md instruction
+Via Moltbot   → fully automatic, no action needed
+```
+
+---
+
+## Part 9: Quick Start Guide
+
+### Prerequisites
+
+- Node.js 22+ (`node --version`)
+- Python 3.8+ (`python3 --version`)
+- Git (`git --version`)
+- Anthropic API key (from [console.anthropic.com](https://console.anthropic.com))
+- Mac Mini running 24/7 (for Moltbot daemon)
+
+### Step 1: Create the Shared Memory Repo
+
+```bash
+mkdir -p ~/claude-memory/{context,memory,prompts/refined}
+
+cd ~/claude-memory
+git init
+
+# Create initial files
+cat > CLAUDE.md << 'EOF'
+# Shared Memory Context
+This file is symlinked into projects so Claude Code can read shared memory.
+See ~/claude-memory/ for full context.
+EOF
+
+cat > context/decisions.md << 'EOF'
+# Decisions Log
+Architecture and project decisions go here.
+EOF
+
+cat > context/active-work.md << 'EOF'
+# Active Work
+What's in progress right now.
+EOF
+
+cat > context/preferences.md << 'EOF'
+# Preferences
+Coding style, tools, patterns.
+EOF
+
+git add -A && git commit -m "init: shared memory repo"
+```
+
+Push to a private remote (GitHub, GitLab, etc.) for multi-machine sync:
+```bash
+gh repo create claude-memory --private --source=. --push
+```
+
+### Step 2: Install Moltbot
+
+```bash
+npm install -g moltbot@latest
+moltbot onboard --auth-choice anthropic-api-key
+# Select claude-haiku-4-5 as your model
+```
+
+### Step 3: Configure Moltbot as the Bridge
+
+Edit `~/clawd/SOUL.md`:
+```markdown
+# Role
+You bridge messaging to Claude Code. You are the persistent memory layer.
+
+# On receiving a task:
+1. Search memory for relevant context (use memory_search)
+2. Refine the user's rough request into a structured prompt
+3. Execute: claude -p "<prompt>" --output-format json --allowedTools "Bash,Read,Edit,Write"
+4. Log the result to memory (what changed, what was decided)
+5. Report back with a short summary
+
+# Prompt format for Claude Code:
+Task: [one-line summary]
+Context: [retrieved from memory search]
+Requirements: [specific acceptance criteria]
+Files: [known relevant files/paths]
+Constraints: [project rules — TDD, accessibility, etc.]
+
+# After execution:
+- Log result to ~/claude-memory/memory/YYYY-MM-DD.md
+- Auto-commit: git add -A && git commit -m "memory: <summary>" && git push
+```
+
+Set Haiku in `~/.clawdbot/config.json`:
+```json
+{
+  "model": "claude-haiku-4-5-20241022"
+}
+```
+
+### Step 4: Symlink Moltbot's Memory to the Shared Repo
+
+```bash
+# Back up existing clawd memory (if any)
+mv ~/clawd ~/clawd-backup 2>/dev/null
+
+# Symlink so Moltbot reads/writes the shared repo
+ln -s ~/claude-memory ~/clawd
+```
+
+### Step 5: Install MCP-Markdown-RAG for Claude Code
+
+```bash
+git clone https://github.com/Zackriya-Solutions/MCP-Markdown-RAG.git ~/MCP-Markdown-RAG
+cd ~/MCP-Markdown-RAG
+pip install -r requirements.txt
+```
+
+Add to `~/.claude/settings.json`:
+```json
+{
+  "mcpServers": {
+    "markdown-rag": {
+      "command": "python",
+      "args": ["/Users/YOUR_USERNAME/MCP-Markdown-RAG/server.py", "--docs-path", "/Users/YOUR_USERNAME/claude-memory"]
+    }
+  }
+}
+```
+
+### Step 6: Set Up Claude Code Hooks
+
+Add to your project's `.claude/settings.json` (or global `~/.claude/settings.json`):
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ~/claude-memory && git pull --rebase 2>/dev/null; echo 'Memory synced'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact-memory.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Create the hook script (see Part 8 for the full script):
+```bash
+cp pre-compact-memory.sh .claude/hooks/
+chmod +x .claude/hooks/pre-compact-memory.sh
+```
+
+### Step 7: Connect a Messaging Channel
+
+Telegram is the easiest:
+1. Open Telegram, message `@BotFather`
+2. `/newbot` → name it → copy the token
+3. Paste token when Moltbot prompts
+
+### Step 8: Test End-to-End
+
+```bash
+# 1. Verify Claude Code headless mode works
+claude -p "echo hello" --output-format json
+
+# 2. Verify Moltbot is running
+moltbot status --all
+
+# 3. Send a test message via Telegram/Slack
+#    "create a file called test.txt with hello world"
+
+# 4. Check memory was updated
+cat ~/claude-memory/memory/$(date +%Y-%m-%d).md
+
+# 5. Check git sync
+cd ~/claude-memory && git log --oneline -3
+```
+
+### On Your MacBook Pro (Second Machine)
+
+```bash
+# Clone the shared memory repo
+git clone <your-remote-url> ~/claude-memory
+
+# Symlink CLAUDE.md into your projects
+ln -s ~/claude-memory/CLAUDE.md ~/Projects/your-project/CLAUDE.md
+
+# Install MCP-Markdown-RAG (same as Step 5)
+# Add the same hooks to .claude/settings.json (same as Step 6)
+```
+
+Now both machines share memory via git. Moltbot writes on the Mac Mini, Claude Code reads on either Mac.
 
 ---
 
