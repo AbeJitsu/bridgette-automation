@@ -863,6 +863,35 @@ Add these to your SOUL.md:
 - Log all claude -p executions to memory for audit trail
 ```
 
+### Completed Security Hardening (January 30, 2026)
+
+These fixes were applied during initial setup:
+
+```
+┌───┬────────────────────────────────────┬──────────────────────────────────────────────────────┐
+│ # │ Issue                              │ Fix Applied                                          │
+├───┼────────────────────────────────────┼──────────────────────────────────────────────────────┤
+│ 1 │ Telegram bot token hardcoded in    │ Moved to env var OPENCLAW_TELEGRAM_BOT_TOKEN in      │
+│   │ openclaw.json                      │ ~/.zshrc. Config references ${OPENCLAW_TELEGRAM_...} │
+│   │                                    │                                                      │
+│ 2 │ Bot token exposed in chat session  │ Revoked old token via @BotFather /revoke.             │
+│   │                                    │ Generated new token, set directly in ~/.zshrc         │
+│   │                                    │ (never pasted into chat).                             │
+│   │                                    │                                                      │
+│ 3 │ Gateway token too short (9 chars)  │ Generated 32-char token via openssl rand -hex 16.    │
+│   │                                    │ Set as OPENCLAW_GATEWAY_TOKEN env var in ~/.zshrc.    │
+│   │                                    │ Gateway reads from env automatically.                 │
+│   │                                    │                                                      │
+│ 4 │ State dir permissions too open     │ chmod 700 ~/.openclaw (owner-only access).            │
+│   │ (~/.openclaw was mode 755)         │                                                      │
+│   │                                    │                                                      │
+│ 5 │ Trusted proxies missing            │ Not applicable — gateway bound to loopback only.      │
+│   │                                    │ No action needed.                                     │
+└───┴────────────────────────────────────┴──────────────────────────────────────────────────────┘
+```
+
+**Key principle:** Never hardcode secrets in config files. Use environment variables in `~/.zshrc` and reference them with `${VAR_NAME}` in config. If a token is ever exposed (even in a private chat), rotate it immediately.
+
 ### Ongoing Maintenance
 
 ```bash
