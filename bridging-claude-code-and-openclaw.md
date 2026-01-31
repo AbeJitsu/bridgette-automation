@@ -22,15 +22,21 @@ The dashboard adds memory management, automation triggers, scheduling, and monit
 - Memory system merged from ~/claude-memory (SOUL.md, IDENTITY.md, USER.md, AGENTS.md, MEMORY.md, TOOLS.md, HEARTBEAT.md, context/)
 - Terminal core: custom server.ts with node-pty + WebSocket + xterm.js
 - Session persistence: PTY stays alive on browser disconnect, reconnects on refresh
-- Dashboard shell: header with tab navigation, connection status indicator
+- Memory editor: sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
+- Automations panel: view/copy prompt templates with BJJ belt color coding
+- API routes: memory CRUD, automations list/trigger, health check — all tested
+- Prompt templates: content creation, job search, codebase evaluation
+- launchd plists: daily at 5 AM (content + jobs), weekly Monday 6 AM (codebase eval)
+- Install script for symlinking plists into ~/Library/LaunchAgents
+- Three-tab dashboard: Terminal (emerald), Memory (blue), Automations (purple)
 - Build passes clean, dev server runs on localhost:3000
 
 ### Remaining
-- Memory editor UI (read/edit .md files in browser)
-- API routes for memory CRUD, automation triggers, health check
-- Automation prompt templates (content creation, job search, codebase eval)
-- launchd plists for scheduled triggers
-- Log viewer and status page
+- Log viewer (automation run history)
+- Status page (launchd job status, server health)
+- Working directory selector for terminal
+- New session button (kill/respawn PTY)
+- Design polish
 
 ---
 

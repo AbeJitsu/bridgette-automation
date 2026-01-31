@@ -9,16 +9,20 @@
 ### What's Built
 - **Memory system** — All personality, identity, and context files merged from ~/claude-memory into `memory/`
 - **Terminal core** — Custom Next.js server with WebSocket, node-pty spawns `claude` in a PTY, xterm.js renders it in the browser. Session persists across browser refreshes.
-- **Dashboard shell** — Header with tab navigation (Terminal, Memory), status indicator for connection state
-- **Build passes** — `next build` clean, dev server runs on localhost:3000
+- **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
+- **Automations panel** — View/copy prompt templates, BJJ belt color coding, curl examples
+- **API routes** — `/api/memory/*` CRUD, `/api/automations/*` list/trigger, `/api/health`
+- **Prompt templates** — Content creation, job search, codebase eval in `automations/`
+- **launchd plists** — Scheduled curl triggers (5 AM daily, weekly Monday) + install script
+- **Dashboard** — Three-tab layout (Terminal, Memory, Automations) with BJJ belt color progression
+- **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left
-- **Memory editor UI** — Read/edit memory/*.md files from the dashboard
-- **API routes** — `/api/memory/*` for CRUD, `/api/automations/*` for triggers, `/api/health`
-- **Automation prompt templates** — Content creation, job search, codebase eval in `automations/`
-- **launchd plists** — Scheduled curl triggers in `launchd/`
 - **Log viewer** — View automation run history
 - **Status page** — launchd job status, memory file timestamps, server health
+- **Working directory selector** — Choose which project to open claude in
+- **New session button** — Kill and respawn the PTY
+- **Polish** — Design system refinements, responsive layout
 
 ## Architecture
 
@@ -53,6 +57,8 @@
 - xterm CSS can't be dynamically imported in Next.js — must go in globals.css
 - @next/swc version mismatch warning is cosmetic, doesn't affect functionality
 - node-pty must be in `serverExternalPackages` in next.config.ts to avoid webpack bundling
+- Next.js catch-all routes (`[...filepath]`) work well for nested file paths in the memory API
+- launchd plists should stagger times (5:00, 5:15) to avoid overlapping curl calls
 
 ## Commands
 
