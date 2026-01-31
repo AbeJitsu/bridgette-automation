@@ -892,6 +892,27 @@ These fixes were applied during initial setup:
 
 **Key principle:** Never hardcode secrets in config files. Use environment variables in `~/.zshrc` and reference them with `${VAR_NAME}` in config. If a token is ever exposed (even in a private chat), rotate it immediately.
 
+### LaunchAgent Environment Variables
+
+The LaunchAgent daemon (`~/Library/LaunchAgents/ai.openclaw.gateway.plist`) does **not** inherit env vars from `~/.zshrc`. Any env var referenced in `openclaw.json` via `${VAR_NAME}` must also be added to the plist's `<EnvironmentVariables>` dict:
+
+```xml
+<key>EnvironmentVariables</key>
+<dict>
+  <!-- ... existing vars ... -->
+  <key>OPENCLAW_TELEGRAM_BOT_TOKEN</key>
+  <string>your-actual-token</string>
+  <key>OPENCLAW_GATEWAY_TOKEN</key>
+  <string>your-actual-token</string>
+</dict>
+```
+
+After editing the plist, reload:
+```bash
+launchctl unload ~/Library/LaunchAgents/ai.openclaw.gateway.plist
+launchctl load ~/Library/LaunchAgents/ai.openclaw.gateway.plist
+```
+
 ### Ongoing Maintenance
 
 ```bash
@@ -903,6 +924,54 @@ openclaw security audit --fix
 
 # Check overall health
 openclaw status --all
+```
+
+---
+
+## Part 11: Setup Verification — Completed January 30, 2026
+
+All components tested and working end-to-end.
+
+### Verification Results
+
+```
+┌───┬────────────────────────────────────────┬──────────┬──────────────────────────────────┐
+│ # │ Test                                   │ Status   │ Notes                            │
+├───┼────────────────────────────────────────┼──────────┼──────────────────────────────────┤
+│ 1 │ OpenClaw gateway running               │ ✓ Pass   │ pid stable, RPC probe ok         │
+│   │                                        │          │                                  │
+│ 2 │ Dashboard accessible (127.0.0.1:18789) │ ✓ Pass   │ Web chat works, Health OK        │
+│   │                                        │          │                                  │
+│ 3 │ Telegram bot connected                 │ ✓ Pass   │ @needthisdone_bot responds       │
+│   │                                        │          │                                  │
+│ 4 │ Pairing approved                       │ ✓ Pass   │ Owner paired via openclaw        │
+│   │                                        │          │ pairing approve telegram <code>  │
+│   │                                        │          │                                  │
+│ 5 │ SOUL.md loaded                         │ ✓ Pass   │ Bridgette identifies her role     │
+│   │                                        │          │                                  │
+│ 6 │ Project routing works                  │ ✓ Pass   │ "check branch in needthisdone"   │
+│   │                                        │          │ → correctly returned "main"       │
+│   │                                        │          │                                  │
+│ 7 │ claude -p bridge works                 │ ✓ Pass   │ Bridgette dispatched to Claude   │
+│   │                                        │          │ Code and returned result          │
+│   │                                        │          │                                  │
+│ 8 │ Security hardening applied             │ ✓ Pass   │ Tokens rotated, env vars set,    │
+│   │                                        │          │ permissions locked (700)          │
+└───┴────────────────────────────────────────┴──────────┴──────────────────────────────────┘
+```
+
+### Architecture Running
+
+```
+Phone/Browser (Telegram)
+  ↓
+@needthisdone_bot → OpenClaw Gateway (127.0.0.1:18789)
+  ↓
+Bridgette (Haiku 4.5) — reads SOUL.md, searches memory
+  ↓
+claude -p → Claude Code (Opus/Sonnet via Max subscription)
+  ↓
+Code changes on disk + memory updated in ~/claude-memory/
 ```
 
 ---
