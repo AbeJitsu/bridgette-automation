@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OpenClaw Dashboard",
+  title: "Bridgette",
   description: "Claude Code terminal dashboard with memory management and automations",
 };
 

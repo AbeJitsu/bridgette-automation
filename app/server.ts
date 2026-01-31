@@ -134,6 +134,6 @@ app.prepare().then(() => {
   });
 
   server.listen(port, () => {
-    console.log(`> OpenClaw Dashboard ready on http://${hostname}:${port}`);
+    console.log(`> Bridgette ready on http://${hostname}:${port}`);
   });
 });
