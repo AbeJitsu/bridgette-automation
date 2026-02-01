@@ -84,3 +84,13 @@
 - **Decision:** Validate session IDs against safe character regex before passing to CLI arguments
 - **Reason:** Unsanitized sessionId from WebSocket messages could inject arbitrary CLI flags
 - **Trade-off:** Rejects session IDs with special characters (acceptable — IDs are UUIDs)
+
+## 2026-02-01: Stdout buffer caps and process timeouts
+- **Decision:** 5MB stdout buffer cap per process, 10-min safety timeout on chat processes
+- **Reason:** Runaway processes could grow memory unboundedly; hung processes leaked file handles
+- **Trade-off:** Very long responses truncated at 5MB, long chats timeout at 10min (both generous)
+
+## 2026-02-01: Bulk task advance
+- **Decision:** "Done all" button + `/api/tasks/advance-all` for batch status transitions
+- **Reason:** Auto-eval creates many tasks; advancing one-by-one was tedious
+- **Trade-off:** None — optional bulk action alongside individual controls

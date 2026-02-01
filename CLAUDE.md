@@ -56,6 +56,9 @@
 - **Browser notifications** — Native OS notifications when auto-evals complete while tab is in background
 - **Edit tool diff viewer** — Side-by-side old/new display for Edit tool results in tool cards (red removed, green added)
 - **Collapsed panel badges** — Task count badges on collapsed sidebar buttons (green pending, amber needs_testing)
+- **Bulk task operations** — "Done all" button advances all needs_testing tasks at once, `/api/tasks/advance-all` endpoint
+- **Auto-scroll lock** — Chat pauses auto-scroll when user scrolls up during streaming, "Scroll to bottom" pill to resume
+- **Process safety** — 5MB stdout buffer cap on chat/eval processes, 10-min timeout on hung chat processes
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left
@@ -136,6 +139,9 @@ curl -s -X PUT localhost:3000/api/tasks/ID \
   -H "Content-Type: application/json" \
   -d '{"status":"needs_testing"}'                    # Advance
 curl -s -X DELETE localhost:3000/api/tasks/ID        # Delete
+curl -s -X POST localhost:3000/api/tasks/advance-all \
+  -H "Content-Type: application/json" \
+  -d '{"from":"needs_testing","to":"completed"}'     # Bulk advance
 ```
 
 Direct file edit of `tasks.json` also works if the server isn't running.

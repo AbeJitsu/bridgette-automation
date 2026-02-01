@@ -16,6 +16,7 @@
 - Child processes from `child_process.spawn` need explicit cleanup on server restart to avoid leaks
 - Memory API needs path traversal guards — `realpath` check against memory directory
 - WebSocket message fields (sessionId, directory) must be validated before use in CLI args — injection vector
+- Long-running `claude --print` processes need stdout buffer caps (5MB) and safety timeouts (10min) to prevent memory exhaustion
 
 ## About Abe
 

@@ -33,7 +33,7 @@
 │  ├── WS /ws/chat ← child_process spawn claude               │
 │  ├── REST: /api/memory/*                                     │
 │  ├── REST: /api/automations/*                                │
-│  ├── REST: /api/tasks, /api/tasks/[id]                       │
+│  ├── REST: /api/tasks, /api/tasks/[id], advance-all           │
 │  ├── REST: /api/eval-logs                                    │
 │  └── REST: /api/health, /api/directories                     │
 └──────────────────────────────────────────────────────────────┘
@@ -109,6 +109,9 @@
 - **Browser notifications** — Native OS notifications when auto-evals complete while tab is in background
 - **Edit tool diff viewer** — Side-by-side old/new display for Edit tool results (red removed, green added)
 - **Collapsed panel badges** — Task count badges on collapsed sidebar buttons (green pending, amber needs_testing)
+- **Bulk task operations** — "Done all" button + `/api/tasks/advance-all` for batch status transitions
+- **Auto-scroll lock** — Smart scroll detection pauses auto-scroll when user scrolls up, "Scroll to bottom" pill to resume
+- **Process safety** — 5MB stdout buffer cap, 10-min hung process timeout, prevents unbounded memory growth
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
