@@ -38,7 +38,17 @@ export async function PUT(
   }
 
   if (body.title) tasks[index].title = body.title;
-  if (body.status) tasks[index].status = body.status;
+
+  const VALID_STATUSES: Task["status"][] = ["pending", "needs_testing", "completed"];
+  if (body.status) {
+    if (!VALID_STATUSES.includes(body.status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` },
+        { status: 400 }
+      );
+    }
+    tasks[index].status = body.status;
+  }
 
   writeTasks(tasks);
   return NextResponse.json(tasks[index]);

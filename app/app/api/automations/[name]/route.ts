@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
+import { existsSync } from "fs";
 import { join } from "path";
 
 const AUTOMATIONS_DIR = join(process.cwd(), "..", "automations");
 
-const VALID_AUTOMATIONS = ["content-creation", "job-search", "codebase-eval", "auto-eval"];
+function isValidAutomation(name: string): boolean {
+  // Prevent path traversal
+  if (name.includes("..") || name.includes("/") || name.includes("\\")) {
+    return false;
+  }
+  return existsSync(join(AUTOMATIONS_DIR, name, "prompt.md"));
+}
 
 export async function GET(
   _request: NextRequest,
@@ -12,7 +19,7 @@ export async function GET(
 ) {
   const { name } = await params;
 
-  if (!VALID_AUTOMATIONS.includes(name)) {
+  if (!isValidAutomation(name)) {
     return NextResponse.json(
       { error: `Unknown automation: ${name}` },
       { status: 404 }
@@ -37,7 +44,7 @@ export async function POST(
 ) {
   const { name } = await params;
 
-  if (!VALID_AUTOMATIONS.includes(name)) {
+  if (!isValidAutomation(name)) {
     return NextResponse.json(
       { error: `Unknown automation: ${name}` },
       { status: 404 }
