@@ -1,0 +1,38 @@
+[
+  {
+    "id": "test-ui-001",
+    "title": "Test Bridgette UI — chat, task panels, dark mode, directory picker",
+    "status": "needs_testing",
+    "createdAt": "2026-01-31T00:00:00.000Z"
+  },
+  {
+    "id": "21b1cb46-9f94-4d64-b8f1-f6b8bea7e4ac",
+    "title": "Test task from API",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T02:35:12.308Z"
+  },
+  {
+    "id": "7618ae57-c101-4a42-a044-cbd44df3d64f",
+    "title": "testing if i can add a task in the ui",
+    "status": "completed",
+    "createdAt": "2026-02-01T02:37:15.864Z"
+  },
+  {
+    "id": "8a5d716a-4d90-4173-aae1-fcbeb44f73e3",
+    "title": "Fix: Stop hook kills dev server causing disconnects",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T02:42:55.932Z"
+  },
+  {
+    "id": "11966b7f-47a9-47c8-aec0-088118f01dfe",
+    "title": "Session resume — show current and past sessions in history dropdown",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T02:42:55.944Z"
+  },
+  {
+    "id": "053594cd-9f08-4fe4-8041-b486698315fb",
+    "title": "Task advance buttons — hover shows test/done buttons",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T02:42:55.954Z"
+  }
+]

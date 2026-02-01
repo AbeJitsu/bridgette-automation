@@ -22,6 +22,7 @@
 - **Dark mode** — Full dark theme (gray-950 bg), dark markdown styles, dark tool cards
 - **Dashboard** — Four-tab layout (Chat, Terminal, Memory, Automations) with BJJ belt colors
 - **Stop hook** — Blocks Claude from stopping if build is failing; forces iteration until passing
+- **Session resume** — Browse and resume previous conversations via session history dropdown (clock icon). Sessions saved to localStorage with first message, timestamp, model
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left
@@ -82,17 +83,35 @@ Browser (Terminal)  ←WebSocket /ws/terminal→  server.ts  ←node-pty→  cla
 
 ## Task Management
 
-`tasks.json` at the project root is the kanban board. Follow these rules:
+`tasks.json` at the project root is the kanban board. **Always use it.**
 
-- **Before starting work:** Read `tasks.json`, create tasks for planned work, move relevant task to `in_progress`
-- **Before building:** Check tasks — any `in_progress` tasks should reflect what you're about to build
-- **Before testing:** Update task status if tests relate to a task
-- **Before documenting:** Check if documentation tasks exist, create if needed
-- **After completing work:** Move task to `completed`
-- **API (if server running):** `curl localhost:3000/api/tasks` to read, POST to create, PUT to update
-- **Direct file edit also fine:** Can read/write `tasks.json` directly if the server isn't running
+### Status Flow
+```
+pending → needs_testing → completed
+```
 
-Task schema:
+### Every Session — Do This
+1. **Start of session:** `curl -s localhost:3000/api/tasks` — check for pending and needs_testing tasks
+2. **Before starting work:** Create tasks for planned work (`POST /api/tasks`), or pick up existing pending tasks
+3. **While working:** Move task to `needs_testing` once the code is written and basic verification done
+4. **After testing:** Move to `completed` only after verifying the feature works in the browser or via API tests
+5. **End of session:** Check for any tasks still in pending or needs_testing — flag them
+
+### API
+```bash
+curl -s localhost:3000/api/tasks                    # List all
+curl -s -X POST localhost:3000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Task name"}'                        # Create
+curl -s -X PUT localhost:3000/api/tasks/ID \
+  -H "Content-Type: application/json" \
+  -d '{"status":"needs_testing"}'                    # Advance
+curl -s -X DELETE localhost:3000/api/tasks/ID        # Delete
+```
+
+Direct file edit of `tasks.json` also works if the server isn't running.
+
+### Task Schema
 ```json
 { "id": "uuid", "title": "...", "status": "pending|needs_testing|completed", "createdAt": "ISO" }
 ```
@@ -110,5 +129,7 @@ Always ensure the dev server is running on port 3000 so the user can test change
 
 - **Before making UI changes:** Check `lsof -ti:3000` — start the server if it's not running
 - **After changes that affect server.ts or API routes:** Kill and restart (`kill -9 $(lsof -ti:3000) && cd app && npm run dev`)
-- **After build failures:** Fix the issue, then verify the server is still running
+- **After build or any code changes:** Restart the dev server and verify with `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000` (expect 200)
+- **After build failures:** Fix the issue, restart the server, verify it returns 200
 - **Never leave the server down** after finishing work
+- **Verification sequence:** Build → Restart dev server → Confirm 200 → Then done
