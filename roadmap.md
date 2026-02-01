@@ -97,8 +97,11 @@
 - **Status bar grouping** — Grouped status indicators, keyboard accessible, reduced-motion support
 - **Model name formatting** — Opus 4.5 selector fix, proper display names for all models
 - **Stop hook** — TypeScript check + server health verification (no longer kills running server)
-- **Auto-iteration system** — Server-level idle detection (configurable 1min–2hr), four-eval rotation (frontend → backend → functionality → memory curator), merges main into dev before each run, persisted state, headless operation, manual trigger, change summaries
+- **Auto-iteration system** — Server-level idle detection (configurable 1min–2hr), four-eval rotation (frontend → backend → functionality → memory curator), merges main into dev before each run, persisted state, headless operation, manual trigger, change summaries, exit code validation, stop button
 - **Auto-eval test suite** — Vitest unit tests (rotation math) + integration tests (WebSocket message flow)
+- **Tab shortcuts** — Cmd+1-5 switches between Chat/Memory/Automations/Eval Logs/Status tabs
+- **Collapsible task panels** — Chevron toggle to collapse sidebars and expand chat area
+- **Frontend a11y hardening** — WAI-ARIA tab panel pattern, aria-labels on icon buttons, responsive status bar wrapping
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator

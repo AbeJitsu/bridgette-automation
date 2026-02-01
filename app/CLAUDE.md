@@ -7,14 +7,14 @@
 ## Current State
 
 ### Built
-- `server.ts` — Custom HTTP + WebSocket server on port 3000. Spawns `claude --print --stream-json` per message via `child_process.spawn`. Auto-iteration system with three-eval rotation. WebSocket heartbeat (30s ping/pong). Process lifecycle management.
+- `server.ts` — Custom HTTP + WebSocket server on port 3000. Spawns `claude --print --stream-json` per message via `child_process.spawn`. Auto-iteration system with four-eval rotation (checks exit codes). WebSocket heartbeat (30s ping/pong). Process lifecycle management.
 - `components/ChatSession.tsx` — Chat UI with streaming text, markdown, tool use cards, cost tracking, session resume, model switcher, click-outside dropdowns, working directory selector, chat export to Markdown.
-- `components/TaskPanel.tsx` — Left/right task sidebars with add/advance/delete, inline rename (double-click), clear completed button.
+- `components/TaskPanel.tsx` — Left/right task sidebars with add/advance/delete, inline rename (double-click), clear completed button, collapsible via chevron toggle.
 - `components/MemoryEditor.tsx` — File sidebar grouped by directory, monospace editor, Cmd+S save, unsaved indicator.
 - `components/Automations.tsx` — Lists automations with BJJ belt colors, view/copy prompts, curl examples.
 - `components/EvalLogs.tsx` — Auto-eval run history with type filtering, expandable diffs, status indicators.
 - `components/Status.tsx` — Server health, git info, memory timestamps, auto-eval config visualization, launchd job status.
-- `app/page.tsx` — Dashboard with five-tab navigation (Chat, Memory, Automations, Eval Logs, Status).
+- `app/page.tsx` — Dashboard with five-tab navigation (Chat, Memory, Automations, Eval Logs, Status). Cmd+1-5 tab shortcuts. WAI-ARIA compliant tab panels.
 - `lib/auth.ts` — Authentication middleware for API routes.
 
 ### Polish Remaining
@@ -24,7 +24,7 @@
 ## Key Architecture
 
 - **Chat core:** `claude --print --output-format=stream-json --verbose --include-partial-messages` spawned per message. Session continuity via `--resume`. stdin set to `'ignore'` (hangs otherwise).
-- **Auto-iteration:** Server-level idle timer, three-eval rotation (frontend → backend → functionality), merges main into dev before each run.
+- **Auto-iteration:** Server-level idle timer, four-eval rotation (frontend → backend → functionality → memory), merges main into dev before each run. Validates exit codes — failed evals log as "error". Stop button in UI.
 - **Process management:** Graceful shutdown, child process cleanup on server restart.
 
 ## API Routes

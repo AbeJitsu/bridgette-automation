@@ -39,6 +39,13 @@
 - **Eval-log pagination** — Backend filtering and pagination for eval-log API
 - **Status bar grouping** — Grouped status indicators, keyboard accessible, reduced-motion support
 - **Model name formatting** — Opus 4.5 selector fix, proper display names
+- **Tab shortcuts** — Cmd+1-5 switches dashboard tabs
+- **Stop auto-eval button** — "Run Now" becomes stop button while eval is running
+- **Collapsible task panels** — Chevron toggle collapses sidebars, expands chat area
+- **Auto-eval exit code checking** — Failed evals log as "error" instead of false "success"; no task creation or chaining on failure
+- **Status route optimization** — Consolidated 3 sequential git commands into 1 (max blocking time 15s → 5s)
+- **Frontend a11y** — WAI-ARIA tab panel pattern (hidden/tabIndex), aria-labels on icon buttons, aria-expanded on dropdowns, responsive status bar
+- **Memory write cleanup** — Orphan .tmp files cleaned up when rename fails
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left
@@ -143,20 +150,23 @@ Auto-eval runs at the **server level** — works with or without a browser conne
 - Don't chain evals back-to-back — timer resets after each run
 - **Manual trigger** — UI "Run Now" button or send `{ type: "trigger_auto_eval" }` via WS
 
-### Three-Eval Rotation
+### Four-Eval Rotation
 
-Evals rotate through three focus areas, one per trigger:
+Evals rotate through four focus areas, one per trigger:
 
 | Index | Type | Prompt File |
 |-------|------|-------------|
 | 0 | **frontend** | `automations/auto-eval/frontend.md` |
 | 1 | **backend** | `automations/auto-eval/backend.md` |
 | 2 | **functionality** | `automations/auto-eval/functionality.md` |
+| 3 | **memory** | `automations/auto-eval/memory.md` |
 
 - Current index persisted in `.auto-eval-index` at project root
-- After each eval, index advances and wraps (0 → 1 → 2 → 0)
+- After each eval, index advances and wraps (0 → 1 → 2 → 3 → 0)
+- Failed evals (non-zero exit code) log as "error" — no task creation or chaining on failure
 - Server broadcasts `evalType` in `auto_eval_start` and state messages
 - Connected clients see `evalRunning` and `evalType` in the initial `state` event
+- "Run Now" button becomes a stop button while an eval is running
 
 ### Testing
 

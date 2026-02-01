@@ -7,15 +7,13 @@
 - **Status:** Core features complete, polish phase
 
 ## What's Done (Recent)
-- Chat UI with streaming, tool cards, markdown, cost summary, session resume
-- Three-panel task management with inline rename, clear completed, auto-purge at 500, task descriptions
-- Five-tab dashboard: Chat, Memory, Automations, Eval Logs, Status
-- Auto-iteration system with four-eval rotation (frontend → backend → functionality → memory)
-- Backend hardening: shell injection guards, corruption recovery, temp file cleanup, rate limiting, atomic writes, execSync timeouts
-- Eval-log filtering and pagination on backend
-- Status bar grouping, keyboard accessibility, reduced-motion support
-- Model selector: Opus 4.5 fix, proper model name formatting
-- Send to Chat, session management, eval logs auto-refresh, shared formatters
+- Tab keyboard shortcuts (Cmd+1-5) for switching dashboard tabs
+- Stop auto-eval button (replaces "Run Now" while eval is running)
+- Collapsible task panels via chevron buttons, expanding chat area
+- Auto-eval exit code checking — failed evals now log as "error" instead of false "success"
+- Status route consolidated to single git command (was 3 sequential, blocking up to 15s)
+- Frontend a11y: proper `hidden`/`tabIndex` on tab panels, aria-labels on icon buttons, responsive status bar
+- Memory write .tmp file cleanup on failed renames
 
 ## Next Steps
 - Responsive layout refinements

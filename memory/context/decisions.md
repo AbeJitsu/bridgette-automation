@@ -69,3 +69,13 @@
 - **Decision:** Added optional description field to tasks in TaskPanel
 - **Reason:** Task titles alone were insufficient for tracking context on what needs to be done
 - **Trade-off:** Slightly more complex task UI
+
+## 2026-02-01: Collapsible task panels
+- **Decision:** Task sidebars collapse via chevron toggle, expanding chat area to full width
+- **Reason:** Task panels take significant horizontal space; users need more chat area when not managing tasks
+- **Trade-off:** None — panels remember collapsed state per session
+
+## 2026-02-01: Auto-eval exit code validation
+- **Decision:** Check process exit code before logging eval as "success"; failed evals now log as "error"
+- **Reason:** Every eval was logged as "success" regardless of outcome, making eval-log unreliable
+- **Trade-off:** None — pure correctness fix
