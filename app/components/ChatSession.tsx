@@ -473,7 +473,7 @@ export default function ChatSession() {
         style={{ background: 'var(--surface-1)' }}
       >
         <StatusDot status={status} />
-        <span className="text-gray-400" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+        <span className="text-gray-400" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
           {status === "disconnected" && `Reconnecting in ${Math.min(Math.pow(2, reconnectAttemptRef.current), 15)}s...`}
           {status === "connecting" && "Connecting..."}
           {status === "connected" && (currentModel ? formatModel(currentModel) : "Ready")}
@@ -483,7 +483,7 @@ export default function ChatSession() {
         {/* Working directory */}
         <button
           onClick={() => setShowDirPicker(!showDirPicker)}
-          className="ml-1 flex items-center gap-1.5 text-gray-500 hover:text-gray-300 transition-all duration-200 text-[11px] px-2.5 py-1 rounded-md border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.03]"
+          className="ml-1 flex items-center gap-1.5 text-gray-500 hover:text-gray-300 transition-all duration-200 text-xs px-2.5 py-1 rounded-md border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.03]"
           style={{ fontFamily: 'var(--font-mono)' }}
           title="Change working directory"
         >
@@ -498,7 +498,7 @@ export default function ChatSession() {
           <select
             value={selectedModel}
             onChange={(e) => { setSelectedModel(e.target.value); localStorage.setItem("bridgette-model", e.target.value); }}
-            className="text-gray-400 text-[11px] font-medium border border-white/[0.06] rounded-md px-2 py-1 hover:border-white/[0.12] focus:outline-none focus:ring-1 focus:ring-emerald-500/50 cursor-pointer transition-all duration-200"
+            className="text-gray-400 text-xs font-medium border border-white/[0.06] rounded-md px-2 py-1 hover:border-white/[0.12] focus:outline-none focus:ring-1 focus:ring-emerald-500/50 cursor-pointer transition-all duration-200"
             style={{ background: 'var(--surface-2)', fontFamily: 'var(--font-mono)' }}
           >
             <option value="">Default</option>
@@ -512,7 +512,7 @@ export default function ChatSession() {
             onClick={() => {
               wsRef.current?.send(JSON.stringify({ type: "set_auto_eval", enabled: !autoEval }));
             }}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200 border ${
               autoEval
                 ? "bg-blue-500/10 text-blue-300 border-blue-500/30 shadow-sm shadow-blue-500/10"
                 : "text-gray-500 border-white/[0.06] hover:text-gray-300 hover:border-white/[0.12] hover:bg-white/[0.03]"
@@ -534,7 +534,7 @@ export default function ChatSession() {
                 }
               }}
               disabled={status === "streaming" || evalRunning}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all duration-150 border cursor-pointer disabled:cursor-not-allowed ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-150 border cursor-pointer disabled:cursor-not-allowed ${
                 evalRunning
                   ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 animate-subtle-pulse"
                   : "bg-blue-500/10 text-blue-300 border-blue-500/30 hover:bg-blue-500/25 hover:text-blue-200 hover:border-blue-400/50 hover:shadow-sm hover:shadow-blue-500/20 active:bg-blue-500/35 active:scale-95 disabled:opacity-40"
@@ -556,7 +556,7 @@ export default function ChatSession() {
 
           {/* Branch indicator (always visible when not on main) */}
           {branch && branch !== "main" && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20" style={{ fontFamily: 'var(--font-mono)' }}>
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20" style={{ fontFamily: 'var(--font-mono)' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="6" y1="3" x2="6" y2="15" />
                 <circle cx="18" cy="6" r="3" />
@@ -570,7 +570,7 @@ export default function ChatSession() {
           {/* Thinking toggle */}
           <button
             onClick={() => setThinking(!thinking)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200 border ${
               thinking
                 ? "bg-purple-500/10 text-purple-300 border-purple-500/30 shadow-sm shadow-purple-500/10"
                 : "text-gray-500 border-white/[0.06] hover:text-gray-300 hover:border-white/[0.12] hover:bg-white/[0.03]"
@@ -585,7 +585,7 @@ export default function ChatSession() {
           </button>
 
           {sessionId && (
-            <span className="text-gray-600 text-[10px]" style={{ fontFamily: 'var(--font-mono)' }}>
+            <span className="text-gray-600 text-xs" style={{ fontFamily: 'var(--font-mono)' }}>
               {sessionId.slice(0, 8)}
             </span>
           )}
@@ -608,7 +608,7 @@ export default function ChatSession() {
                 style={{ background: 'var(--surface-2)' }}
               >
                 <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
+                  <span className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
                     Recent Sessions
                   </span>
                   <button
@@ -627,8 +627,8 @@ export default function ChatSession() {
                       {messages.find((m) => m.role === "user")?.content.slice(0, 100) || "Current session"}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
-                      <span className="text-[10px] text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>{sessionId.slice(0, 8)}</span>
+                      <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
+                      <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>{sessionId.slice(0, 8)}</span>
                     </div>
                   </div>
                 )}
@@ -646,16 +646,16 @@ export default function ChatSession() {
                       <div className="text-[13px] text-gray-300 truncate leading-snug">{s.firstMessage}</div>
                       <div className="flex items-center gap-2 mt-1">
                         {s.sessionId === sessionId && (
-                          <span className="text-[10px] text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
+                          <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
                         )}
-                        <span className="text-[10px] text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                        <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
                           {s.sessionId.slice(0, 8)}
                         </span>
-                        <span className="text-[10px] text-gray-600">
+                        <span className="text-xs text-gray-600">
                           {formatRelativeTime(s.timestamp)}
                         </span>
                         {s.model && (
-                          <span className="text-[10px] text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                          <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
                             {formatModel(s.model)}
                           </span>
                         )}
@@ -741,7 +741,7 @@ export default function ChatSession() {
                 </button>
               )}
           </div>
-          <div className="mt-2 text-[10px] text-gray-600 text-center" style={{ fontFamily: 'var(--font-mono)' }}>
+          <div className="mt-2 text-xs text-gray-600 text-center" style={{ fontFamily: 'var(--font-mono)' }}>
             Enter to send · Shift+Enter for new line · Esc to stop
           </div>
         </div>
@@ -863,7 +863,7 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
 
         {/* Metadata below the bubble */}
         {!isUser && message.cost !== undefined && (
-          <div className="mt-1.5 px-1 flex items-center gap-2 text-[10px] text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+          <div className="mt-1.5 px-1 flex items-center gap-2 text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
             <span>${message.cost.toFixed(4)}</span>
             {message.duration && (
               <span>{(message.duration / 1000).toFixed(1)}s</span>
@@ -909,8 +909,8 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/[0.03] transition-colors duration-150"
       >
         <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${tool.isComplete ? "bg-emerald-400" : "bg-amber-400 animate-subtle-pulse"}`} />
-        <span className="font-medium text-gray-300" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{displayName}</span>
-        <span className="text-gray-600 truncate flex-1 text-left text-[11px]" style={{ fontFamily: 'var(--font-mono)' }}>{summary}</span>
+        <span className="font-medium text-gray-300" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{displayName}</span>
+        <span className="text-gray-600 truncate flex-1 text-left text-xs" style={{ fontFamily: 'var(--font-mono)' }}>{summary}</span>
         <svg
           width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
           className={`text-gray-600 transition-transform duration-200 flex-shrink-0 ${expanded ? "rotate-180" : ""}`}
@@ -922,9 +922,9 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
       {expanded && (
         <div className="border-t border-white/[0.06] px-3 py-2.5 space-y-2.5">
           <div>
-            <span className="font-medium text-gray-500 text-[10px] uppercase tracking-wider">Input</span>
+            <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Input</span>
             <pre
-              className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-[11px] max-h-40 overflow-y-auto text-gray-400"
+              className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-40 overflow-y-auto text-gray-400"
               style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
             >
               {JSON.stringify(tool.input, null, 2)}
@@ -932,9 +932,9 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
           </div>
           {tool.result && (
             <div>
-              <span className="font-medium text-gray-500 text-[10px] uppercase tracking-wider">Result</span>
+              <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Result</span>
               <pre
-                className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-[11px] max-h-60 overflow-y-auto text-gray-400"
+                className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-60 overflow-y-auto text-gray-400"
                 style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
               >
                 {tool.result.length > 2000 ? tool.result.slice(0, 2000) + "\n..." : tool.result}

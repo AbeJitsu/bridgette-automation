@@ -5,6 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { spawn, ChildProcess, execSync } from "child_process";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
+import crypto from "crypto";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -58,6 +59,68 @@ function saveEvalIndex(index: number): void {
 }
 
 let currentEvalType: EvalType | null = null;
+
+// ============================================
+// EVAL LOG — persists eval run history
+// ============================================
+
+const EVAL_LOG_FILE = join(process.cwd(), "..", "eval-log.json");
+const MAX_EVAL_LOG_ENTRIES = 200;
+
+interface EvalLogEntry {
+  id: string;
+  evalType: string;
+  timestamp: string;
+  branch: string;
+  commitHash: string;
+  diffSummary: string;
+  status: "success" | "error" | "timeout";
+}
+
+function writeEvalLogEntry(entry: EvalLogEntry): void {
+  try {
+    let entries: EvalLogEntry[] = [];
+    try {
+      const data = readFileSync(EVAL_LOG_FILE, "utf-8");
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) entries = parsed;
+    } catch {}
+    entries.push(entry);
+    if (entries.length > MAX_EVAL_LOG_ENTRIES) {
+      entries = entries.slice(entries.length - MAX_EVAL_LOG_ENTRIES);
+    }
+    writeFileSync(EVAL_LOG_FILE, JSON.stringify(entries, null, 2));
+  } catch (err: any) {
+    console.error(`[eval-log] Failed to write: ${err.message}`);
+  }
+}
+
+function getCommitHash(cwd: string): string {
+  try {
+    return execSync("git rev-parse HEAD", { cwd, stdio: "pipe" }).toString().trim();
+  } catch {
+    return "unknown";
+  }
+}
+
+function createEvalTask(evalType: string, summary: string): void {
+  const url = `http://localhost:${port}/api/tasks`;
+  const body = JSON.stringify({
+    title: `[Auto-eval] ${evalType.charAt(0).toUpperCase() + evalType.slice(1)} eval completed`,
+    status: "completed",
+    summary,
+  });
+  // Fire-and-forget POST to create the task
+  import("http").then(({ default: http }) => {
+    const req = http.request(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+    });
+    req.on("error", () => {}); // Ignore errors
+    req.write(body);
+    req.end();
+  });
+}
 
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
@@ -213,6 +276,15 @@ app.prepare().then(() => {
       if (proc && !proc.killed) {
         console.error("[auto-eval] Timeout after 30 minutes — killing process");
         broadcastToChat({ type: "error", message: "Auto-eval timed out after 30 minutes" });
+        writeEvalLogEntry({
+          id: crypto.randomUUID(),
+          evalType: currentEvalType || "unknown",
+          timestamp: new Date().toISOString(),
+          branch: getGitBranch(cwd),
+          commitHash: getCommitHash(cwd),
+          diffSummary: "Timed out after 30 minutes",
+          status: "timeout",
+        });
         proc.kill("SIGTERM");
       }
     }, AUTO_EVAL_TIMEOUT);
@@ -267,8 +339,26 @@ app.prepare().then(() => {
         summary = "No changes detected";
       }
 
-      const branch = getGitBranch(cwd);
-      broadcastToChat({ type: "auto_eval_complete", summary, branch, evalType: completedEvalType });
+      const evalBranch = getGitBranch(cwd);
+      const commitHash = getCommitHash(cwd);
+
+      // Write eval log entry
+      writeEvalLogEntry({
+        id: crypto.randomUUID(),
+        evalType: completedEvalType || "unknown",
+        timestamp: new Date().toISOString(),
+        branch: evalBranch,
+        commitHash,
+        diffSummary: summary,
+        status: "success",
+      });
+
+      // Create completed task with summary
+      if (completedEvalType) {
+        createEvalTask(completedEvalType, summary);
+      }
+
+      broadcastToChat({ type: "auto_eval_complete", summary, branch: evalBranch, evalType: completedEvalType });
 
       // Reset idle timer (prevents chaining evals)
       resetServerIdleTimer();
@@ -278,6 +368,15 @@ app.prepare().then(() => {
       clearTimeout(evalTimeout);
       console.error(`[auto-eval error] ${err.message}`);
       broadcastToChat({ type: "error", message: err.message });
+      writeEvalLogEntry({
+        id: crypto.randomUUID(),
+        evalType: currentEvalType || "unknown",
+        timestamp: new Date().toISOString(),
+        branch: getGitBranch(cwd),
+        commitHash: getCommitHash(cwd),
+        diffSummary: err.message,
+        status: "error",
+      });
       serverAutoEvalProcess = null;
       currentEvalType = null;
     });

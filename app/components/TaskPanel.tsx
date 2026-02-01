@@ -7,6 +7,7 @@ interface Task {
   title: string;
   status: "pending" | "needs_testing" | "completed";
   createdAt: string;
+  summary?: string;
 }
 
 // Brief error flash for failed task operations
@@ -43,7 +44,7 @@ export function LeftTaskPanel() {
   return (
     <div className="flex flex-col h-full border-r border-white/[0.06] w-[240px] flex-shrink-0" style={{ background: 'var(--surface-1)' }}>
       <div className="px-3.5 py-2.5 border-b border-white/[0.06]">
-        <h2 className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Pending</h2>
+        <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Pending</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
@@ -100,7 +101,7 @@ export function RightTaskPanel() {
     <div className="flex flex-col h-full border-l border-white/[0.06] w-[240px] flex-shrink-0" style={{ background: 'var(--surface-1)' }}>
       {/* Needs Testing */}
       <div className="px-3.5 py-2.5 border-b border-white/[0.06]">
-        <h2 className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Needs Testing</h2>
+        <h2 className="text-xs uppercase tracking-widest text-amber-400/80 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Needs Testing</h2>
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
         {needsTesting.map((task) => (
@@ -117,7 +118,7 @@ export function RightTaskPanel() {
           onClick={() => setShowCompleted(!showCompleted)}
           className="w-full px-3.5 py-2.5 flex items-center justify-between hover:bg-white/[0.03] transition-colors duration-150"
         >
-          <h2 className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
+          <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
             Completed ({completed.length})
           </h2>
           <svg
@@ -152,6 +153,8 @@ function TaskItem({
   onAdvance: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const [showSummary, setShowSummary] = useState(false);
+
   const statusIcon = {
     pending: "text-gray-600",
     needs_testing: "text-amber-400/80",
@@ -171,42 +174,53 @@ function TaskItem({
   };
 
   return (
-    <div className="group flex items-start gap-2 px-2.5 py-2 rounded-lg hover:bg-white/[0.03] focus-within:bg-white/[0.03] transition-all duration-150">
-      <button
-        onClick={() => onAdvance(task.id)}
-        className={`mt-0.5 text-sm flex-shrink-0 ${statusIcon[task.status]} hover:text-emerald-400 transition-colors duration-150`}
-        aria-label={`${advanceTitle[task.status]}: ${task.title}`}
-        title={advanceTitle[task.status]}
-      >
-        {statusSymbol[task.status]}
-      </button>
-      <span
-        className={`text-[13px] flex-1 leading-snug ${
-          task.status === "completed" ? "text-gray-600 line-through" : "text-gray-300"
-        }`}
-      >
-        {task.title}
-      </span>
-      <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
-        {task.status !== "completed" && (
-          <button
-            onClick={() => onAdvance(task.id)}
-            className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors duration-150"
-            style={{ fontFamily: 'var(--font-mono)' }}
-            aria-label={task.status === "pending" ? `Move "${task.title}" to testing` : `Mark "${task.title}" done`}
-          >
-            {task.status === "pending" ? "test" : "done"}
-          </button>
-        )}
+    <div className="group px-2.5 py-2 rounded-lg hover:bg-white/[0.03] focus-within:bg-white/[0.03] transition-all duration-150">
+      <div className="flex items-start gap-2">
         <button
-          onClick={() => onDelete(task.id)}
-          className="text-gray-600 hover:text-red-400 transition-colors duration-150 text-xs"
-          aria-label={`Delete task: ${task.title}`}
-          title="Delete"
+          onClick={() => onAdvance(task.id)}
+          className={`mt-0.5 text-sm flex-shrink-0 ${statusIcon[task.status]} hover:text-emerald-400 transition-colors duration-150`}
+          aria-label={`${advanceTitle[task.status]}: ${task.title}`}
+          title={advanceTitle[task.status]}
         >
-          ×
+          {statusSymbol[task.status]}
         </button>
+        <button
+          onClick={() => task.summary && setShowSummary(!showSummary)}
+          className={`text-[13px] flex-1 leading-snug text-left ${
+            task.status === "completed" ? "text-gray-600 line-through" : "text-gray-300"
+          } ${task.summary ? "cursor-pointer hover:text-gray-400" : ""}`}
+        >
+          {task.title}
+        </button>
+        <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
+          {task.status !== "completed" && (
+            <button
+              onClick={() => onAdvance(task.id)}
+              className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors duration-150"
+              style={{ fontFamily: 'var(--font-mono)' }}
+              aria-label={task.status === "pending" ? `Move "${task.title}" to testing` : `Mark "${task.title}" done`}
+            >
+              {task.status === "pending" ? "test" : "done"}
+            </button>
+          )}
+          <button
+            onClick={() => onDelete(task.id)}
+            className="text-gray-600 hover:text-red-400 transition-colors duration-150 text-xs"
+            aria-label={`Delete task: ${task.title}`}
+            title="Delete"
+          >
+            ×
+          </button>
+        </div>
       </div>
+      {showSummary && task.summary && (
+        <pre
+          className="mt-1.5 ml-5 text-xs text-gray-500 overflow-x-auto max-h-32 overflow-y-auto rounded-md border border-white/[0.06] px-2 py-1.5"
+          style={{ fontFamily: 'var(--font-mono)', background: 'var(--surface-2)' }}
+        >
+          {task.summary}
+        </pre>
+      )}
     </div>
   );
 }

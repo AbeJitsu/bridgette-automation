@@ -9,6 +9,7 @@ export interface Task {
   title: string;
   status: "pending" | "needs_testing" | "completed";
   createdAt: string;
+  summary?: string;
 }
 
 export const VALID_STATUSES: Task["status"][] = [
@@ -54,6 +55,20 @@ function writeTasks(tasks: Task[]): void {
 }
 
 // ============================================
+// CONSTANTS
+// ============================================
+
+const MAX_TASKS = 500;
+
+// UUID v4 pattern for ID validation
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isValidTaskId(id: string): boolean {
+  // Accept both UUID format and legacy prefixed IDs (e.g. "test-ui-001")
+  return UUID_RE.test(id) || /^[a-zA-Z0-9_-]{1,64}$/.test(id);
+}
+
+// ============================================
 // PUBLIC API — all operations go through the lock
 // ============================================
 
@@ -61,15 +76,22 @@ export function getAllTasks(): Promise<Task[]> {
   return withLock(() => readTasks());
 }
 
-export function createTask(title: string): Promise<Task> {
+export function createTask(
+  title: string,
+  options?: { status?: Task["status"]; summary?: string }
+): Promise<Task> {
   return withLock(() => {
     const tasks = readTasks();
+    if (tasks.length >= MAX_TASKS) {
+      throw new Error(`Task limit reached (${MAX_TASKS}). Delete old tasks first.`);
+    }
     const task: Task = {
       id: randomUUID(),
       title,
-      status: "pending",
+      status: options?.status || "pending",
       createdAt: new Date().toISOString(),
     };
+    if (options?.summary) task.summary = options.summary;
     tasks.push(task);
     writeTasks(tasks);
     return task;
@@ -78,7 +100,7 @@ export function createTask(title: string): Promise<Task> {
 
 export function updateTask(
   id: string,
-  updates: { title?: string; status?: Task["status"] }
+  updates: { title?: string; status?: Task["status"]; summary?: string }
 ): Promise<Task | null> {
   return withLock(() => {
     const tasks = readTasks();
@@ -90,6 +112,9 @@ export function updateTask(
     }
     if (updates.status !== undefined) {
       tasks[index].status = updates.status;
+    }
+    if (updates.summary !== undefined) {
+      tasks[index].summary = updates.summary;
     }
 
     writeTasks(tasks);
