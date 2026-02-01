@@ -59,12 +59,16 @@ function getAutoEvalConfig(): {
   return { enabled, interval, currentIndex, evalTypes, chaining: false };
 }
 
+// Timeout for shell commands — prevents blocking the server if git or launchctl hangs
+const EXEC_TIMEOUT_MS = 5000;
+
 function getGitInfo(): { branch: string; lastCommit: string; lastCommitDate: string } {
   const cwd = PROJECT_ROOT;
+  const opts = { cwd, stdio: "pipe" as const, timeout: EXEC_TIMEOUT_MS };
   try {
-    const branch = execSync("git branch --show-current", { cwd, stdio: "pipe" }).toString().trim();
-    const lastCommit = execSync("git log -1 --format=%s", { cwd, stdio: "pipe" }).toString().trim();
-    const lastCommitDate = execSync("git log -1 --format=%ci", { cwd, stdio: "pipe" }).toString().trim();
+    const branch = execSync("git branch --show-current", opts).toString().trim();
+    const lastCommit = execSync("git log -1 --format=%s", opts).toString().trim();
+    const lastCommitDate = execSync("git log -1 --format=%ci", opts).toString().trim();
     return { branch, lastCommit, lastCommitDate };
   } catch {
     return { branch: "unknown", lastCommit: "unknown", lastCommitDate: "" };
@@ -90,7 +94,7 @@ function getLaunchdJobs(): { name: string; loaded: boolean }[] {
       }
       let loaded = false;
       try {
-        execSync(`launchctl list ${label}`, { stdio: "pipe" });
+        execSync(`launchctl list ${label}`, { stdio: "pipe", timeout: EXEC_TIMEOUT_MS });
         loaded = true;
       } catch {
         loaded = false;

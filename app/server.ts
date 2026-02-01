@@ -150,7 +150,7 @@ function writeEvalLogEntry(entry: EvalLogEntry): Promise<void> {
 
 function getCommitHash(cwd: string): string {
   try {
-    return execSync("git rev-parse HEAD", { cwd, stdio: "pipe" }).toString().trim();
+    return execSync("git rev-parse HEAD", { cwd, stdio: "pipe", timeout: 5000 }).toString().trim();
   } catch {
     return "unknown";
   }
@@ -320,9 +320,12 @@ app.prepare().then(() => {
     broadcastToChat({ type: "eval_timer_state", evalTimerStart: serverIdleTimerStart, evalChaining });
   }
 
+  // Timeout for shell commands — prevents blocking the event loop if git hangs
+  const GIT_EXEC_TIMEOUT = 10_000;
+
   function getGitBranch(cwd: string): string {
     try {
-      return execSync("git branch --show-current", { cwd, stdio: "pipe" }).toString().trim();
+      return execSync("git branch --show-current", { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT }).toString().trim();
     } catch {
       return "unknown";
     }
@@ -365,19 +368,19 @@ app.prepare().then(() => {
       const currentBranch = getGitBranch(cwd);
       if (currentBranch !== branchName) {
         try {
-          execSync(`git checkout ${branchName}`, { cwd, stdio: "pipe" });
+          execSync(`git checkout ${branchName}`, { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT });
         } catch {
-          execSync(`git checkout -b ${branchName}`, { cwd, stdio: "pipe" });
+          execSync(`git checkout -b ${branchName}`, { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT });
         }
       }
       // Keep dev up to date with main
       try {
-        execSync("git merge main --no-edit", { cwd, stdio: "pipe" });
+        execSync("git merge main --no-edit", { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT });
       } catch (mergeErr: any) {
         console.error(`Failed to merge main into dev: ${mergeErr.message}`);
         broadcastToChat({ type: "error", message: `Failed to merge main into dev: ${mergeErr.message}` });
         // Abort the failed merge and bail
-        try { execSync("git merge --abort", { cwd, stdio: "pipe" }); } catch {}
+        try { execSync("git merge --abort", { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT }); } catch {}
         return;
       }
     } catch (err: any) {
@@ -500,7 +503,7 @@ app.prepare().then(() => {
       // Get change summary
       let summary = "";
       try {
-        summary = execSync("git diff HEAD~1 --stat", { cwd, stdio: "pipe" }).toString().trim();
+        summary = execSync("git diff HEAD~1 --stat", { cwd, stdio: "pipe", timeout: GIT_EXEC_TIMEOUT }).toString().trim();
       } catch {
         summary = "No changes detected";
       }
