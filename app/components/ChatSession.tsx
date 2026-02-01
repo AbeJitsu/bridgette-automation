@@ -77,6 +77,15 @@ function saveSession(entry: SessionEntry) {
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
 }
 
+function deleteSession(sessionId: string) {
+  const sessions = loadSessions().filter((s) => s.sessionId !== sessionId);
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+function clearAllSessions() {
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify([]));
+}
+
 // ============================================
 // CHAT SESSION COMPONENT
 // ============================================
@@ -132,6 +141,25 @@ export default function ChatSession() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Listen for "Send to Chat" events from Automations tab
+  useEffect(() => {
+    function handleSendToChat(e: Event) {
+      const text = (e as CustomEvent<string>).detail;
+      if (!text || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+      if (status === "streaming") return;
+
+      const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: text };
+      setMessages((prev) => [...prev, userMsg]);
+
+      const payload: Record<string, unknown> = { type: "message", text, sessionId, thinking };
+      if (selectedModel) payload.model = selectedModel;
+      wsRef.current.send(JSON.stringify(payload));
+      setStatus("streaming");
+    }
+    window.addEventListener("bridgette-send-to-chat", handleSendToChat);
+    return () => window.removeEventListener("bridgette-send-to-chat", handleSendToChat);
+  }, [status, sessionId, thinking, selectedModel]);
 
   // Save session to localStorage when we get a sessionId
   useEffect(() => {
@@ -515,16 +543,20 @@ export default function ChatSession() {
     streamingMessageRef.current = null;
   }, []);
 
-  // Escape key to stop streaming
+  // Keyboard shortcuts: Escape to stop, Cmd+K to clear
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape" && status === "streaming") {
         stopExecution();
       }
+      if (e.key === "k" && (e.metaKey || e.ctrlKey) && status !== "streaming") {
+        e.preventDefault();
+        startNewChat();
+      }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [status, stopExecution]);
+  }, [status, stopExecution, startNewChat]);
 
   const changeCwd = useCallback((newCwd: string) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
@@ -761,14 +793,26 @@ export default function ChatSession() {
                   <span className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
                     Recent Sessions
                   </span>
-                  <button
-                    onClick={() => { setShowHistory(false); setSessionSearch(""); }}
-                    className="text-gray-600 hover:text-gray-400 transition-colors"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {sessions.length > 0 && (
+                      <button
+                        onClick={() => { clearAllSessions(); setSessions([]); }}
+                        className="text-xs text-gray-600 hover:text-red-400 transition-colors"
+                        title="Clear all sessions"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <button
+                      onClick={() => { setShowHistory(false); setSessionSearch(""); }}
+                      className="text-gray-600 hover:text-gray-400 transition-colors"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 {/* Search input */}
                 <div className="px-3 py-2 border-b border-white/[0.06] flex-shrink-0">
@@ -804,31 +848,48 @@ export default function ChatSession() {
                       return <div className="px-3 py-4 text-xs text-gray-600 text-center">{query ? "No matching sessions" : "No previous sessions"}</div>;
                     }
                     return filteredSessions.map((s) => (
-                      <button
+                      <div
                         key={s.sessionId}
-                        onClick={() => { resumeSession(s); setSessionSearch(""); }}
-                        className={`w-full text-left px-3 py-2.5 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0 ${
+                        className={`group/session flex items-center border-b border-white/[0.04] last:border-0 ${
                           s.sessionId === sessionId ? "bg-emerald-500/5" : ""
                         }`}
                       >
-                        <div className="text-[13px] text-gray-300 truncate leading-snug">{s.firstMessage}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          {s.sessionId === sessionId && (
-                            <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
-                          )}
-                          <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
-                            {s.sessionId.slice(0, 8)}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {formatRelativeTime(s.timestamp)}
-                          </span>
-                          {s.model && (
+                        <button
+                          onClick={() => { resumeSession(s); setSessionSearch(""); }}
+                          className="flex-1 text-left px-3 py-2.5 hover:bg-white/[0.04] transition-colors min-w-0"
+                        >
+                          <div className="text-[13px] text-gray-300 truncate leading-snug">{s.firstMessage}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            {s.sessionId === sessionId && (
+                              <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
+                            )}
                             <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
-                              {formatModel(s.model)}
+                              {s.sessionId.slice(0, 8)}
                             </span>
-                          )}
-                        </div>
-                      </button>
+                            <span className="text-xs text-gray-600">
+                              {formatRelativeTime(s.timestamp)}
+                            </span>
+                            {s.model && (
+                              <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                                {formatModel(s.model)}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteSession(s.sessionId);
+                            setSessions(loadSessions());
+                          }}
+                          className="opacity-0 group-hover/session:opacity-100 transition-opacity duration-150 p-1.5 mr-2 text-gray-600 hover:text-red-400 rounded-md hover:bg-white/[0.05]"
+                          title="Delete session"
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
                     ));
                   })()}
                 </div>
@@ -968,7 +1029,7 @@ export default function ChatSession() {
               )}
           </div>
           <div className="mt-2 text-xs text-gray-600 text-center" style={{ fontFamily: 'var(--font-mono)' }}>
-            Enter to send · Shift+Enter for new line · Esc to stop
+            Enter to send · Shift+Enter for new line · Esc to stop · {"\u2318"}K new chat
           </div>
         </div>
       </div>
@@ -985,6 +1046,7 @@ function EmptyState() {
     { keys: "Enter", desc: "Send message" },
     { keys: "Shift+Enter", desc: "New line" },
     { keys: "Esc", desc: "Stop response" },
+    { keys: "\u2318K", desc: "New chat" },
   ];
 
   return (

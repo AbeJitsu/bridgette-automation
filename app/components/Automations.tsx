@@ -32,9 +32,10 @@ const COLORS: Record<string, { bg: string; text: string; border: string; accent:
 
 interface AutomationsProps {
   onSendToTerminal?: (text: string) => void;
+  onSendToChat?: (text: string) => void;
 }
 
-export default function Automations({ onSendToTerminal }: AutomationsProps) {
+export default function Automations({ onSendToTerminal, onSendToChat }: AutomationsProps) {
   const [automations, setAutomations] = useState<Automation[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
@@ -95,8 +96,7 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-100">Automations</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Prompt templates for scheduled tasks. Copy to clipboard and paste into
-          the terminal, or trigger via API.
+          Prompt templates for scheduled tasks. Send directly to chat, copy to clipboard, or trigger via API.
         </p>
       </div>
 
@@ -142,6 +142,23 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
                 >
                   {copiedName === auto.name ? "Copied!" : "Copy Prompt"}
                 </button>
+                {onSendToChat && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/automations/${auto.name}`);
+                        const data = await res.json();
+                        onSendToChat(data.prompt);
+                      } catch {
+                        // silent fail
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
+                    style={{ background: 'var(--surface-2)' }}
+                  >
+                    Send to Chat
+                  </button>
+                )}
               </div>
             </div>
 

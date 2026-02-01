@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import ChatSession from "@/components/ChatSession";
 import MemoryEditor from "@/components/MemoryEditor";
 import Automations from "@/components/Automations";
@@ -100,7 +100,10 @@ export default function Home() {
           <MemoryEditor />
         </div>
         <div role="tabpanel" id="tabpanel-automations" aria-labelledby="tab-automations" className={`flex-1 overflow-hidden ${activeTab !== "automations" ? "hidden" : ""}`}>
-          <Automations />
+          <Automations onSendToChat={(text) => {
+            window.dispatchEvent(new CustomEvent("bridgette-send-to-chat", { detail: text }));
+            setActiveTab("chat");
+          }} />
         </div>
         <div role="tabpanel" id="tabpanel-logs" aria-labelledby="tab-logs" className={`flex-1 overflow-hidden ${activeTab !== "logs" ? "hidden" : ""}`}>
           <EvalLogs />
