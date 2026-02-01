@@ -102,6 +102,10 @@
 - **Tab shortcuts** — Cmd+1-5 switches between Chat/Memory/Automations/Eval Logs/Status tabs
 - **Collapsible task panels** — Chevron toggle to collapse sidebars and expand chat area
 - **Frontend a11y hardening** — WAI-ARIA tab panel pattern, aria-labels on icon buttons, responsive status bar wrapping
+- **Secure remote access** — Bearer token auth on all routes + WebSocket, token prompt for non-localhost, Tailscale-ready
+- **Resizable panels** — Horizontal drag on task sidebars (180–500px), vertical drag between needs_testing/completed
+- **Chat persistence** — Messages survive browser refresh via sessionStorage
+- **Eval task pipeline** — Auto-evals create pending tasks, advance to needs_testing on completion for user review
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
@@ -146,6 +150,15 @@
 - Change summary (`git diff --stat`) displayed after eval completes
 - Branch safety — all work on `dev`, never touches main directly
 - **Test suite** — `cd app && npm run test:run` (vitest, 9 tests)
+
+### Secure Remote Access (Built)
+- **Server binds to 0.0.0.0** — accessible on all network interfaces, not just localhost
+- **Bearer token auth** — `BRIDGETTE_TOKEN` env var protects all API routes and WebSocket
+- **Flexible auth** — `Authorization: Bearer <token>` header or `?token=` query param
+- **No-auth local mode** — when `BRIDGETTE_TOKEN` is empty, all requests allowed (local dev)
+- **Token prompt UI** — non-localhost connections show a token input when auth fails, saved to localStorage
+- **Designed for Tailscale** — install on Mac Mini + phone, access Bridgette over private network
+- Setup: `echo "BRIDGETTE_TOKEN=$(openssl rand -base64 32)" > app/.env` then restart server
 
 ### Advanced Features
 - ~~Task descriptions~~ — **Built** (optional description field)
