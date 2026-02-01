@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // ============================================
 // TYPES
@@ -329,6 +331,17 @@ export default function ChatSession() {
       // Reset eval state on error (eval may have failed)
       setEvalRunning(false);
       setEvalType(null);
+      // Show error to user in chat
+      if (data.message) {
+        const errorMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: `**Error:** ${data.message}`,
+        };
+        setMessages((prev) => [...prev, errorMsg]);
+      }
+      setStatus("connected");
+      streamingMessageRef.current = null;
       return;
     }
 
@@ -810,7 +823,26 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
             <>
               {message.content && (
                 <div className="markdown-content">
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  <ReactMarkdown
+                    components={{
+                      code({ className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
+                        const inline = !match && !String(children).includes("\n");
+                        return inline ? (
+                          <code className={className} {...props}>{children}</code>
+                        ) : (
+                          <SyntaxHighlighter
+                            style={oneDark}
+                            language={match ? match[1] : "text"}
+                            PreTag="div"
+                            customStyle={{ margin: '0.75rem 0', borderRadius: '0.5rem', fontSize: '13px', background: 'var(--surface-1)' }}
+                          >
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        );
+                      },
+                    }}
+                  >{message.content}</ReactMarkdown>
                 </div>
               )}
               {isStreaming && !message.content && (

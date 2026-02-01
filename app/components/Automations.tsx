@@ -8,21 +8,24 @@ interface Automation {
   modified: string;
 }
 
-const COLORS: Record<string, { bg: string; text: string; border: string }> = {
+const COLORS: Record<string, { bg: string; text: string; border: string; accent: string }> = {
   "content-creation": {
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-300",
+    border: "border-emerald-500/20",
+    accent: "text-emerald-400",
   },
   "job-search": {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
+    bg: "bg-blue-500/10",
+    text: "text-blue-300",
+    border: "border-blue-500/20",
+    accent: "text-blue-400",
   },
   "codebase-eval": {
-    bg: "bg-purple-50",
-    text: "text-purple-700",
-    border: "border-purple-200",
+    bg: "bg-purple-500/10",
+    text: "text-purple-300",
+    border: "border-purple-500/20",
+    accent: "text-purple-400",
   },
 };
 
@@ -35,6 +38,7 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
   const [loading, setLoading] = useState(true);
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
   const [promptContent, setPromptContent] = useState<string>("");
+  const [copiedName, setCopiedName] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/automations")
@@ -67,6 +71,8 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
       const res = await fetch(`/api/automations/${name}`);
       const data = await res.json();
       await navigator.clipboard.writeText(data.prompt);
+      setCopiedName(name);
+      setTimeout(() => setCopiedName(null), 2000);
     } catch {
       // silent fail
     }
@@ -74,7 +80,7 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-400">
+      <div className="flex items-center justify-center h-full text-gray-500">
         Loading automations...
       </div>
     );
@@ -83,18 +89,25 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-4">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-800">Automations</h2>
+        <h2 className="text-lg font-semibold text-gray-100">Automations</h2>
         <p className="text-sm text-gray-500 mt-1">
           Prompt templates for scheduled tasks. Copy to clipboard and paste into
           the terminal, or trigger via API.
         </p>
       </div>
 
+      {automations.length === 0 && (
+        <div className="text-sm text-gray-600 text-center py-12">
+          No automations found. Add prompt templates to <code className="text-gray-400" style={{ fontFamily: 'var(--font-mono)' }}>automations/</code>
+        </div>
+      )}
+
       {automations.map((auto) => {
         const colors = COLORS[auto.name] || {
-          bg: "bg-gray-50",
-          text: "text-gray-700",
-          border: "border-gray-200",
+          bg: "bg-white/[0.04]",
+          text: "text-gray-300",
+          border: "border-white/[0.08]",
+          accent: "text-gray-400",
         };
 
         return (
@@ -105,7 +118,7 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
             <div className="flex items-center justify-between p-4">
               <div>
                 <h3 className={`font-medium ${colors.text}`}>{auto.title}</h3>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
                   {auto.name} &middot; updated{" "}
                   {new Date(auto.modified).toLocaleDateString()}
                 </p>
@@ -113,22 +126,24 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
               <div className="flex gap-2">
                 <button
                   onClick={() => viewPrompt(auto.name)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium rounded-md border border-white/[0.08] text-gray-400 hover:text-gray-200 hover:bg-white/[0.05] transition-all duration-200"
+                  style={{ background: 'var(--surface-2)' }}
                 >
                   {expandedPrompt === auto.name ? "Hide" : "View"}
                 </button>
                 <button
                   onClick={() => copyPrompt(auto.name)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md bg-white border ${colors.border} ${colors.text} hover:bg-opacity-80 transition-colors`}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md border ${colors.border} ${colors.accent} hover:bg-white/[0.05] transition-all duration-200`}
+                  style={{ background: 'var(--surface-2)' }}
                 >
-                  Copy Prompt
+                  {copiedName === auto.name ? "Copied!" : "Copy Prompt"}
                 </button>
               </div>
             </div>
 
             {expandedPrompt === auto.name && (
-              <div className="border-t border-gray-200 bg-white p-4">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
+              <div className="border-t border-white/[0.06] p-4" style={{ background: 'var(--surface-1)' }}>
+                <pre className="text-sm text-gray-300 whitespace-pre-wrap" style={{ fontFamily: 'var(--font-mono)' }}>
                   {promptContent}
                 </pre>
               </div>
@@ -137,15 +152,15 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
         );
       })}
 
-      <div className="pt-4 border-t border-gray-200">
-        <h3 className="text-sm font-medium text-gray-600 mb-2">
+      <div className="pt-4 border-t border-white/[0.06]">
+        <h3 className="text-sm font-medium text-gray-400 mb-2">
           Scheduling (via launchd)
         </h3>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           Automations can be triggered on a schedule using launchd plists that
-          curl the API. See <code>launchd/</code> for templates.
+          curl the API. See <code className="text-gray-400" style={{ fontFamily: 'var(--font-mono)' }}>launchd/</code> for templates.
         </p>
-        <div className="mt-2 text-xs font-mono text-gray-400 space-y-1">
+        <div className="mt-2 text-xs text-gray-500 space-y-1" style={{ fontFamily: 'var(--font-mono)' }}>
           <div>
             curl -X POST http://localhost:3000/api/automations/content-creation
           </div>
