@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import TabEmptyState from "@/components/TabEmptyState";
 
 interface Automation {
@@ -164,18 +164,45 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
           Automations can be triggered on a schedule using launchd plists that
           curl the API. See <code className="text-gray-400" style={{ fontFamily: 'var(--font-mono)' }}>launchd/</code> for templates.
         </p>
-        <div className="mt-2 text-xs text-gray-500 space-y-1" style={{ fontFamily: 'var(--font-mono)' }}>
-          <div>
-            curl -X POST http://localhost:3000/api/automations/content-creation
-          </div>
-          <div>
-            curl -X POST http://localhost:3000/api/automations/job-search
-          </div>
-          <div>
-            curl -X POST http://localhost:3000/api/automations/codebase-eval
-          </div>
+        <div className="mt-2 space-y-1">
+          {["content-creation", "job-search", "codebase-eval"].map((name) => (
+            <CurlExample key={name} command={`curl -X POST http://localhost:3000/api/automations/${name}`} />
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================
+// CURL EXAMPLE — One-click copyable command
+// ============================================
+
+function CurlExample({ command }: { command: string }) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <div
+      className="group flex items-center gap-2 text-xs text-gray-500 rounded-md px-2.5 py-1.5 border border-white/[0.04] hover:border-white/[0.08] transition-all duration-150 cursor-pointer"
+      style={{ background: "var(--surface-2)", fontFamily: "var(--font-mono)" }}
+      onClick={() => {
+        navigator.clipboard.writeText(command);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      title="Click to copy"
+    >
+      <span className="flex-1 truncate">{command}</span>
+      {copied ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400 flex-shrink-0">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 group-hover:text-gray-400 flex-shrink-0 transition-colors">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      )}
     </div>
   );
 }

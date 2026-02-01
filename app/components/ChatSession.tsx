@@ -981,6 +981,12 @@ export default function ChatSession() {
 // ============================================
 
 function EmptyState() {
+  const shortcuts = [
+    { keys: "Enter", desc: "Send message" },
+    { keys: "Shift+Enter", desc: "New line" },
+    { keys: "Esc", desc: "Stop response" },
+  ];
+
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4">
       <div className="relative mb-6">
@@ -989,15 +995,29 @@ function EmptyState() {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
-        {/* Subtle glow behind icon */}
         <div className="absolute inset-0 rounded-2xl bg-emerald-500/5 blur-xl -z-10" />
       </div>
       <h2 className="text-lg font-semibold text-gray-200 mb-2 tracking-tight">
         Chat with Claude
       </h2>
-      <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
+      <p className="text-sm text-gray-500 max-w-xs leading-relaxed mb-6">
         Ask questions, write code, explore ideas. Powered by your Claude Max subscription.
       </p>
+
+      {/* Keyboard shortcuts */}
+      <div className="flex items-center gap-4">
+        {shortcuts.map((s) => (
+          <div key={s.keys} className="flex items-center gap-1.5 text-xs text-gray-600">
+            <kbd
+              className="px-1.5 py-0.5 rounded border border-white/[0.08] text-gray-400"
+              style={{ background: "var(--surface-2)", fontFamily: "var(--font-mono)", fontSize: "11px" }}
+            >
+              {s.keys}
+            </kbd>
+            <span>{s.desc}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1054,17 +1074,22 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
                       code({ className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || "");
                         const inline = !match && !String(children).includes("\n");
-                        return inline ? (
-                          <code className={className} {...props}>{children}</code>
-                        ) : (
-                          <SyntaxHighlighter
-                            style={oneDark}
-                            language={match ? match[1] : "text"}
-                            PreTag="div"
-                            customStyle={{ margin: '0.75rem 0', borderRadius: '0.5rem', fontSize: '13px', background: 'var(--surface-1)' }}
-                          >
-                            {String(children).replace(/\n$/, "")}
-                          </SyntaxHighlighter>
+                        if (inline) {
+                          return <code className={className} {...props}>{children}</code>;
+                        }
+                        const codeString = String(children).replace(/\n$/, "");
+                        return (
+                          <div className="relative group/code">
+                            <CodeBlockCopyButton text={codeString} />
+                            <SyntaxHighlighter
+                              style={oneDark}
+                              language={match ? match[1] : "text"}
+                              PreTag="div"
+                              customStyle={{ margin: '0.75rem 0', borderRadius: '0.5rem', fontSize: '13px', background: 'var(--surface-1)' }}
+                            >
+                              {codeString}
+                            </SyntaxHighlighter>
+                          </div>
                         );
                       },
                     }}
@@ -1118,6 +1143,33 @@ function TypingIndicator() {
 // ============================================
 // TOOL USE CARD
 // ============================================
+
+function CodeBlockCopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      className="absolute right-2 top-2 z-10 opacity-0 group-hover/code:opacity-100 transition-opacity duration-150 p-1.5 rounded-md border border-white/[0.08] hover:bg-white/[0.08] text-gray-500 hover:text-gray-300"
+      style={{ background: "var(--surface-2)" }}
+      title="Copy code"
+    >
+      {copied ? (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+      ) : (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
