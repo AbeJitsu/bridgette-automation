@@ -22,7 +22,45 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(240);
+  const [rightPanelWidth, setRightPanelWidth] = useState(240);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const draggingRef = useRef<"left" | "right" | null>(null);
+  const startXRef = useRef(0);
+  const startWidthRef = useRef(0);
+
+  // Panel resize via drag
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      if (!draggingRef.current) return;
+      e.preventDefault();
+      const delta = e.clientX - startXRef.current;
+      const newWidth = Math.max(180, Math.min(500, startWidthRef.current + (draggingRef.current === "left" ? delta : -delta)));
+      if (draggingRef.current === "left") setLeftPanelWidth(newWidth);
+      else setRightPanelWidth(newWidth);
+    }
+    function onMouseUp() {
+      if (draggingRef.current) {
+        draggingRef.current = null;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    }
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
+
+  function startDrag(side: "left" | "right", e: React.MouseEvent) {
+    draggingRef.current = side;
+    startXRef.current = e.clientX;
+    startWidthRef.current = side === "left" ? leftPanelWidth : rightPanelWidth;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }
 
   // Cmd+1-5 keyboard shortcuts for tab switching
   useEffect(() => {
@@ -122,11 +160,31 @@ export default function Home() {
               </svg>
             </button>
           )}
-          {leftPanelOpen && <LeftTaskPanel onCollapse={() => setLeftPanelOpen(false)} />}
+          {leftPanelOpen && (
+            <>
+              <LeftTaskPanel onCollapse={() => setLeftPanelOpen(false)} width={leftPanelWidth} />
+              <div
+                onMouseDown={(e) => startDrag("left", e)}
+                className="flex-shrink-0 w-1 cursor-col-resize hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors duration-100"
+                style={{ background: draggingRef.current === "left" ? "rgba(16,185,129,0.3)" : undefined }}
+                title="Drag to resize"
+              />
+            </>
+          )}
           <div className="flex-1 overflow-hidden">
             <ChatSession />
           </div>
-          {rightPanelOpen && <RightTaskPanel onCollapse={() => setRightPanelOpen(false)} />}
+          {rightPanelOpen && (
+            <>
+              <div
+                onMouseDown={(e) => startDrag("right", e)}
+                className="flex-shrink-0 w-1 cursor-col-resize hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors duration-100"
+                style={{ background: draggingRef.current === "right" ? "rgba(16,185,129,0.3)" : undefined }}
+                title="Drag to resize"
+              />
+              <RightTaskPanel onCollapse={() => setRightPanelOpen(false)} width={rightPanelWidth} />
+            </>
+          )}
           {!rightPanelOpen && (
             <button
               onClick={() => setRightPanelOpen(true)}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllTasks, createTask, VALID_STATUSES, type Task } from "./task-store";
-import { isAuthorized, unauthorizedResponse } from "@/lib/auth";
+import { isAuthorized, unauthorizedResponse, parseJsonBody } from "@/lib/auth";
 
 export async function GET(request: Request) {
   if (!isAuthorized(request)) return unauthorizedResponse();
@@ -16,12 +16,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!isAuthorized(request)) return unauthorizedResponse();
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+  const result = await parseJsonBody(request);
+  if (result instanceof NextResponse) return result;
+  const body = result;
 
   const title = typeof body.title === "string" ? body.title.trim() : "";
   if (!title) {

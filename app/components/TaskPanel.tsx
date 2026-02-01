@@ -29,7 +29,7 @@ function setError(msg: string) {
 // TASK PANEL — Left sidebar (Pending)
 // ============================================
 
-export function LeftTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
+export function LeftTaskPanel({ onCollapse, width }: { onCollapse?: () => void; width?: number }) {
   const { tasks, error, addTask, advanceTask, deleteTask, renameTask, updateDescription } = useTasks();
   const [newTitle, setNewTitle] = useState("");
 
@@ -43,7 +43,7 @@ export function LeftTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
   }
 
   return (
-    <div className="flex flex-col h-full border-r border-white/[0.06] w-[240px] flex-shrink-0" style={{ background: 'var(--surface-1)' }}>
+    <div className="flex flex-col h-full border-r border-white/[0.06] flex-shrink-0" style={{ background: 'var(--surface-1)', width: width ? `${width}px` : '240px' }}>
       <div className="px-3.5 py-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Pending</h2>
         {onCollapse && (
@@ -98,7 +98,7 @@ export function LeftTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
 // TASK PANEL — Right sidebar (Needs Testing + Completed)
 // ============================================
 
-export function RightTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
+export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void; width?: number }) {
   const { tasks, advanceTask, deleteTask, renameTask, updateDescription, clearCompleted } = useTasks();
 
   const needsTesting = tasks.filter((t) => t.status === "needs_testing");
@@ -106,7 +106,7 @@ export function RightTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
   const [showCompleted, setShowCompleted] = useState(false);
 
   return (
-    <div className="flex flex-col h-full border-l border-white/[0.06] w-[240px] flex-shrink-0" style={{ background: 'var(--surface-1)' }}>
+    <div className="flex flex-col h-full border-l border-white/[0.06] flex-shrink-0" style={{ background: 'var(--surface-1)', width: width ? `${width}px` : '240px' }}>
       {/* Needs Testing */}
       <div className="px-3.5 py-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <h2 className="text-xs uppercase tracking-widest text-amber-400/80 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>Needs Testing</h2>

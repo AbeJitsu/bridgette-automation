@@ -156,18 +156,50 @@ function getCommitHash(cwd: string): string {
   }
 }
 
+function describeChangedFiles(diffSummary: string): string {
+  // Parse "filename | N ++--" lines into human-readable descriptions
+  const fileLines = diffSummary.split("\n").filter((l) => l.includes("|"));
+  const areas: string[] = [];
+  for (const line of fileLines) {
+    const file = line.split("|")[0].trim();
+    if (file.includes("components/")) {
+      const comp = file.match(/components\/(\w+)/)?.[1];
+      if (comp && !areas.includes(comp)) areas.push(comp);
+    } else if (file.includes("server.ts")) {
+      if (!areas.includes("server")) areas.push("server");
+    } else if (file.includes("api/")) {
+      const route = file.match(/api\/(\w+)/)?.[1];
+      if (route && !areas.includes(route + " API")) areas.push(route + " API");
+    } else if (file.endsWith(".css")) {
+      if (!areas.includes("styles")) areas.push("styles");
+    } else if (file.endsWith(".md")) {
+      if (!areas.includes("docs")) areas.push("docs");
+    } else if (file.endsWith(".json")) {
+      // skip config/data files
+    } else {
+      const name = file.split("/").pop()?.replace(/\.\w+$/, "");
+      if (name && !areas.includes(name)) areas.push(name);
+    }
+  }
+  if (areas.length === 0) return "various files";
+  if (areas.length <= 3) return areas.join(", ");
+  return areas.slice(0, 3).join(", ") + ` and ${areas.length - 3} more`;
+}
+
 function createEvalTask(evalType: string, diffSummary: string): void {
-  const fileCount = (diffSummary.match(/\n/g) || []).length;
+  const fileLines = diffSummary.split("\n").filter((l) => l.includes("|"));
+  const fileCount = fileLines.length;
   const insertions = diffSummary.match(/(\d+) insertion/)?.[1] || "0";
   const deletions = diffSummary.match(/(\d+) deletion/)?.[1] || "0";
+  const changedAreas = describeChangedFiles(diffSummary);
+
+  const evalLabel = evalType.charAt(0).toUpperCase() + evalType.slice(1);
   const summary = [
-    `What: ${evalType} improvements across ${fileCount} files`,
-    `Why: Automatic ${evalType} quality pass`,
-    `How: +${insertions} -${deletions} lines changed`,
-    ``,
-    diffSummary,
+    `What: ${evalLabel} quality pass — updated ${changedAreas}`,
+    `Why: Automatic ${evalType} improvements to keep code clean and polished`,
+    `How: ${fileCount} file${fileCount !== 1 ? "s" : ""} changed (+${insertions} -${deletions} lines)`,
   ].join("\n");
-  const title = `[Auto-eval] ${evalType.charAt(0).toUpperCase() + evalType.slice(1)} eval completed`;
+  const title = `[Auto-eval] ${evalLabel} eval completed`;
 
   // Direct task-store call instead of self-HTTP — avoids network hop and silent failures
   import("./app/api/tasks/task-store").then(({ createTask }) => {
@@ -705,8 +737,16 @@ app.prepare().then(() => {
             broadcastToChat({ type: "eval_interval_state", interval: serverEvalInterval, evalTimerStart: serverIdleTimerStart, evalChaining });
           }
         }
-      } catch {
-        // Ignore malformed JSON
+      } catch (err) {
+        // Distinguish JSON parse errors (expected for malformed messages) from real bugs
+        if (err instanceof SyntaxError) {
+          // Malformed JSON from client — not actionable, skip silently
+        } else {
+          console.error("[ws] Unexpected error handling message:", err instanceof Error ? err.message : err);
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "error", message: "Internal server error" }));
+          }
+        }
       }
     });
 

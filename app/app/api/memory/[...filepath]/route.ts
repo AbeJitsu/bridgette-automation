@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile, writeFile, rename, unlink } from "fs/promises";
 import { join } from "path";
-import { isAuthorized, unauthorizedResponse } from "@/lib/auth";
+import { isAuthorized, unauthorizedResponse, parseJsonBody } from "@/lib/auth";
 
 const MEMORY_DIR = join(process.cwd(), "..", "memory");
 
 // Max content size for memory files (1MB)
 const MAX_CONTENT_SIZE = 1024 * 1024;
+// Body size limit slightly above content limit to allow for JSON wrapper
+const BODY_SIZE_LIMIT = MAX_CONTENT_SIZE + 1024;
 
 function resolveFilePath(filepath: string[]): string {
   // Reject path segments that could escape the memory directory
@@ -64,15 +66,9 @@ export async function PUT(
     const { filepath } = await params;
     const fullPath = resolveFilePath(filepath);
 
-    let body: Record<string, unknown>;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        { error: "Invalid JSON body" },
-        { status: 400 }
-      );
-    }
+    const result = await parseJsonBody(request, BODY_SIZE_LIMIT);
+    if (result instanceof NextResponse) return result;
+    const body = result;
 
     const { content } = body;
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { updateTask, deleteTask, isValidTaskId, VALID_STATUSES, type Task } from "../task-store";
-import { isAuthorized, unauthorizedResponse } from "@/lib/auth";
+import { isAuthorized, unauthorizedResponse, parseJsonBody } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
@@ -13,12 +13,9 @@ export async function PUT(
     return NextResponse.json({ error: "Invalid task ID format" }, { status: 400 });
   }
 
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+  const result = await parseJsonBody(request);
+  if (result instanceof NextResponse) return result;
+  const body = result;
 
   const updates: { title?: string; status?: Task["status"]; summary?: string; description?: string } = {};
 

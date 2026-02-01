@@ -6,11 +6,11 @@ import { isAuthorized, unauthorizedResponse } from "@/lib/auth";
 
 const AUTOMATIONS_DIR = join(process.cwd(), "..", "automations");
 
+// Only allow safe alphanumeric + hyphen/underscore names (no path traversal possible)
+const SAFE_NAME_RE = /^[a-zA-Z0-9_-]{1,100}$/;
+
 function isValidAutomation(name: string): boolean {
-  // Prevent path traversal
-  if (name.includes("..") || name.includes("/") || name.includes("\\")) {
-    return false;
-  }
+  if (!SAFE_NAME_RE.test(name)) return false;
   return existsSync(join(AUTOMATIONS_DIR, name, "prompt.md"));
 }
 
@@ -23,7 +23,7 @@ export async function GET(
 
   if (!isValidAutomation(name)) {
     return NextResponse.json(
-      { error: `Unknown automation: ${name}` },
+      { error: "Unknown automation" },
       { status: 404 }
     );
   }
@@ -49,7 +49,7 @@ export async function POST(
 
   if (!isValidAutomation(name)) {
     return NextResponse.json(
-      { error: `Unknown automation: ${name}` },
+      { error: "Unknown automation" },
       { status: 404 }
     );
   }
