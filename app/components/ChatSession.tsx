@@ -643,6 +643,9 @@ export default function ChatSession() {
         </button>
 
         <div className="ml-auto flex items-center gap-2">
+          {/* Divider — separates connection/directory from controls */}
+          <span className="w-px h-4 bg-white/[0.08]" aria-hidden="true" />
+
           {/* Model selector */}
           <select
             value={selectedModel}
@@ -749,6 +752,9 @@ export default function ChatSession() {
             </span>
           )}
 
+          {/* Divider — separates auto-eval from thinking/session */}
+          <span className="w-px h-4 bg-white/[0.08]" aria-hidden="true" />
+
           {/* Thinking toggle */}
           <button
             onClick={() => setThinking(!thinking)}
@@ -771,6 +777,9 @@ export default function ChatSession() {
               {sessionId.slice(0, 8)}
             </span>
           )}
+
+          {/* Divider — separates controls from session/actions */}
+          <span className="w-px h-4 bg-white/[0.08]" aria-hidden="true" />
 
           {/* Session history */}
           <div className="relative" ref={historyRef}>
@@ -882,7 +891,7 @@ export default function ChatSession() {
                             deleteSession(s.sessionId);
                             setSessions(loadSessions());
                           }}
-                          className="opacity-0 group-hover/session:opacity-100 transition-opacity duration-150 p-1.5 mr-2 text-gray-600 hover:text-red-400 rounded-md hover:bg-white/[0.05]"
+                          className="opacity-0 group-hover/session:opacity-100 focus:opacity-100 transition-opacity duration-150 p-1.5 mr-2 text-gray-600 hover:text-red-400 rounded-md hover:bg-white/[0.05]"
                           title="Delete session"
                         >
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1227,7 +1236,7 @@ function CodeBlockCopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
-      className="absolute right-2 top-2 z-10 opacity-0 group-hover/code:opacity-100 transition-opacity duration-150 p-1.5 rounded-md border border-white/[0.08] hover:bg-white/[0.08] text-gray-500 hover:text-gray-300"
+      className="absolute right-2 top-2 z-10 opacity-0 group-hover/code:opacity-100 focus:opacity-100 transition-opacity duration-150 p-1.5 rounded-md border border-white/[0.08] hover:bg-white/[0.08] text-gray-500 hover:text-gray-300"
       style={{ background: "var(--surface-2)" }}
       title="Copy code"
     >

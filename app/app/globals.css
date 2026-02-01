@@ -203,6 +203,9 @@ body {
   .animate-subtle-pulse {
     animation: none;
   }
+  .animate-bounce {
+    animation: none;
+  }
 }
 
 /* ============================================
