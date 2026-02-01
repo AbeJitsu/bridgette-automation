@@ -3,7 +3,7 @@ import { parse } from "url";
 import next from "next";
 import { WebSocketServer, WebSocket } from "ws";
 import { spawn, ChildProcess, execSync } from "child_process";
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
+import { readFileSync, writeFileSync, renameSync, existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import crypto from "crypto";
 
@@ -115,22 +115,37 @@ interface EvalLogEntry {
   status: "success" | "error" | "timeout";
 }
 
-function writeEvalLogEntry(entry: EvalLogEntry): void {
-  try {
-    let entries: EvalLogEntry[] = [];
+// Mutex for eval-log writes — prevents concurrent read-modify-write races
+let evalLogLock: Promise<void> = Promise.resolve();
+
+function withEvalLogLock<T>(fn: () => T): Promise<T> {
+  const prev = evalLogLock;
+  let release: () => void;
+  evalLogLock = new Promise<void>((resolve) => { release = resolve; });
+  return prev.then(fn).finally(() => release());
+}
+
+function writeEvalLogEntry(entry: EvalLogEntry): Promise<void> {
+  return withEvalLogLock(() => {
     try {
-      const data = readFileSync(EVAL_LOG_FILE, "utf-8");
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) entries = parsed;
-    } catch {}
-    entries.push(entry);
-    if (entries.length > MAX_EVAL_LOG_ENTRIES) {
-      entries = entries.slice(entries.length - MAX_EVAL_LOG_ENTRIES);
+      let entries: EvalLogEntry[] = [];
+      try {
+        const data = readFileSync(EVAL_LOG_FILE, "utf-8");
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) entries = parsed;
+      } catch {}
+      entries.push(entry);
+      if (entries.length > MAX_EVAL_LOG_ENTRIES) {
+        entries = entries.slice(entries.length - MAX_EVAL_LOG_ENTRIES);
+      }
+      // Atomic write: temp file + rename prevents corruption on crash
+      const tmpFile = `${EVAL_LOG_FILE}.tmp`;
+      writeFileSync(tmpFile, JSON.stringify(entries, null, 2));
+      renameSync(tmpFile, EVAL_LOG_FILE);
+    } catch (err: any) {
+      console.error(`[eval-log] Failed to write: ${err.message}`);
     }
-    writeFileSync(EVAL_LOG_FILE, JSON.stringify(entries, null, 2));
-  } catch (err: any) {
-    console.error(`[eval-log] Failed to write: ${err.message}`);
-  }
+  });
 }
 
 function getCommitHash(cwd: string): string {
@@ -766,4 +781,58 @@ app.prepare().then(() => {
       console.log("> Auto-eval enabled — idle timer started (15 min)");
     }
   });
+
+  // ============================================
+  // GRACEFUL SHUTDOWN — kill child processes, close connections
+  // ============================================
+
+  function gracefulShutdown(signal: string) {
+    console.log(`\n[shutdown] Received ${signal}, cleaning up...`);
+
+    // Stop idle timer
+    if (serverIdleTimer) {
+      clearTimeout(serverIdleTimer);
+      serverIdleTimer = null;
+    }
+
+    // Kill auto-eval process if running
+    if (serverAutoEvalProcess && serverAutoEvalProcess.exitCode === null) {
+      console.log("[shutdown] Killing auto-eval process");
+      killProcessWithTimeout(serverAutoEvalProcess, 3000);
+    }
+
+    // Kill all active chat processes
+    let chatKills = 0;
+    for (const [, proc] of chatProcesses) {
+      if (proc && proc.exitCode === null) {
+        killProcessWithTimeout(proc, 3000);
+        chatKills++;
+      }
+    }
+    if (chatKills > 0) {
+      console.log(`[shutdown] Killed ${chatKills} active chat process(es)`);
+    }
+
+    // Close all WebSocket connections
+    wssChat.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.close(1001, "Server shutting down");
+      }
+    });
+
+    // Close the HTTP server
+    server.close(() => {
+      console.log("[shutdown] Server closed");
+      process.exit(0);
+    });
+
+    // Force exit if graceful close takes too long
+    setTimeout(() => {
+      console.error("[shutdown] Forced exit after timeout");
+      process.exit(1);
+    }, 8000).unref();
+  }
+
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 });
