@@ -26,6 +26,10 @@
 - **Session resume** — Browse and resume previous conversations via session history dropdown (clock icon). Sessions saved to localStorage with first message, timestamp, model
 - **Eval Logs tab** — View auto-eval run history with type filtering, expandable diffs, status indicators. Supports frontend/backend/functionality/memory eval types
 - **Status tab** — Server health, git info, memory file timestamps, auto-eval config with rotation visualization, launchd job status. Auto-refreshes every 30s
+- **Send to Chat** — Automations execute prompt templates directly in chat via WebSocket
+- **Session management** — Delete individual sessions, clear all, Cmd+K new chat shortcut
+- **Code block copy** — Hover-to-copy on all code blocks, click-to-copy on curl examples
+- **Backend hardening v2** — Shell injection guard on status route, corruption recovery for tasks.json, graceful 400 on invalid memory PUT
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left

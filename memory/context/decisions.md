@@ -39,3 +39,13 @@
 - **Decision:** Added 30s ping/pong heartbeat to WebSocket server
 - **Reason:** Stale connections leaked child processes and map entries when browsers disconnected without close frames
 - **Trade-off:** Minor network overhead (negligible)
+
+## 2026-02-01: Send to Chat for automations
+- **Decision:** Automations panel sends prompt templates directly to chat via WebSocket instead of showing "paste into terminal"
+- **Reason:** Terminal tab is legacy; the old flow told users to paste into a terminal that doesn't exist in the chat-first UI
+- **Trade-off:** None — strictly better UX
+
+## 2026-02-01: Shell injection guard on status route
+- **Decision:** Validate launchd plist labels against safe character regex before passing to execSync
+- **Reason:** Status route was passing user-controllable filenames to shell commands without sanitization
+- **Trade-off:** Rejects plist labels with unusual characters (acceptable)

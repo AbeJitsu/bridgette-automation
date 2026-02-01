@@ -76,6 +76,10 @@
 - **Escape key + stop button** — Cancel streaming responses
 - **Reconnection UX** — Disconnect banner, retry button, automatic reconnection with backoff
 - **Tool card enhancements** — Copy-to-clipboard buttons on input/result, diff syntax highlighting (green/red/blue)
+- **Code block copy** — Hover-to-copy on all code blocks in chat messages
+- **Session management** — Delete individual sessions, clear all sessions, Cmd+K new chat shortcut
+- **Keyboard shortcut hints** — Empty state and input footer show Enter, Shift+Enter, Esc shortcuts
+- **Backend hardening v2** — Shell injection guard on status route, corruption recovery for tasks.json, graceful 400 on invalid memory PUT
 - **ARIA accessibility** — Proper tabpanel roles with id/aria-labelledby on all five tabs
 - **Shared formatters** — `lib/format.ts` with formatRelativeTime, formatBytes, formatUptime, formatInterval
 - **TabEmptyState** — Reusable loading/error/empty state component across all tabs
@@ -87,7 +91,7 @@
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
-- **Automations panel** — View/copy prompt templates with BJJ belt color coding
+- **Automations panel** — View/copy prompt templates with BJJ belt color coding, Send to Chat executes prompts directly
 - **Five-tab layout** — Chat, Memory, Automations, Eval Logs, Status
 
 ### Infrastructure
