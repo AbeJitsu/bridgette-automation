@@ -134,7 +134,7 @@
 - File diff viewer for edit tool results
 - Approval buttons for tool use
 - Code syntax highlighting in markdown
-- Search/filter conversation history
+- ~~Search/filter conversation history~~ — **Built** (search box in session dropdown)
 - Multiple sessions support
 
 ### Auto-Iteration System (Built)

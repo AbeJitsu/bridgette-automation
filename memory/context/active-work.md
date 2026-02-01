@@ -7,15 +7,17 @@
 - **Status:** Core features complete, polish phase
 
 ## What's Done (Recent)
-- Tab keyboard shortcuts (Cmd+1-5) for switching dashboard tabs
-- Stop auto-eval button (replaces "Run Now" while eval is running)
-- Collapsible task panels via chevron buttons, expanding chat area
-- Auto-eval exit code checking — failed evals now log as "error" instead of false "success"
-- Status route consolidated to single git command (was 3 sequential, blocking up to 15s)
-- Frontend a11y: proper `hidden`/`tabIndex` on tab panels, aria-labels on icon buttons, responsive status bar
-- Memory write .tmp file cleanup on failed renames
+- Conversation search — filter session history by keyword
+- Session resume context — shows first message preview and timestamp when resuming
+- Clear confirmation — dialog before clearing all sessions
+- Eval task pipeline — auto-evals create pending tasks, advance to needs_testing on completion
+- Vertical panel resize — drag between needs_testing/completed sections in right panel
+- Resizable horizontal panels — drag task sidebars (180–500px range)
+- Chat persistence — messages survive browser refresh via sessionStorage
+- Secure remote access — bearer token auth, Tailscale-ready
 
 ## Next Steps
 - Responsive layout refinements
 - File diff viewer for edit tool results
 - Code syntax highlighting in markdown
+- Approval buttons for tool use

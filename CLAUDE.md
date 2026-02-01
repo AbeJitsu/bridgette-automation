@@ -46,6 +46,13 @@
 - **Status route optimization** — Consolidated 3 sequential git commands into 1 (max blocking time 15s → 5s)
 - **Frontend a11y** — WAI-ARIA tab panel pattern (hidden/tabIndex), aria-labels on icon buttons, aria-expanded on dropdowns, responsive status bar
 - **Memory write cleanup** — Orphan .tmp files cleaned up when rename fails
+- **Conversation search** — Search/filter session history by keyword in session dropdown
+- **Session resume context** — First message preview and timestamp shown when browsing past sessions
+- **Clear confirmation** — Confirmation dialog before clearing all sessions
+- **Eval task pipeline** — Auto-evals create pending tasks, advance to needs_testing on completion for user review
+- **Resizable panels** — Horizontal drag on task sidebars (180–500px), vertical drag between needs_testing/completed
+- **Chat persistence** — Messages survive browser refresh via sessionStorage
+- **Secure remote access** — Bearer token auth on all routes + WebSocket, token prompt for non-localhost, Tailscale-ready
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left
