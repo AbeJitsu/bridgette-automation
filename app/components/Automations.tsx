@@ -41,6 +41,7 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
   const [promptContent, setPromptContent] = useState<string>("");
   const [copiedName, setCopiedName] = useState<string | null>(null);
+  const [sendingName, setSendingName] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/automations")
@@ -145,6 +146,7 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
                 {onSendToChat && (
                   <button
                     onClick={async () => {
+                      setSendingName(auto.name);
                       try {
                         const res = await fetch(`/api/automations/${auto.name}`);
                         const data = await res.json();
@@ -152,11 +154,15 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
                       } catch {
                         // silent fail
                       }
+                      setSendingName(null);
                     }}
-                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 transition-all duration-200"
+                    disabled={sendingName === auto.name}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md border border-emerald-500/20 text-emerald-400 transition-all duration-200 ${
+                      sendingName === auto.name ? "opacity-60 cursor-wait" : "hover:bg-emerald-500/10"
+                    }`}
                     style={{ background: 'var(--surface-2)' }}
                   >
-                    Send to Chat
+                    {sendingName === auto.name ? "Sending..." : "Send to Chat"}
                   </button>
                 )}
               </div>

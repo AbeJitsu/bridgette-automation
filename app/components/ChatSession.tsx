@@ -53,6 +53,9 @@ interface ToolUse {
 
 type ConnectionStatus = "disconnected" | "connecting" | "connected" | "streaming";
 
+// Track message IDs that were interrupted mid-stream
+const interruptedMessageIds = new Set<string>();
+
 interface SessionEntry {
   sessionId: string;
   firstMessage: string;
@@ -237,6 +240,11 @@ export default function ChatSession() {
     };
 
     ws.onclose = (event) => {
+      // If we were streaming, mark the last message as interrupted
+      if (streamingMessageRef.current) {
+        interruptedMessageIds.add(streamingMessageRef.current.id);
+        streamingMessageRef.current = null;
+      }
       setStatus("disconnected");
       wsRef.current = null;
 
@@ -450,6 +458,10 @@ export default function ChatSession() {
       // Reset eval state on error (eval may have failed)
       setEvalRunning(false);
       setEvalType(null);
+      // If we were streaming, mark the message as interrupted
+      if (streamingMessageRef.current) {
+        interruptedMessageIds.add(streamingMessageRef.current.id);
+      }
       // Show error to user in chat
       if (data.message) {
         const errorMsg: ChatMessage = {
@@ -602,7 +614,7 @@ export default function ChatSession() {
     <div className="flex flex-col h-full" style={{ background: 'var(--surface-0)' }}>
       {/* Status bar */}
       <div
-        className="flex items-center flex-wrap gap-x-2.5 gap-y-1 px-4 py-1.5 border-b border-white/[0.06] text-xs"
+        className="flex items-center gap-x-2.5 px-4 py-1.5 border-b border-white/[0.06] text-xs overflow-x-auto scrollbar-none"
         style={{ background: 'var(--surface-1)' }}
       >
         <StatusDot status={status} />
@@ -643,7 +655,7 @@ export default function ChatSession() {
           {cwd ? shortenPath(cwd) : "Select directory"}
         </button>
 
-        <div className="ml-auto flex items-center flex-wrap gap-x-2 gap-y-1">
+        <div className="ml-auto flex items-center gap-x-2 flex-shrink-0">
           {/* Divider — separates connection/directory from controls */}
           <span className="w-px h-4 bg-white/[0.08]" aria-hidden="true" />
 
@@ -1141,6 +1153,7 @@ function StatusDot({ status }: { status: ConnectionStatus }) {
 
 function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStreaming?: boolean }) {
   const isUser = message.role === "user";
+  const isInterrupted = !isUser && interruptedMessageIds.has(message.id);
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} animate-fade-in-up`}>
@@ -1150,7 +1163,9 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
           className={`rounded-2xl px-4 py-3 text-[15px] ${
             isUser
               ? "bg-emerald-500/10 text-emerald-50 border border-emerald-500/15 rounded-br-md"
-              : "border border-white/[0.06] text-gray-200 rounded-bl-md"
+              : isInterrupted
+                ? "border border-amber-500/20 text-gray-200 rounded-bl-md"
+                : "border border-white/[0.06] text-gray-200 rounded-bl-md"
           }`}
           style={!isUser ? { background: 'var(--surface-2)' } : undefined}
         >
@@ -1199,6 +1214,18 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
               {message.toolUses.map((tool) => (
                 <ToolUseCard key={tool.id} tool={tool} />
               ))}
+            </div>
+          )}
+
+          {/* Interrupted indicator */}
+          {isInterrupted && (
+            <div className="mt-3 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/8 border border-amber-500/15 text-xs text-amber-400" style={{ fontFamily: 'var(--font-mono)' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              Response interrupted — may be incomplete
             </div>
           )}
         </div>

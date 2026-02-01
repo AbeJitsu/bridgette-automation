@@ -226,6 +226,15 @@ body {
   box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3), 0 0 20px rgba(52, 211, 153, 0.1);
 }
 
+/* Hide scrollbar for horizontal-scroll status bar */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* ============================================
    FOCUS-VISIBLE STYLES
    Keyboard-only focus rings for accessibility
