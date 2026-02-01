@@ -580,6 +580,22 @@ export default function ChatSession() {
           {status === "connected" && (currentModel ? formatModel(currentModel) : "Ready")}
           {status === "streaming" && "Responding..."}
         </span>
+        {status === "disconnected" && (
+          <button
+            onClick={() => {
+              if (reconnectTimerRef.current) {
+                clearTimeout(reconnectTimerRef.current);
+                reconnectTimerRef.current = null;
+              }
+              reconnectAttemptRef.current = 0;
+              connectWebSocket();
+            }}
+            className="text-xs px-2 py-0.5 rounded border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-colors duration-150"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            Retry
+          </button>
+        )}
 
         {/* Working directory */}
         <button
@@ -845,6 +861,31 @@ export default function ChatSession() {
         </div>
       )}
 
+      {/* Disconnection banner */}
+      {status === "disconnected" && (
+        <div className="flex items-center justify-center gap-3 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-xs" style={{ fontFamily: 'var(--font-mono)' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>Connection lost. Auto-reconnecting...</span>
+          <button
+            onClick={() => {
+              if (reconnectTimerRef.current) {
+                clearTimeout(reconnectTimerRef.current);
+                reconnectTimerRef.current = null;
+              }
+              reconnectAttemptRef.current = 0;
+              connectWebSocket();
+            }}
+            className="px-2.5 py-0.5 rounded border border-amber-500/30 text-amber-300 hover:bg-amber-500/15 transition-colors duration-150 font-medium"
+          >
+            Retry now
+          </button>
+        </div>
+      )}
+
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
@@ -1048,11 +1089,71 @@ function TypingIndicator() {
 // TOOL USE CARD
 // ============================================
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      className="ml-auto text-gray-600 hover:text-gray-300 transition-colors duration-150 p-0.5 rounded"
+      title="Copy to clipboard"
+    >
+      {copied ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+function isDiffContent(text: string): boolean {
+  const lines = text.split("\n").slice(0, 20);
+  let diffLineCount = 0;
+  for (const line of lines) {
+    if (line.startsWith("+") || line.startsWith("-") || line.startsWith("@@") || line.startsWith("diff ")) {
+      diffLineCount++;
+    }
+  }
+  return diffLineCount >= 3;
+}
+
+function DiffResult({ text }: { text: string }) {
+  const display = text.length > 2000 ? text.slice(0, 2000) + "\n..." : text;
+  return (
+    <pre
+      className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-60 overflow-y-auto"
+      style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
+    >
+      {display.split("\n").map((line, i) => {
+        let color = "text-gray-400";
+        if (line.startsWith("+++") || line.startsWith("---")) color = "text-gray-500 font-medium";
+        else if (line.startsWith("+")) color = "text-emerald-400";
+        else if (line.startsWith("-")) color = "text-red-400";
+        else if (line.startsWith("@@")) color = "text-blue-400";
+        else if (line.startsWith("diff ")) color = "text-gray-300 font-medium";
+        return <div key={i} className={color}>{line || " "}</div>;
+      })}
+    </pre>
+  );
+}
+
 function ToolUseCard({ tool }: { tool: ToolUse }) {
   const [expanded, setExpanded] = useState(false);
 
   const displayName = tool.name.replace(/_/g, " ").replace(/^mcp__\w+__/, "");
   const summary = getToolSummary(tool);
+  const resultText = tool.result || "";
+  const showDiff = resultText && isDiffContent(resultText);
 
   return (
     <div
@@ -1087,7 +1188,10 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
       {expanded && (
         <div className="border-t border-white/[0.06] px-3 py-2.5 space-y-2.5">
           <div>
-            <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Input</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Input</span>
+              <CopyButton text={JSON.stringify(tool.input, null, 2)} />
+            </div>
             <pre
               className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-40 overflow-y-auto text-gray-400"
               style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
@@ -1097,13 +1201,20 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
           </div>
           {tool.result && (
             <div>
-              <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Result</span>
-              <pre
-                className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-60 overflow-y-auto text-gray-400"
-                style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
-              >
-                {tool.result.length > 2000 ? tool.result.slice(0, 2000) + "\n..." : tool.result}
-              </pre>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Result</span>
+                <CopyButton text={tool.result} />
+              </div>
+              {showDiff ? (
+                <DiffResult text={resultText} />
+              ) : (
+                <pre
+                  className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-60 overflow-y-auto text-gray-400"
+                  style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
+                >
+                  {tool.result.length > 2000 ? tool.result.slice(0, 2000) + "\n..." : tool.result}
+                </pre>
+              )}
             </div>
           )}
         </div>
