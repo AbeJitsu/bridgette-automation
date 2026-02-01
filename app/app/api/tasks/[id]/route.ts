@@ -1,28 +1,5 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const TASKS_FILE = path.join(process.cwd(), "..", "tasks.json");
-
-interface Task {
-  id: string;
-  title: string;
-  status: "pending" | "needs_testing" | "completed";
-  createdAt: string;
-}
-
-function readTasks(): Task[] {
-  try {
-    const data = fs.readFileSync(TASKS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-function writeTasks(tasks: Task[]): void {
-  fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2));
-}
+import { updateTask, deleteTask, VALID_STATUSES, type Task } from "../task-store";
 
 export async function PUT(
   request: Request,
@@ -35,18 +12,20 @@ export async function PUT(
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
-  const tasks = readTasks();
-  const index = tasks.findIndex((t) => t.id === id);
 
-  if (index === -1) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  const updates: { title?: string; status?: Task["status"] } = {};
 
   if (typeof body.title === "string" && body.title.trim()) {
-    tasks[index].title = body.title.trim();
+    const title = body.title.trim();
+    if (title.length > 500) {
+      return NextResponse.json(
+        { error: "Title must be 500 characters or fewer" },
+        { status: 400 }
+      );
+    }
+    updates.title = title;
   }
 
-  const VALID_STATUSES: Task["status"][] = ["pending", "needs_testing", "completed"];
   if (body.status) {
     if (!VALID_STATUSES.includes(body.status as Task["status"])) {
       return NextResponse.json(
@@ -54,11 +33,15 @@ export async function PUT(
         { status: 400 }
       );
     }
-    tasks[index].status = body.status as Task["status"];
+    updates.status = body.status as Task["status"];
   }
 
-  writeTasks(tasks);
-  return NextResponse.json(tasks[index]);
+  const task = await updateTask(id, updates);
+  if (!task) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(task);
 }
 
 export async function DELETE(
@@ -66,13 +49,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const tasks = readTasks();
-  const filtered = tasks.filter((t) => t.id !== id);
+  const deleted = await deleteTask(id);
 
-  if (filtered.length === tasks.length) {
+  if (!deleted) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  writeTasks(filtered);
   return NextResponse.json({ ok: true });
 }

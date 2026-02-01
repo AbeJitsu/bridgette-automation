@@ -300,6 +300,19 @@ app.prepare().then(() => {
     try { writeFileSync(cwdFile, cwd); } catch {}
   }
 
+  // Maximum WebSocket message size (1MB) to prevent memory abuse
+  const MAX_WS_MESSAGE_SIZE = 1024 * 1024;
+
+  // Allowed model values to prevent injection via the --model flag
+  const ALLOWED_MODELS = new Set([
+    "claude-sonnet-4-20250514",
+    "claude-opus-4-20250514",
+    "claude-haiku-3-5-20241022",
+    "sonnet",
+    "opus",
+    "haiku",
+  ]);
+
   wssChat.on("connection", (ws: WebSocket) => {
     chatSessions.set(ws, null);
     const initialCwd = getLastCwd();
@@ -311,9 +324,26 @@ app.prepare().then(() => {
     ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled, evalRunning, evalType: evalRunning ? currentEvalType : null }));
 
     ws.on("message", (msg: Buffer | string) => {
+      // Reject oversized messages
+      const raw = msg.toString();
+      if (raw.length > MAX_WS_MESSAGE_SIZE) {
+        ws.send(JSON.stringify({ type: "error", message: "Message too large" }));
+        return;
+      }
+
       try {
-        const parsed = JSON.parse(msg.toString());
+        const parsed = JSON.parse(raw);
         if (parsed.type === "message") {
+          // Validate text is a non-empty string
+          if (typeof parsed.text !== "string" || !parsed.text.trim()) {
+            ws.send(JSON.stringify({ type: "error", message: "Message text required" }));
+            return;
+          }
+          // Validate model if provided
+          if (parsed.model && !ALLOWED_MODELS.has(parsed.model)) {
+            ws.send(JSON.stringify({ type: "error", message: `Invalid model: ${parsed.model}` }));
+            return;
+          }
           resetServerIdleTimer();
           handleChatMessage(ws, parsed.text, parsed.sessionId || chatSessions.get(ws), parsed.thinking, parsed.model);
         } else if (parsed.type === "stop") {
@@ -322,8 +352,13 @@ app.prepare().then(() => {
             proc.kill("SIGTERM");
           }
         } else if (parsed.type === "set_cwd") {
-          const target = parsed.cwd;
-          if (target && existsSync(target)) {
+          const target = typeof parsed.cwd === "string" ? parsed.cwd : "";
+          // Validate the path doesn't contain null bytes (path injection)
+          if (!target || target.includes("\0")) {
+            ws.send(JSON.stringify({ type: "error", message: "Invalid directory path" }));
+            return;
+          }
+          if (existsSync(target)) {
             chatCwds.set(ws, target);
             saveLastCwd(target);
             chatSessions.set(ws, null);
@@ -348,7 +383,7 @@ app.prepare().then(() => {
           triggerServerAutoEval();
         }
       } catch {
-        // Ignore malformed messages
+        // Ignore malformed JSON
       }
     });
 

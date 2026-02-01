@@ -1,31 +1,9 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const TASKS_FILE = path.join(process.cwd(), "..", "tasks.json");
-
-interface Task {
-  id: string;
-  title: string;
-  status: "pending" | "needs_testing" | "completed";
-  createdAt: string;
-}
-
-function readTasks(): Task[] {
-  try {
-    const data = fs.readFileSync(TASKS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-function writeTasks(tasks: Task[]): void {
-  fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2));
-}
+import { getAllTasks, createTask } from "./task-store";
 
 export async function GET() {
-  return NextResponse.json(readTasks());
+  const tasks = await getAllTasks();
+  return NextResponse.json(tasks);
 }
 
 export async function POST(request: Request) {
@@ -41,15 +19,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title required" }, { status: 400 });
   }
 
-  const tasks = readTasks();
-  const task: Task = {
-    id: crypto.randomUUID(),
-    title,
-    status: "pending",
-    createdAt: new Date().toISOString(),
-  };
-  tasks.push(task);
-  writeTasks(tasks);
+  if (title.length > 500) {
+    return NextResponse.json(
+      { error: "Title must be 500 characters or fewer" },
+      { status: 400 }
+    );
+  }
 
+  const task = await createTask(title);
   return NextResponse.json(task, { status: 201 });
 }
