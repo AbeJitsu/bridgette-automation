@@ -8,15 +8,14 @@
 
 ## What's Done (Recent)
 - Chat UI with streaming, tool cards, markdown, cost summary, session resume
-- Three-panel task management with inline rename, clear completed, auto-purge at 500
+- Three-panel task management with inline rename, clear completed, auto-purge at 500, task descriptions
 - Five-tab dashboard: Chat, Memory, Automations, Eval Logs, Status
 - Auto-iteration system with four-eval rotation (frontend → backend → functionality → memory)
-- Backend hardening: shell injection guards, corruption recovery, temp file cleanup, rate limiting, atomic writes
-- Send to Chat — automations execute prompt templates directly in chat via WebSocket
-- Session management — delete individual sessions, clear all, Cmd+K new chat shortcut
-- Eval logs auto-refresh, reverse chronological order, type filtering
-- Text contrast and input focus improvements across all dashboard tabs
-- WebSocket heartbeat, reconnection UX, ARIA accessibility, shared formatters
+- Backend hardening: shell injection guards, corruption recovery, temp file cleanup, rate limiting, atomic writes, execSync timeouts
+- Eval-log filtering and pagination on backend
+- Status bar grouping, keyboard accessibility, reduced-motion support
+- Model selector: Opus 4.5 fix, proper model name formatting
+- Send to Chat, session management, eval logs auto-refresh, shared formatters
 
 ## Next Steps
 - Responsive layout refinements

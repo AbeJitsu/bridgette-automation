@@ -59,3 +59,13 @@
 - **Decision:** Server can create tasks directly in task-store without going through HTTP API
 - **Reason:** Auto-eval and internal server operations needed to create tasks without self-referencing the API
 - **Trade-off:** Two code paths for task creation (API + direct) — acceptable since task-store is the shared layer
+
+## 2026-02-01: execSync timeouts on all shell commands
+- **Decision:** Added explicit timeout (5-10s) to all execSync calls in API routes
+- **Reason:** Shell commands (git, launchctl) could hang indefinitely, blocking the event loop
+- **Trade-off:** Commands that legitimately take longer will fail — acceptable for status checks
+
+## 2026-02-01: Task descriptions
+- **Decision:** Added optional description field to tasks in TaskPanel
+- **Reason:** Task titles alone were insufficient for tracking context on what needs to be done
+- **Trade-off:** Slightly more complex task UI

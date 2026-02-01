@@ -34,6 +34,11 @@
 - **Chat cost summary** — Aggregated cost display per conversation
 - **Text contrast fixes** — Improved contrast and input focus across all tabs
 - **Direct task creation** — Server creates tasks internally without self-referencing HTTP API
+- **Task descriptions** — Optional description field on tasks for additional context
+- **execSync timeouts** — All shell commands have explicit timeouts to prevent event loop blocking
+- **Eval-log pagination** — Backend filtering and pagination for eval-log API
+- **Status bar grouping** — Grouped status indicators, keyboard accessible, reduced-motion support
+- **Model name formatting** — Opus 4.5 selector fix, proper display names
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left

@@ -91,6 +91,11 @@
 - **Text contrast fixes** — Improved contrast and input focus states across all dashboard tabs
 - **Graceful shutdown** — SIGTERM/SIGINT handler kills all child processes, closes WebSocket connections, 8s forced-exit fallback
 - **Atomic eval-log writes** — Mutex + temp-file-plus-rename prevents corruption from concurrent writes
+- **Task descriptions** — Optional description field on tasks for additional context
+- **execSync timeouts** — All shell commands (git, launchctl) have explicit timeouts to prevent event loop blocking
+- **Eval-log pagination** — Backend filtering and pagination for eval-log API route
+- **Status bar grouping** — Grouped status indicators, keyboard accessible, reduced-motion support
+- **Model name formatting** — Opus 4.5 selector fix, proper display names for all models
 - **Stop hook** — TypeScript check + server health verification (no longer kills running server)
 - **Auto-iteration system** — Server-level idle detection (configurable 1min–2hr), four-eval rotation (frontend → backend → functionality → memory curator), merges main into dev before each run, persisted state, headless operation, manual trigger, change summaries
 - **Auto-eval test suite** — Vitest unit tests (rotation math) + integration tests (WebSocket message flow)
@@ -140,7 +145,8 @@
 - **Test suite** — `cd app && npm run test:run` (vitest, 9 tests)
 
 ### Advanced Features
-- Task descriptions and priorities
+- ~~Task descriptions~~ — **Built** (optional description field)
+- Task priorities
 - Task-to-chat linking (reference tasks in conversations)
 - Automation scheduling from the UI
 - Notification system for completed automations
