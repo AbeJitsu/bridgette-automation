@@ -126,6 +126,36 @@ body {
   text-decoration-color: rgba(96, 165, 250, 0.8);
 }
 
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+}
+
+.markdown-content th {
+  text-align: left;
+  font-weight: 600;
+  color: #f1f5f9;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.markdown-content td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #d1d5db;
+}
+
+.markdown-content tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-content tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .markdown-content hr {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.06);

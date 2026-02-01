@@ -6,6 +6,29 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // ============================================
+// CLICK OUTSIDE HOOK
+// ============================================
+
+function useClickOutside(ref: React.RefObject<HTMLElement | null>, onClose: () => void) {
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose();
+      }
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [ref, onClose]);
+}
+
+// ============================================
 // TYPES
 // ============================================
 
@@ -87,6 +110,13 @@ export default function ChatSession() {
   const streamingMessageRef = useRef<ChatMessage | null>(null);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptRef = useRef(0);
+  const historyRef = useRef<HTMLDivElement>(null);
+  const dirPickerRef = useRef<HTMLDivElement>(null);
+
+  const closeHistory = useCallback(() => { setShowHistory(false); setSessionSearch(""); }, []);
+  useClickOutside(historyRef, closeHistory);
+  const closeDirPicker = useCallback(() => setShowDirPicker(false), []);
+  useClickOutside(dirPickerRef, closeDirPicker);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -620,7 +650,7 @@ export default function ChatSession() {
           )}
 
           {/* Session history */}
-          <div className="relative">
+          <div className="relative" ref={historyRef}>
             <button
               onClick={() => { setSessions(loadSessions()); setShowHistory(!showHistory); }}
               className="text-gray-500 hover:text-gray-300 transition-all duration-200 p-1 rounded-md hover:bg-white/[0.05]"
@@ -731,11 +761,13 @@ export default function ChatSession() {
 
       {/* Directory picker dropdown */}
       {showDirPicker && (
-        <DirectoryPicker
-          currentPath={cwd}
-          onSelect={changeCwd}
-          onClose={() => setShowDirPicker(false)}
-        />
+        <div ref={dirPickerRef}>
+          <DirectoryPicker
+            currentPath={cwd}
+            onSelect={changeCwd}
+            onClose={() => setShowDirPicker(false)}
+          />
+        </div>
       )}
 
       {/* Messages area */}
@@ -949,14 +981,24 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
 
   return (
     <div
-      className="rounded-lg border border-white/[0.06] text-gray-400 overflow-hidden text-xs"
+      className={`rounded-lg border text-gray-400 overflow-hidden text-xs ${
+        tool.isComplete ? "border-white/[0.06]" : "border-amber-500/15"
+      }`}
       style={{ background: 'var(--surface-3)' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/[0.03] transition-colors duration-150"
       >
-        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${tool.isComplete ? "bg-emerald-400" : "bg-amber-400 animate-subtle-pulse"}`} />
+        {tool.isComplete ? (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400 flex-shrink-0">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        ) : (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-amber-400 animate-spin flex-shrink-0">
+            <path d="M12 2a10 10 0 0 1 10 10" />
+          </svg>
+        )}
         <span className="font-medium text-gray-300" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{displayName}</span>
         <span className="text-gray-600 truncate flex-1 text-left text-xs" style={{ fontFamily: 'var(--font-mono)' }}>{summary}</span>
         <svg
