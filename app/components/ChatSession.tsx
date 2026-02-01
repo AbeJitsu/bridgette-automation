@@ -1229,7 +1229,7 @@ function EmptyState() {
       </p>
 
       {/* Keyboard shortcuts */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 max-w-md">
         {shortcuts.map((s) => (
           <div key={s.keys} className="flex items-center gap-1.5 text-xs text-gray-600">
             <kbd

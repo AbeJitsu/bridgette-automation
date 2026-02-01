@@ -189,9 +189,11 @@ export default function MemoryEditor() {
             />
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-600">
-            Select a file to edit
-          </div>
+          <TabEmptyState
+            icon="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"
+            title="Select a File"
+            description="Choose a memory file from the sidebar to view and edit its contents. Save with Cmd+S."
+          />
         )}
       </div>
     </div>

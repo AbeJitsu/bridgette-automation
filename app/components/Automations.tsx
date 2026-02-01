@@ -120,22 +120,24 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
             key={auto.name}
             className={`rounded-xl border ${colors.border} ${colors.bg} overflow-hidden`}
           >
-            <div className="flex items-center justify-between p-4">
-              <div>
-                <h3 className={`font-medium ${colors.text}`}>{auto.title}</h3>
-                <p className="text-xs text-gray-500 mt-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
-                  {auto.name} &middot; updated{" "}
-                  {new Date(auto.modified).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="flex gap-2">
+            <div className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className={`font-medium ${colors.text}`}>{auto.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 truncate" style={{ fontFamily: 'var(--font-mono)' }}>
+                    {auto.name} &middot; updated{" "}
+                    {new Date(auto.modified).toLocaleDateString()}
+                  </p>
+                </div>
                 <button
                   onClick={() => viewPrompt(auto.name)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md border border-white/[0.08] text-gray-400 hover:text-gray-200 hover:bg-white/[0.05] transition-all duration-200"
+                  className="flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-md border border-white/[0.08] text-gray-400 hover:text-gray-200 hover:bg-white/[0.05] transition-all duration-200"
                   style={{ background: 'var(--surface-2)' }}
                 >
                   {expandedPrompt === auto.name ? "Hide" : "View"}
                 </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => copyPrompt(auto.name)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md border ${colors.border} ${colors.accent} hover:bg-white/[0.05] transition-all duration-200`}
