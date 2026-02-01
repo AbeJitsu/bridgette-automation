@@ -49,3 +49,13 @@
 - **Decision:** Validate launchd plist labels against safe character regex before passing to execSync
 - **Reason:** Status route was passing user-controllable filenames to shell commands without sanitization
 - **Trade-off:** Rejects plist labels with unusual characters (acceptable)
+
+## 2026-02-01: Rate limiting and temp file cleanup
+- **Decision:** Added rate limiting to API routes and automatic temp file cleanup on server startup
+- **Reason:** Prevent abuse of API endpoints; temp files from crashed eval runs accumulated over time
+- **Trade-off:** None — defensive hardening with no UX impact
+
+## 2026-02-01: Direct task creation from server
+- **Decision:** Server can create tasks directly in task-store without going through HTTP API
+- **Reason:** Auto-eval and internal server operations needed to create tasks without self-referencing the API
+- **Trade-off:** Two code paths for task creation (API + direct) — acceptable since task-store is the shared layer

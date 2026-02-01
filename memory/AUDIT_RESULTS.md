@@ -1,7 +1,8 @@
 # Pragmatic Code Quality Audit Report
 
-**Project:** ~/Projects/Personal/Need_This_Done/app
+**Project:** ~/Projects/Personal/Need_This_Done/app (separate project, not Bridgette)
 **Date:** 2024-01-26
+**Note:** This audit is for the Need_This_Done ecommerce project, not for Bridgette. Bridgette has not been audited yet.
 **Scope:** 388 source files (TS/TSX/JS/JSX, excluding build artifacts)
 
 ## Summary

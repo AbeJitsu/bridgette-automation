@@ -29,7 +29,11 @@
 - **Send to Chat** — Automations execute prompt templates directly in chat via WebSocket
 - **Session management** — Delete individual sessions, clear all, Cmd+K new chat shortcut
 - **Code block copy** — Hover-to-copy on all code blocks, click-to-copy on curl examples
-- **Backend hardening v2** — Shell injection guard on status route, corruption recovery for tasks.json, graceful 400 on invalid memory PUT
+- **Backend hardening v2** — Shell injection guard, corruption recovery, rate limiting, temp file cleanup, graceful 400 on invalid memory PUT
+- **Eval logs improvements** — Auto-refresh, reverse chronological order, type filtering
+- **Chat cost summary** — Aggregated cost display per conversation
+- **Text contrast fixes** — Improved contrast and input focus across all tabs
+- **Direct task creation** — Server creates tasks internally without self-referencing HTTP API
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left

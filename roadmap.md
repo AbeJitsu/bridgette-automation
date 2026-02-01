@@ -83,6 +83,12 @@
 - **ARIA accessibility** — Proper tabpanel roles with id/aria-labelledby on all five tabs
 - **Shared formatters** — `lib/format.ts` with formatRelativeTime, formatBytes, formatUptime, formatInterval
 - **TabEmptyState** — Reusable loading/error/empty state component across all tabs
+- **Eval logs auto-refresh** — Logs refresh automatically, displayed in reverse chronological order
+- **Chat cost summary** — Aggregated cost display in chat sessions
+- **Rate limiting** — API route rate limiting to prevent abuse
+- **Temp file cleanup** — Automatic cleanup of stale temp files on server startup
+- **Direct task creation** — Server-side task creation without self-referencing HTTP API
+- **Text contrast fixes** — Improved contrast and input focus states across all dashboard tabs
 - **Graceful shutdown** — SIGTERM/SIGINT handler kills all child processes, closes WebSocket connections, 8s forced-exit fallback
 - **Atomic eval-log writes** — Mutex + temp-file-plus-rename prevents corruption from concurrent writes
 - **Stop hook** — TypeScript check + server health verification (no longer kills running server)
