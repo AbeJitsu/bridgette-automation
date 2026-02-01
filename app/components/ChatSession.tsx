@@ -146,6 +146,7 @@ export default function ChatSession() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [scrolledUp, setScrolledUp] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -645,6 +646,10 @@ export default function ChatSession() {
         e.preventDefault();
         setShowSearch(true);
         setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+      if (e.key === "/" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setShowShortcuts((v) => !v);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -1235,10 +1240,61 @@ export default function ChatSession() {
               )}
           </div>
           <div className="mt-2 text-xs text-gray-600 text-center" style={{ fontFamily: 'var(--font-mono)' }}>
-            Enter to send · Shift+Enter for new line · Esc to stop · {"\u2318"}K new chat · {"\u2318"}F search
+            Enter to send · Shift+Enter for new line · Esc to stop · {"\u2318"}K new chat · {"\u2318"}F search ·{" "}
+            <button onClick={() => setShowShortcuts(true)} className="text-gray-600 hover:text-gray-400 transition-colors">{"\u2318"}/ all shortcuts</button>
           </div>
         </div>
       </div>
+
+      {/* Keyboard shortcuts overlay */}
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowShortcuts(false)}>
+          <div
+            className="rounded-2xl border border-white/[0.08] shadow-2xl max-w-md w-full mx-4 p-6"
+            style={{ background: 'var(--surface-1)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-semibold text-gray-200 tracking-tight">Keyboard Shortcuts</h2>
+              <button onClick={() => setShowShortcuts(false)} className="text-gray-500 hover:text-gray-300 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              {[
+                { group: "Chat", items: [
+                  { keys: "Enter", desc: "Send message" },
+                  { keys: "Shift+Enter", desc: "New line" },
+                  { keys: "Esc", desc: "Stop streaming" },
+                ]},
+                { group: "Navigation", items: [
+                  { keys: "\u2318K", desc: "New chat" },
+                  { keys: "\u2318F", desc: "Search messages" },
+                  { keys: "\u23181-5", desc: "Switch tabs" },
+                  { keys: "\u2190 \u2192", desc: "Navigate tabs (when focused)" },
+                ]},
+                { group: "General", items: [
+                  { keys: "\u2318/", desc: "Toggle this panel" },
+                ]},
+              ].map((section) => (
+                <div key={section.group}>
+                  <h3 className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2" style={{ fontFamily: 'var(--font-mono)' }}>{section.group}</h3>
+                  <div className="space-y-1.5">
+                    {section.items.map((s) => (
+                      <div key={s.keys} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-400">{s.desc}</span>
+                        <kbd className="px-2 py-0.5 rounded border border-white/[0.08] text-xs text-gray-300" style={{ background: 'var(--surface-2)', fontFamily: 'var(--font-mono)' }}>{s.keys}</kbd>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

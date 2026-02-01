@@ -67,6 +67,8 @@
 - **Memory editor empty state** — Placeholder when no files exist
 - **Connection cleanup** — Rate limit counters cleaned on stale connections
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
+- **Task-to-chat action** — "chat" button on tasks sends title + description to Claude as a message
+- **Keyboard shortcuts overlay** — Cmd+/ toggles grouped shortcut reference panel, also linked from input footer
 
 ### What's Left
 - **Polish** — Design system refinements

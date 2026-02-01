@@ -375,6 +375,22 @@ function TaskItem({
           )}
           {task.status !== "completed" && (
             <button
+              onClick={() => {
+                const text = task.description
+                  ? `Work on this task: ${task.title}\n\nDescription: ${task.description}`
+                  : `Work on this task: ${task.title}`;
+                window.dispatchEvent(new CustomEvent("bridgette-send-to-chat", { detail: text }));
+              }}
+              className="text-xs px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors duration-150"
+              style={{ fontFamily: 'var(--font-mono)' }}
+              aria-label={`Send "${task.title}" to chat`}
+              title="Send to Chat"
+            >
+              chat
+            </button>
+          )}
+          {task.status !== "completed" && (
+            <button
               onClick={() => onAdvance(task.id)}
               className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors duration-150"
               style={{ fontFamily: 'var(--font-mono)' }}

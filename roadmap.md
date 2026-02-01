@@ -145,7 +145,7 @@
 ### Enhanced Chat UX
 - ~~File diff viewer for edit tool results~~ — **Built** (side-by-side old/new in tool cards)
 - Approval buttons for tool use
-- Code syntax highlighting in markdown
+- ~~Code syntax highlighting in markdown~~ — **Built** (react-syntax-highlighter with Prism + oneDark theme)
 - ~~Search/filter conversation history~~ — **Built** (search box in session dropdown)
 - Multiple sessions support
 
