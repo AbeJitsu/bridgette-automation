@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import TabEmptyState from "@/components/TabEmptyState";
 
 interface Automation {
   name: string;
@@ -80,9 +81,12 @@ export default function Automations({ onSendToTerminal }: AutomationsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        Loading automations...
-      </div>
+      <TabEmptyState
+        icon="M13 2L3 14h9l-1 8 10-12h-9l1-8"
+        title="Loading Automations"
+        description="Fetching prompt templates..."
+        variant="loading"
+      />
     );
   }
 

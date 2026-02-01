@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { formatRelativeTime } from "@/lib/format";
+import TabEmptyState from "@/components/TabEmptyState";
 
 interface EvalLogEntry {
   id: string;
@@ -50,9 +52,12 @@ export default function EvalLogs() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        Loading eval logs...
-      </div>
+      <TabEmptyState
+        icon="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"
+        title="Loading Eval Logs"
+        description="Fetching evaluation run history..."
+        variant="loading"
+      />
     );
   }
 
@@ -129,7 +134,7 @@ export default function EvalLogs() {
 
                   {/* Timestamp */}
                   <span className="text-xs text-gray-400 flex-shrink-0" style={{ fontFamily: "var(--font-mono)" }}>
-                    {formatTimestamp(entry.timestamp)}
+                    {formatRelativeTime(entry.timestamp)}
                   </span>
 
                   {/* Branch + commit */}
@@ -176,14 +181,3 @@ export default function EvalLogs() {
   );
 }
 
-function formatTimestamp(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}

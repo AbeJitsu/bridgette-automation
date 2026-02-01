@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import TabEmptyState from "@/components/TabEmptyState";
 
 interface MemoryFile {
   name: string;
@@ -91,9 +92,12 @@ export default function MemoryEditor() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-400">
-        Loading memory files...
-      </div>
+      <TabEmptyState
+        icon="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"
+        title="Loading Memory"
+        description="Fetching memory files..."
+        variant="loading"
+      />
     );
   }
 

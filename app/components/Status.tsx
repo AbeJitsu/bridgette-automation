@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { formatRelativeTime, formatBytes, formatUptime, formatInterval } from "@/lib/format";
+import TabEmptyState from "@/components/TabEmptyState";
 
 interface StatusData {
   server: {
@@ -65,17 +67,23 @@ export default function Status() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        Loading status...
-      </div>
+      <TabEmptyState
+        icon="M22 12h-4l-3 9L9 3l-3 9H2"
+        title="Loading Status"
+        description="Checking server health and configuration..."
+        variant="loading"
+      />
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex items-center justify-center h-full text-red-400">
-        {error || "Failed to load status"}
-      </div>
+      <TabEmptyState
+        icon="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+        title="Status Unavailable"
+        description={error || "Failed to load system status. Is the server running?"}
+        variant="error"
+      />
     );
   }
 
@@ -107,7 +115,7 @@ export default function Status() {
           <InfoCard label="Status" value={data.server.status === "ok" ? "Healthy" : data.server.status} valueClass={data.server.status === "ok" ? "text-emerald-400" : "text-red-400"} />
           <InfoCard label="Uptime" value={formatUptime(data.server.uptime)} />
           <InfoCard label="Node" value={data.server.nodeVersion} />
-          <InfoCard label="Last check" value={formatTimestamp(data.server.timestamp)} />
+          <InfoCard label="Last check" value={formatRelativeTime(data.server.timestamp)} />
         </div>
       </Section>
 
@@ -115,7 +123,7 @@ export default function Status() {
       <Section title="Git">
         <div className="grid grid-cols-2 gap-3">
           <InfoCard label="Branch" value={data.git.branch} valueClass={data.git.branch === "main" ? "text-emerald-400" : "text-amber-400"} />
-          <InfoCard label="Last commit" value={data.git.lastCommitDate ? formatTimestamp(data.git.lastCommitDate) : "—"} />
+          <InfoCard label="Last commit" value={data.git.lastCommitDate ? formatRelativeTime(data.git.lastCommitDate) : "—"} />
         </div>
         <div className="mt-3 px-3 py-2 rounded-lg border border-white/[0.06] text-xs text-gray-400" style={{ background: "var(--surface-2)", fontFamily: "var(--font-mono)" }}>
           {data.git.lastCommit}
@@ -165,7 +173,7 @@ export default function Status() {
                 </span>
                 <div className="flex items-center gap-3 text-gray-600" style={{ fontFamily: "var(--font-mono)" }}>
                   <span>{formatBytes(file.size)}</span>
-                  <span>{formatTimestamp(file.modified)}</span>
+                  <span>{formatRelativeTime(file.modified)}</span>
                 </div>
               </div>
             ))}
@@ -226,34 +234,3 @@ function InfoCard({ label, value, valueClass }: { label: string; value: string; 
 // HELPERS
 // ============================================
 
-function formatUptime(seconds: number): string {
-  const d = Math.floor(seconds / 86400);
-  const h = Math.floor((seconds % 86400) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-function formatInterval(ms: number): string {
-  const min = Math.round(ms / 60000);
-  if (min >= 60) return `${Math.round(min / 60)}h`;
-  return `${min}m`;
-}
-
-function formatTimestamp(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes}B`;
-  return `${(bytes / 1024).toFixed(1)}KB`;
-}
