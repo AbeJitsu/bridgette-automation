@@ -7,8 +7,28 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "
 import { join } from "path";
 import crypto from "crypto";
 
+// Load .env if present
+try {
+  const envPath = join(process.cwd(), ".env");
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, "utf-8");
+    for (const line of envContent.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx > 0) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim();
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  }
+} catch {}
+
+const BRIDGETTE_TOKEN = process.env.BRIDGETTE_TOKEN || "";
+
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = process.env.BRIDGETTE_HOST || "0.0.0.0";
 const port = parseInt(process.env.PORT || "3000", 10);
 
 const app = next({ dev, hostname, port });
@@ -53,6 +73,10 @@ let serverAutoEvalEnabled = loadAutoEvalEnabled();
 let serverEvalInterval = loadEvalInterval();
 let serverIdleTimer: NodeJS.Timeout | null = null;
 let serverAutoEvalProcess: ChildProcess | null = null;
+let evalChaining = false;
+let serverIdleTimerStart: number | null = null;
+
+const EVAL_CHAIN_COOLDOWN = 30 * 1000; // 30 seconds between chained evals
 
 // Three-eval rotation system
 const EVAL_TYPES = ["frontend", "backend", "functionality", "memory"] as const;
@@ -209,9 +233,20 @@ app.prepare().then(() => {
   const wssChat = new WebSocketServer({ noServer: true });
 
   server.on("upgrade", (req, socket, head) => {
-    const { pathname } = parse(req.url!, true);
+    const { pathname, query } = parse(req.url!, true);
 
     if (pathname === "/ws/chat") {
+      // Token auth check (skip if no token configured)
+      if (BRIDGETTE_TOKEN) {
+        const authHeader = req.headers["authorization"];
+        const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+        const queryToken = typeof query.token === "string" ? query.token : null;
+        if (headerToken !== BRIDGETTE_TOKEN && queryToken !== BRIDGETTE_TOKEN) {
+          socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+          socket.destroy();
+          return;
+        }
+      }
       wssChat.handleUpgrade(req, socket, head, (ws) => {
         wssChat.emit("connection", ws, req);
       });
@@ -236,11 +271,17 @@ app.prepare().then(() => {
   function resetServerIdleTimer() {
     if (serverIdleTimer) clearTimeout(serverIdleTimer);
     serverIdleTimer = null;
+    serverIdleTimerStart = null;
 
     if (!serverAutoEvalEnabled) return;
 
-    console.log(`[auto-eval] Idle timer set for ${Math.round(serverEvalInterval / 60000)} min`);
-    serverIdleTimer = setTimeout(() => triggerServerAutoEval(), serverEvalInterval);
+    const delay = evalChaining ? EVAL_CHAIN_COOLDOWN : serverEvalInterval;
+    console.log(`[auto-eval] ${evalChaining ? "Chain" : "Idle"} timer set for ${Math.round(delay / 1000)}s`);
+    serverIdleTimerStart = Date.now();
+    serverIdleTimer = setTimeout(() => triggerServerAutoEval(), delay);
+
+    // Broadcast timer state to clients
+    broadcastToChat({ type: "eval_timer_state", evalTimerStart: serverIdleTimerStart, evalChaining });
   }
 
   function getGitBranch(cwd: string): string {
@@ -260,9 +301,26 @@ app.prepare().then(() => {
     });
   }
 
+  function killProcessWithTimeout(proc: ChildProcess, timeoutMs = 5000): void {
+    if (!proc || proc.exitCode !== null) return;
+    proc.kill("SIGTERM");
+    const killTimer = setTimeout(() => {
+      if (proc.exitCode === null) {
+        console.warn("[process] SIGTERM did not exit in time, sending SIGKILL");
+        proc.kill("SIGKILL");
+      }
+    }, timeoutMs);
+    proc.once("exit", () => clearTimeout(killTimer));
+  }
+
   function triggerServerAutoEval() {
-    // Don't run if already running
-    if (serverAutoEvalProcess && !serverAutoEvalProcess.killed) return;
+    // Don't run if already running — use exitCode (reliable) instead of .killed (unreliable)
+    if (serverAutoEvalProcess && serverAutoEvalProcess.exitCode === null) return;
+
+    // Clear timer state — eval is now running
+    serverIdleTimerStart = null;
+    if (serverIdleTimer) clearTimeout(serverIdleTimer);
+    serverIdleTimer = null;
 
     const cwd = getLastCwd();
     const branchName = "dev";
@@ -345,7 +403,7 @@ app.prepare().then(() => {
     // Safety timeout — kill if eval runs longer than 30 minutes
     const AUTO_EVAL_TIMEOUT = 30 * 60 * 1000;
     const evalTimeout = setTimeout(() => {
-      if (proc && !proc.killed) {
+      if (proc && proc.exitCode === null) {
         console.error("[auto-eval] Timeout after 30 minutes — killing process");
         broadcastToChat({ type: "error", message: "Auto-eval timed out after 30 minutes" });
         writeEvalLogEntry({
@@ -357,7 +415,7 @@ app.prepare().then(() => {
           diffSummary: "Timed out after 30 minutes",
           status: "timeout",
         });
-        proc.kill("SIGTERM");
+        killProcessWithTimeout(proc);
       }
     }, AUTO_EVAL_TIMEOUT);
 
@@ -432,7 +490,8 @@ app.prepare().then(() => {
 
       broadcastToChat({ type: "auto_eval_complete", summary, branch: evalBranch, evalType: completedEvalType });
 
-      // Reset idle timer (prevents chaining evals)
+      // Chain: next eval fires after short cooldown
+      evalChaining = true;
       resetServerIdleTimer();
     });
 
@@ -493,8 +552,8 @@ app.prepare().then(() => {
 
     // Send initial state including branch and auto-eval
     const branch = getGitBranch(initialCwd);
-    const evalRunning = !!serverAutoEvalProcess && !serverAutoEvalProcess.killed;
-    ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled, evalInterval: serverEvalInterval, evalRunning, evalType: evalRunning ? currentEvalType : null }));
+    const evalRunning = !!serverAutoEvalProcess && serverAutoEvalProcess.exitCode === null;
+    ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled, evalInterval: serverEvalInterval, evalRunning, evalType: evalRunning ? currentEvalType : null, evalTimerStart: serverIdleTimerStart, evalChaining }));
 
     ws.on("message", (msg: Buffer | string) => {
       // Reject oversized messages
@@ -517,12 +576,13 @@ app.prepare().then(() => {
             ws.send(JSON.stringify({ type: "error", message: `Invalid model: ${parsed.model}` }));
             return;
           }
+          evalChaining = false;
           resetServerIdleTimer();
           handleChatMessage(ws, parsed.text, parsed.sessionId || chatSessions.get(ws), parsed.thinking, parsed.model);
         } else if (parsed.type === "stop") {
           const proc = chatProcesses.get(ws);
-          if (proc && !proc.killed) {
-            proc.kill("SIGTERM");
+          if (proc && proc.exitCode === null) {
+            killProcessWithTimeout(proc);
           }
         } else if (parsed.type === "set_cwd") {
           const target = typeof parsed.cwd === "string" ? parsed.cwd : "";
@@ -536,8 +596,8 @@ app.prepare().then(() => {
             saveLastCwd(target);
             chatSessions.set(ws, null);
             const branch = getGitBranch(target);
-            const evalRunningNow = !!serverAutoEvalProcess && !serverAutoEvalProcess.killed;
-            ws.send(JSON.stringify({ type: "state", cwd: target, branch, autoEval: serverAutoEvalEnabled, evalInterval: serverEvalInterval, evalRunning: evalRunningNow, evalType: evalRunningNow ? currentEvalType : null }));
+            const evalRunningNow = !!serverAutoEvalProcess && serverAutoEvalProcess.exitCode === null;
+            ws.send(JSON.stringify({ type: "state", cwd: target, branch, autoEval: serverAutoEvalEnabled, evalInterval: serverEvalInterval, evalRunning: evalRunningNow, evalType: evalRunningNow ? currentEvalType : null, evalTimerStart: serverIdleTimerStart, evalChaining }));
           } else {
             ws.send(JSON.stringify({ type: "error", message: `Directory not found: ${target}` }));
           }
@@ -545,13 +605,16 @@ app.prepare().then(() => {
           serverAutoEvalEnabled = !!parsed.enabled;
           saveAutoEvalEnabled(serverAutoEvalEnabled);
           if (serverAutoEvalEnabled) {
+            evalChaining = false;
             resetServerIdleTimer();
           } else {
             if (serverIdleTimer) clearTimeout(serverIdleTimer);
             serverIdleTimer = null;
+            serverIdleTimerStart = null;
+            evalChaining = false;
           }
           // Broadcast to all clients
-          broadcastToChat({ type: "auto_eval_state", enabled: serverAutoEvalEnabled });
+          broadcastToChat({ type: "auto_eval_state", enabled: serverAutoEvalEnabled, evalTimerStart: serverIdleTimerStart, evalChaining });
         } else if (parsed.type === "trigger_auto_eval") {
           triggerServerAutoEval();
         } else if (parsed.type === "set_eval_interval") {
@@ -570,8 +633,8 @@ app.prepare().then(() => {
 
     ws.on("close", () => {
       const proc = chatProcesses.get(ws);
-      if (proc && !proc.killed) {
-        proc.kill("SIGTERM");
+      if (proc && proc.exitCode === null) {
+        killProcessWithTimeout(proc);
       }
       chatProcesses.delete(ws);
       chatSessions.delete(ws);
@@ -583,8 +646,8 @@ app.prepare().then(() => {
   function handleChatMessage(ws: WebSocket, text: string, sessionId: string | null, thinking?: boolean, model?: string) {
     // Kill any existing process for this connection
     const existingProc = chatProcesses.get(ws);
-    if (existingProc && !existingProc.killed) {
-      existingProc.kill("SIGTERM");
+    if (existingProc && existingProc.exitCode === null) {
+      killProcessWithTimeout(existingProc);
     }
 
     const home = process.env.HOME || "/Users/abereyes";
