@@ -103,3 +103,12 @@ Task schema:
 cd app && npm run dev    # Start Bridgette (includes WebSocket server)
 cd app && npm run build  # Production build
 ```
+
+## Dev Server
+
+Always ensure the dev server is running on port 3000 so the user can test changes in the browser.
+
+- **Before making UI changes:** Check `lsof -ti:3000` — start the server if it's not running
+- **After changes that affect server.ts or API routes:** Kill and restart (`kill -9 $(lsof -ti:3000) && cd app && npm run dev`)
+- **After build failures:** Fix the issue, then verify the server is still running
+- **Never leave the server down** after finishing work
