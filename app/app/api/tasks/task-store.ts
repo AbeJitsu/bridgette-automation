@@ -76,15 +76,37 @@ export function getAllTasks(): Promise<Task[]> {
   return withLock(() => readTasks());
 }
 
+// Number of oldest completed tasks to purge when approaching the limit
+const PURGE_BATCH = 50;
+
 export function createTask(
   title: string,
   options?: { status?: Task["status"]; summary?: string }
 ): Promise<Task> {
   return withLock(() => {
-    const tasks = readTasks();
+    let tasks = readTasks();
+
+    // Auto-purge oldest completed tasks when nearing the limit
     if (tasks.length >= MAX_TASKS) {
-      throw new Error(`Task limit reached (${MAX_TASKS}). Delete old tasks first.`);
+      const completed = tasks
+        .map((t, i) => ({ task: t, index: i }))
+        .filter(({ task }) => task.status === "completed")
+        .sort((a, b) => new Date(a.task.createdAt).getTime() - new Date(b.task.createdAt).getTime());
+
+      if (completed.length > 0) {
+        const toRemove = new Set(
+          completed.slice(0, Math.min(PURGE_BATCH, completed.length)).map(({ task }) => task.id)
+        );
+        tasks = tasks.filter((t) => !toRemove.has(t.id));
+        console.log(`[tasks] Auto-purged ${toRemove.size} oldest completed tasks (was at limit of ${MAX_TASKS})`);
+      }
+
+      // If still at limit after purge (all active tasks), reject
+      if (tasks.length >= MAX_TASKS) {
+        throw new Error(`Task limit reached (${MAX_TASKS}). Delete old tasks first.`);
+      }
     }
+
     const task: Task = {
       id: randomUUID(),
       title,

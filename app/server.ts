@@ -278,6 +278,34 @@ app.prepare().then(() => {
   const chatSessions = new Map<WebSocket, string | null>();
   const chatProcesses = new Map<WebSocket, ChildProcess>();
   const chatCwds = new Map<WebSocket, string>();
+  const chatAlive = new Map<WebSocket, boolean>();
+
+  // ============================================
+  // WEBSOCKET HEARTBEAT — detect stale connections
+  // ============================================
+
+  const HEARTBEAT_INTERVAL = 30_000; // 30 seconds
+
+  const heartbeatTimer = setInterval(() => {
+    wssChat.clients.forEach((ws) => {
+      if (chatAlive.get(ws) === false) {
+        // No pong received since last ping — connection is stale
+        console.log("[ws] Terminating stale connection (no pong)");
+        const proc = chatProcesses.get(ws);
+        if (proc && proc.exitCode === null) {
+          killProcessWithTimeout(proc);
+        }
+        chatProcesses.delete(ws);
+        chatSessions.delete(ws);
+        chatCwds.delete(ws);
+        chatAlive.delete(ws);
+        ws.terminate();
+        return;
+      }
+      chatAlive.set(ws, false);
+      ws.ping();
+    });
+  }, HEARTBEAT_INTERVAL);
 
   // ============================================
   // SERVER-LEVEL IDLE TIMER
@@ -562,8 +590,13 @@ app.prepare().then(() => {
 
   wssChat.on("connection", (ws: WebSocket) => {
     chatSessions.set(ws, null);
+    chatAlive.set(ws, true);
     const initialCwd = getLastCwd();
     chatCwds.set(ws, initialCwd);
+
+    ws.on("pong", () => {
+      chatAlive.set(ws, true);
+    });
 
     // Send initial state including branch and auto-eval
     const branch = getGitBranch(initialCwd);
@@ -654,6 +687,7 @@ app.prepare().then(() => {
       chatProcesses.delete(ws);
       chatSessions.delete(ws);
       chatCwds.delete(ws);
+      chatAlive.delete(ws);
       // Note: idle timer is server-level now, not cleaned up per-connection
     });
   });
@@ -789,7 +823,8 @@ app.prepare().then(() => {
   function gracefulShutdown(signal: string) {
     console.log(`\n[shutdown] Received ${signal}, cleaning up...`);
 
-    // Stop idle timer
+    // Stop heartbeat and idle timers
+    clearInterval(heartbeatTimer);
     if (serverIdleTimer) {
       clearTimeout(serverIdleTimer);
       serverIdleTimer = null;
