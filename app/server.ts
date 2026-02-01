@@ -141,6 +141,16 @@ app.prepare().then(() => {
           execSync(`git checkout -b ${branchName}`, { cwd, stdio: "pipe" });
         }
       }
+      // Keep dev up to date with main
+      try {
+        execSync("git merge main --no-edit", { cwd, stdio: "pipe" });
+      } catch (mergeErr: any) {
+        console.error(`Failed to merge main into dev: ${mergeErr.message}`);
+        broadcastToChat({ type: "error", message: `Failed to merge main into dev: ${mergeErr.message}` });
+        // Abort the failed merge and bail
+        try { execSync("git merge --abort", { cwd, stdio: "pipe" }); } catch {}
+        return;
+      }
     } catch (err: any) {
       console.error(`Failed to switch to dev branch: ${err.message}`);
       broadcastToChat({ type: "error", message: `Failed to switch to dev branch: ${err.message}` });
