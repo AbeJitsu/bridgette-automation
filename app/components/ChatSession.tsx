@@ -1528,10 +1528,17 @@ function DirectoryPicker({
 }
 
 function formatModel(model: string): string {
-  const match = model.match(/claude-(\w+)-(\d+)-(\d+)/);
-  if (match) {
-    const name = match[1].charAt(0).toUpperCase() + match[1].slice(1);
-    return `${name} ${match[2]}.${match[3]}`;
+  // Handle "claude-opus-4-5-20251101" pattern (name with version like 4.5)
+  const matchVersion = model.match(/claude-(\w+)-(\d+)-(\d+)-\d{8}/);
+  if (matchVersion) {
+    const name = matchVersion[1].charAt(0).toUpperCase() + matchVersion[1].slice(1);
+    return `${name} ${matchVersion[2]}.${matchVersion[3]}`;
+  }
+  // Handle "claude-sonnet-4-20250514" pattern (name with single version)
+  const matchSingle = model.match(/claude-(\w+)-(\d+)-\d{8}/);
+  if (matchSingle) {
+    const name = matchSingle[1].charAt(0).toUpperCase() + matchSingle[1].slice(1);
+    return `${name} ${matchSingle[2]}`;
   }
   return model;
 }

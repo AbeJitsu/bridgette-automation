@@ -35,12 +35,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const options: { status?: Task["status"]; summary?: string } = {};
+  const options: { status?: Task["status"]; summary?: string; description?: string } = {};
   if (body.status && VALID_STATUSES.includes(body.status as Task["status"])) {
     options.status = body.status as Task["status"];
   }
   if (typeof body.summary === "string") {
     options.summary = body.summary.slice(0, 5000);
+  }
+  if (typeof body.description === "string") {
+    options.description = body.description.slice(0, 2000);
   }
 
   try {

@@ -583,6 +583,7 @@ app.prepare().then(() => {
   const ALLOWED_MODELS = new Set([
     "claude-sonnet-4-20250514",
     "claude-opus-4-20250514",
+    "claude-opus-4-5-20251101",
     "claude-haiku-3-5-20241022",
     "sonnet",
     "opus",

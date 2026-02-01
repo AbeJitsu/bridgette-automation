@@ -10,6 +10,7 @@ export interface Task {
   status: "pending" | "needs_testing" | "completed";
   createdAt: string;
   summary?: string;
+  description?: string;
 }
 
 export const VALID_STATUSES: Task["status"][] = [
@@ -103,7 +104,7 @@ const PURGE_BATCH = 50;
 
 export function createTask(
   title: string,
-  options?: { status?: Task["status"]; summary?: string }
+  options?: { status?: Task["status"]; summary?: string; description?: string }
 ): Promise<Task> {
   return withLock(() => {
     let tasks = readTasks();
@@ -136,6 +137,7 @@ export function createTask(
       createdAt: new Date().toISOString(),
     };
     if (options?.summary) task.summary = options.summary;
+    if (options?.description) task.description = options.description;
     tasks.push(task);
     writeTasks(tasks);
     return task;
@@ -144,7 +146,7 @@ export function createTask(
 
 export function updateTask(
   id: string,
-  updates: { title?: string; status?: Task["status"]; summary?: string }
+  updates: { title?: string; status?: Task["status"]; summary?: string; description?: string }
 ): Promise<Task | null> {
   return withLock(() => {
     const tasks = readTasks();
@@ -159,6 +161,9 @@ export function updateTask(
     }
     if (updates.summary !== undefined) {
       tasks[index].summary = updates.summary;
+    }
+    if (updates.description !== undefined) {
+      tasks[index].description = updates.description;
     }
 
     writeTasks(tasks);

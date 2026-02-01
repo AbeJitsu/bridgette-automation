@@ -8,6 +8,7 @@ interface Task {
   status: "pending" | "needs_testing" | "completed";
   createdAt: string;
   summary?: string;
+  description?: string;
 }
 
 // Brief error flash for failed task operations
@@ -29,7 +30,7 @@ function setError(msg: string) {
 // ============================================
 
 export function LeftTaskPanel() {
-  const { tasks, error, addTask, advanceTask, deleteTask, renameTask } = useTasks();
+  const { tasks, error, addTask, advanceTask, deleteTask, renameTask, updateDescription } = useTasks();
   const [newTitle, setNewTitle] = useState("");
 
   const pending = tasks.filter((t) => t.status === "pending");
@@ -49,7 +50,7 @@ export function LeftTaskPanel() {
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
         {pending.map((task) => (
-          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} />
+          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
         ))}
         {pending.length === 0 && (
           <p className="text-xs text-gray-500 px-2 py-6 text-center">No pending tasks</p>
@@ -91,7 +92,7 @@ export function LeftTaskPanel() {
 // ============================================
 
 export function RightTaskPanel() {
-  const { tasks, advanceTask, deleteTask, renameTask, clearCompleted } = useTasks();
+  const { tasks, advanceTask, deleteTask, renameTask, updateDescription, clearCompleted } = useTasks();
 
   const needsTesting = tasks.filter((t) => t.status === "needs_testing");
   const completed = tasks.filter((t) => t.status === "completed");
@@ -105,7 +106,7 @@ export function RightTaskPanel() {
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
         {needsTesting.map((task) => (
-          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} />
+          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
         ))}
         {needsTesting.length === 0 && (
           <p className="text-xs text-gray-500 px-2 py-6 text-center">Nothing to test</p>
@@ -142,7 +143,7 @@ export function RightTaskPanel() {
               </div>
             )}
             {completed.map((task) => (
-              <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} />
+              <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
             ))}
           </div>
         )}
@@ -160,15 +161,19 @@ function TaskItem({
   onAdvance,
   onDelete,
   onRename,
+  onUpdateDescription,
 }: {
   task: Task;
   onAdvance: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
+  onUpdateDescription: (id: string, description: string) => void;
 }) {
   const [showSummary, setShowSummary] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [editDesc, setEditDesc] = useState(task.description || "");
 
   const statusIcon = {
     pending: "text-gray-600",
@@ -266,6 +271,62 @@ function TaskItem({
           </button>
         </div>
       </div>
+      {/* Description — click to add/edit, shows below title for non-completed tasks */}
+      {task.status !== "completed" && (
+        editingDesc ? (
+          <div className="mt-1.5 ml-5">
+            <textarea
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              onBlur={() => {
+                const trimmed = editDesc.trim();
+                if (trimmed !== (task.description || "")) {
+                  onUpdateDescription(task.id, trimmed);
+                }
+                setEditingDesc(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setEditDesc(task.description || "");
+                  setEditingDesc(false);
+                }
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  (e.target as HTMLTextAreaElement).blur();
+                }
+              }}
+              autoFocus
+              rows={2}
+              placeholder="Add a description..."
+              className="w-full text-xs bg-transparent text-gray-400 border border-white/[0.08] rounded-md px-2 py-1.5 outline-none focus:border-emerald-500/40 resize-none transition-all duration-200"
+              style={{ background: 'var(--surface-2)', fontFamily: 'var(--font-sans)' }}
+              maxLength={2000}
+            />
+          </div>
+        ) : task.description ? (
+          <button
+            onClick={() => { setEditDesc(task.description || ""); setEditingDesc(true); }}
+            className="mt-1 ml-5 text-xs text-gray-500 hover:text-gray-400 text-left leading-relaxed transition-colors duration-150 line-clamp-2"
+            title="Click to edit description"
+          >
+            {task.description}
+          </button>
+        ) : (
+          <button
+            onClick={() => { setEditDesc(""); setEditingDesc(true); }}
+            className="mt-0.5 ml-5 text-xs text-gray-600 hover:text-gray-500 transition-colors duration-150 opacity-0 group-hover:opacity-100"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            + description
+          </button>
+        )
+      )}
+      {/* Completed task description (read-only) */}
+      {task.status === "completed" && task.description && (
+        <div className="mt-1 ml-5 text-xs text-gray-600 leading-relaxed line-clamp-2">
+          {task.description}
+        </div>
+      )}
       {showSummary && task.summary && (
         <div
           className="mt-1.5 ml-5 text-xs text-gray-500 overflow-x-auto max-h-40 overflow-y-auto rounded-md border border-white/[0.06] px-2.5 py-2 space-y-1"
@@ -437,7 +498,29 @@ function useTasks() {
     }
   }, []);
 
-  return { tasks: globalTasks, error: errorMessage, addTask, advanceTask, deleteTask, renameTask, clearCompleted };
+  const updateDescription = useCallback(async (id: string, description: string) => {
+    const previous = [...globalTasks];
+    globalTasks = globalTasks.map((t) => (t.id === id ? { ...t, description } : t));
+    notify();
+
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description }),
+      });
+      if (!res.ok) throw new Error("Failed to update description");
+      const updated = await res.json();
+      globalTasks = globalTasks.map((t) => (t.id === id ? updated : t));
+      notify();
+    } catch {
+      globalTasks = previous;
+      notify();
+      setError("Failed to update description");
+    }
+  }, []);
+
+  return { tasks: globalTasks, error: errorMessage, addTask, advanceTask, deleteTask, renameTask, updateDescription, clearCompleted };
 }
 
 // ============================================

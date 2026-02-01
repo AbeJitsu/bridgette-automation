@@ -20,7 +20,7 @@ export async function PUT(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const updates: { title?: string; status?: Task["status"]; summary?: string } = {};
+  const updates: { title?: string; status?: Task["status"]; summary?: string; description?: string } = {};
 
   if (typeof body.title === "string" && body.title.trim()) {
     const title = body.title.trim();
@@ -45,6 +45,9 @@ export async function PUT(
 
   if (typeof body.summary === "string") {
     updates.summary = body.summary.slice(0, 5000);
+  }
+  if (typeof body.description === "string") {
+    updates.description = body.description.slice(0, 2000);
   }
 
   try {
