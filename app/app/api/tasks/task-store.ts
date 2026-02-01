@@ -38,6 +38,10 @@ function withLock<T>(fn: () => T | Promise<T>): Promise<T> {
 // ============================================
 
 function readTasks(): Task[] {
+  // Clean up stale temp file from a previously failed write
+  const tmpFile = `${TASKS_FILE}.tmp`;
+  try { if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile); } catch {}
+
   try {
     const data = fs.readFileSync(TASKS_FILE, "utf-8");
     const parsed = JSON.parse(data);
@@ -62,8 +66,14 @@ function readTasks(): Task[] {
 
 function writeTasks(tasks: Task[]): void {
   const tmpFile = `${TASKS_FILE}.tmp`;
-  fs.writeFileSync(tmpFile, JSON.stringify(tasks, null, 2));
-  fs.renameSync(tmpFile, TASKS_FILE);
+  try {
+    fs.writeFileSync(tmpFile, JSON.stringify(tasks, null, 2));
+    fs.renameSync(tmpFile, TASKS_FILE);
+  } catch (err) {
+    // Clean up temp file if rename failed — original file is still intact
+    try { fs.unlinkSync(tmpFile); } catch {}
+    throw err;
+  }
 }
 
 // ============================================

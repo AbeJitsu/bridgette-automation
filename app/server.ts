@@ -157,8 +157,6 @@ function getCommitHash(cwd: string): string {
 }
 
 function createEvalTask(evalType: string, diffSummary: string): void {
-  const url = `http://localhost:${port}/api/tasks`;
-  // Format summary in what/why/how style
   const fileCount = (diffSummary.match(/\n/g) || []).length;
   const insertions = diffSummary.match(/(\d+) insertion/)?.[1] || "0";
   const deletions = diffSummary.match(/(\d+) deletion/)?.[1] || "0";
@@ -169,20 +167,15 @@ function createEvalTask(evalType: string, diffSummary: string): void {
     ``,
     diffSummary,
   ].join("\n");
-  const body = JSON.stringify({
-    title: `[Auto-eval] ${evalType.charAt(0).toUpperCase() + evalType.slice(1)} eval completed`,
-    status: "completed",
-    summary,
-  });
-  // Fire-and-forget POST to create the task
-  import("http").then(({ default: http }) => {
-    const req = http.request(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
-    });
-    req.on("error", () => {}); // Ignore errors
-    req.write(body);
-    req.end();
+  const title = `[Auto-eval] ${evalType.charAt(0).toUpperCase() + evalType.slice(1)} eval completed`;
+
+  // Direct task-store call instead of self-HTTP — avoids network hop and silent failures
+  import("./app/api/tasks/task-store").then(({ createTask }) => {
+    return createTask(title, { status: "completed", summary });
+  }).then(() => {
+    console.log(`[auto-eval] Created task: ${title}`);
+  }).catch((err: Error) => {
+    console.error(`[auto-eval] Failed to create task: ${err.message}`);
   });
 }
 
@@ -578,6 +571,11 @@ app.prepare().then(() => {
   // Maximum WebSocket message size (1MB) to prevent memory abuse
   const MAX_WS_MESSAGE_SIZE = 1024 * 1024;
 
+  // Per-connection rate limiting — max 20 messages per 10 seconds
+  const RATE_LIMIT_WINDOW = 10_000;
+  const RATE_LIMIT_MAX = 20;
+  const rateLimitCounters = new Map<WebSocket, { count: number; resetAt: number }>();
+
   // Allowed model values to prevent injection via the --model flag
   const ALLOWED_MODELS = new Set([
     "claude-sonnet-4-20250514",
@@ -604,6 +602,19 @@ app.prepare().then(() => {
     ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled, evalInterval: serverEvalInterval, evalRunning, evalType: evalRunning ? currentEvalType : null, evalTimerStart: serverIdleTimerStart, evalChaining }));
 
     ws.on("message", (msg: Buffer | string) => {
+      // Rate limiting — prevent message flooding
+      const now = Date.now();
+      let rl = rateLimitCounters.get(ws);
+      if (!rl || now >= rl.resetAt) {
+        rl = { count: 0, resetAt: now + RATE_LIMIT_WINDOW };
+        rateLimitCounters.set(ws, rl);
+      }
+      rl.count++;
+      if (rl.count > RATE_LIMIT_MAX) {
+        ws.send(JSON.stringify({ type: "error", message: "Rate limit exceeded, slow down" }));
+        return;
+      }
+
       // Reject oversized messages
       const raw = msg.toString();
       if (raw.length > MAX_WS_MESSAGE_SIZE) {
@@ -688,11 +699,18 @@ app.prepare().then(() => {
       chatSessions.delete(ws);
       chatCwds.delete(ws);
       chatAlive.delete(ws);
+      rateLimitCounters.delete(ws);
       // Note: idle timer is server-level now, not cleaned up per-connection
     });
   });
 
   function handleChatMessage(ws: WebSocket, text: string, sessionId: string | null, thinking?: boolean, model?: string) {
+    // Don't spawn a process if the client already disconnected
+    if (ws.readyState !== WebSocket.OPEN) {
+      console.log("[ws] Skipping message — client already disconnected");
+      return;
+    }
+
     // Kill any existing process for this connection
     const existingProc = chatProcesses.get(ws);
     if (existingProc && existingProc.exitCode === null) {
