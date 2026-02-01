@@ -7,15 +7,15 @@
 - **Status:** Core features complete, polish phase
 
 ## What's Done (Recent)
-- Task priorities — High/normal/low with red border highlights, sorting, click-to-cycle button
-- Responsive layout — Auto-collapse sidebars under 1024px, icon-only tabs on mobile, wrapped navigation
-- Eval task deduplication — Skips creating needs_testing task when one already exists for that eval type
-- Connection cleanup — Rate limit counters cleaned up on stale connections, advance-all rejects same-status transitions
-- Scroll-to-bottom always visible — Button appears whenever user scrolls up, not just during streaming
-- Tool card a11y — aria-expanded and aria-label on expand/collapse buttons
-- Memory editor empty state — Shows placeholder when no files exist
+- Task-to-chat action — "Chat" button on tasks sends title + description to Claude as a message
+- Keyboard shortcuts overlay — Cmd+/ toggles grouped shortcut reference panel, linked from input footer
+- Backend hardening v3 — Directory validation, symlink protection, stale task cleanup
+- Frontend polish — aria-live status bar, responsive directory label, editor Tab key support
+- Task priorities — High/normal/low with red border highlights, sorting, click-to-cycle
+- Responsive layout — Auto-collapse sidebars under 1024px, icon-only tabs on mobile
+- Eval task deduplication — Skips duplicate needs_testing tasks for same eval type
 
 ## Next Steps
-- Code syntax highlighting in markdown
 - Approval buttons for tool use
 - Multiple sessions support
+- Design system refinements

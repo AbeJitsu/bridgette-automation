@@ -84,3 +84,13 @@
 - **Decision:** Server checks for existing needs_testing task of same eval type before creating a new one
 - **Reason:** Auto-eval cycles were creating duplicate tasks when previous ones weren't reviewed yet
 - **Trade-off:** None — pure correctness fix
+
+## 2026-02-01: Backend hardening v3
+- **Decision:** Added directory validation (realpath checks), symlink protection, stale task cleanup on startup
+- **Reason:** Working directory selector could be exploited with symlinks; stale tasks accumulate over time
+- **Trade-off:** Symlinks to valid directories are now rejected — acceptable security tradeoff
+
+## 2026-02-01: Task-to-chat action
+- **Decision:** Added "Chat" button on tasks that sends title + description to Claude as a message
+- **Reason:** Users need to discuss tasks with Claude without manually copying task details
+- **Trade-off:** None — optional action alongside existing task controls

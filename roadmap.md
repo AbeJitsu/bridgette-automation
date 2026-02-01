@@ -118,6 +118,10 @@
 - **Scroll-to-bottom always visible** — Appears whenever user scrolls up, not just during streaming
 - **Tool card a11y** — aria-expanded/aria-label on expand/collapse buttons
 - **Memory editor empty state** — Placeholder when no memory files exist
+- **Task-to-chat action** — "Chat" button on tasks sends title + description to Claude as a message
+- **Keyboard shortcuts overlay** — Cmd+/ toggles grouped shortcut reference panel, linked from input footer
+- **Backend hardening v3** — Directory validation, symlink protection, stale task cleanup on startup
+- **Frontend polish** — aria-live status bar, responsive directory label, editor Tab key support
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
@@ -175,7 +179,7 @@
 ### Advanced Features
 - ~~Task descriptions~~ — **Built** (optional description field)
 - ~~Task priorities~~ — **Built** (high/normal/low with visual indicators and sorting)
-- Task-to-chat linking (reference tasks in conversations)
+- ~~Task-to-chat linking~~ — **Built** (chat button sends task title + description to Claude)
 - Automation scheduling from the UI
 - Notification system for completed automations
 
