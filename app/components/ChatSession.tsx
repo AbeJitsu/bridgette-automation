@@ -72,13 +72,8 @@ export default function ChatSession() {
   const [thinking, setThinking] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
-  const [autoEval, setAutoEval] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("bridgette-auto-eval") === "true";
-    }
-    return false;
-  });
-  const [autoEvalBranch, setAutoEvalBranch] = useState<string | null>(null);
+  const [autoEval, setAutoEval] = useState(false);
+  const [branch, setBranch] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -135,11 +130,6 @@ export default function ChatSession() {
     ws.onopen = () => {
       setStatus("connected");
       reconnectAttemptRef.current = 0;
-      // Sync auto-eval state with server
-      const savedAutoEval = localStorage.getItem("bridgette-auto-eval") === "true";
-      if (savedAutoEval) {
-        ws.send(JSON.stringify({ type: "set_auto_eval", enabled: true }));
-      }
     };
 
     ws.onmessage = (event) => {
@@ -190,6 +180,8 @@ export default function ChatSession() {
 
     if (type === "state") {
       if (data.cwd) setCwd(data.cwd);
+      if (data.branch) setBranch(data.branch);
+      if (data.autoEval !== undefined) setAutoEval(!!data.autoEval);
       return;
     }
 
@@ -304,7 +296,19 @@ export default function ChatSession() {
     }
 
     if (type === "auto_eval_start") {
-      setAutoEvalBranch(data.branch || null);
+      if (data.branch) setBranch(data.branch);
+      return;
+    }
+
+    if (type === "auto_eval_complete") {
+      if (data.branch) setBranch(data.branch);
+      // Show summary as a system message in chat
+      const summaryMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: `**Auto-eval complete**\n\n\`\`\`\n${data.summary || "No changes"}\n\`\`\``,
+      };
+      setMessages((prev) => [...prev, summaryMsg]);
       return;
     }
 
@@ -475,10 +479,7 @@ export default function ChatSession() {
           {/* Auto-eval toggle */}
           <button
             onClick={() => {
-              const next = !autoEval;
-              setAutoEval(next);
-              localStorage.setItem("bridgette-auto-eval", String(next));
-              wsRef.current?.send(JSON.stringify({ type: "set_auto_eval", enabled: next }));
+              wsRef.current?.send(JSON.stringify({ type: "set_auto_eval", enabled: !autoEval }));
             }}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border ${
               autoEval
@@ -493,8 +494,25 @@ export default function ChatSession() {
             Auto
           </button>
 
-          {/* Branch indicator */}
-          {autoEvalBranch && (
+          {/* Run Now button (visible when auto-eval enabled) */}
+          {autoEval && (
+            <button
+              onClick={() => {
+                wsRef.current?.send(JSON.stringify({ type: "trigger_auto_eval" }));
+              }}
+              disabled={status === "streaming"}
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border bg-blue-500/10 text-blue-300 border-blue-500/30 hover:bg-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Run auto-eval now"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5,3 19,12 5,21" />
+              </svg>
+              Run Now
+            </button>
+          )}
+
+          {/* Branch indicator (always visible when not on main) */}
+          {branch && branch !== "main" && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20" style={{ fontFamily: 'var(--font-mono)' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="6" y1="3" x2="6" y2="15" />
@@ -502,7 +520,7 @@ export default function ChatSession() {
                 <circle cx="6" cy="18" r="3" />
                 <path d="M18 9a9 9 0 0 1-9 9" />
               </svg>
-              {autoEvalBranch}
+              {branch}
             </span>
           )}
 

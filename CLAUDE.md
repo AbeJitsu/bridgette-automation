@@ -118,11 +118,17 @@ Direct file edit of `tasks.json` also works if the server isn't running.
 
 ## Auto-Iteration System
 
-When auto-eval triggers (after 15 min idle):
+Auto-eval runs at the **server level** — works with or without a browser connected.
+
+- **Server-level idle timer** — resets on any chat message, triggers after 15 min idle
+- **Persisted state** — `.auto-eval-enabled` file at project root, survives server restarts
+- **Headless operation** — if no browser is connected, eval runs and logs to console
+- **Broadcast** — if browsers are connected, eval output streams to all clients
 - **Always works on `dev` branch**, never main
 - Switches to `dev` (creates from main if it doesn't exist), commits there
-- After eval completes, changes stay on `dev` until user reviews and merges to main
+- After eval completes, broadcasts `auto_eval_complete` with `git diff --stat` summary
 - Don't chain evals back-to-back — timer resets after each run
+- **Manual trigger** — UI "Run Now" button or send `{ type: "trigger_auto_eval" }` via WS
 - The eval prompt lives at `automations/auto-eval/prompt.md`
 
 ## Commands

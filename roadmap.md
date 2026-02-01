@@ -67,7 +67,7 @@
 - **Task advance buttons** — Hover to reveal test/done actions on tasks
 - **Escape key + stop button** — Cancel streaming responses
 - **Stop hook** — TypeScript check + server health verification (no longer kills running server)
-- **Auto-iteration system** — Idle detection (15 min) triggers auto-eval on a new branch
+- **Auto-iteration system** — Server-level idle detection (15 min), persisted state, headless operation, manual trigger, change summaries
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
@@ -99,12 +99,15 @@
 - Search/filter conversation history
 - Multiple sessions support
 
-### Auto-Iteration System
-- Idle detection (15 min) triggers auto-eval on `dev` branch
-- Frontend + backend + functionality evaluation prompt
-- Auto-implements one improvement per cycle
+### Auto-Iteration System (Built)
+- Server-level idle timer (15 min) — works with or without browser
+- Persisted to `.auto-eval-enabled` file, survives server restarts
+- Headless operation — runs even when no browser connected
+- Broadcasts eval output to all connected clients
+- Manual "Run Now" trigger button in UI
+- Always-visible branch indicator (non-main branches)
+- Change summary (`git diff --stat`) displayed after eval completes
 - Branch safety — all work on `dev`, never touches main directly
-- Toggle in status bar, persisted to localStorage
 
 ### Advanced Features
 - Task descriptions and priorities

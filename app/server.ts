@@ -3,7 +3,7 @@ import { parse } from "url";
 import next from "next";
 import { WebSocketServer, WebSocket } from "ws";
 import { spawn, ChildProcess, execSync } from "child_process";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -16,6 +16,28 @@ const handle = app.getRequestHandler();
 // Track active PTY session so browser refresh reconnects
 let activePty: any = null;
 let activeWs: WebSocket | null = null;
+
+// ============================================
+// SERVER-LEVEL AUTO-EVAL STATE
+// ============================================
+
+const autoEvalFile = join(process.cwd(), "..", ".auto-eval-enabled");
+
+function loadAutoEvalEnabled(): boolean {
+  try {
+    return readFileSync(autoEvalFile, "utf-8").trim() === "true";
+  } catch {
+    return false;
+  }
+}
+
+function saveAutoEvalEnabled(enabled: boolean): void {
+  try { writeFileSync(autoEvalFile, String(enabled)); } catch {}
+}
+
+let serverAutoEvalEnabled = loadAutoEvalEnabled();
+let serverIdleTimer: NodeJS.Timeout | null = null;
+let serverAutoEvalProcess: ChildProcess | null = null;
 
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
@@ -50,50 +72,63 @@ app.prepare().then(() => {
   const chatSessions = new Map<WebSocket, string | null>();
   const chatProcesses = new Map<WebSocket, ChildProcess>();
   const chatCwds = new Map<WebSocket, string>();
-  const chatIdleTimers = new Map<WebSocket, NodeJS.Timeout>();
-  const chatAutoEval = new Map<WebSocket, boolean>();
 
   const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
-  function resetIdleTimer(ws: WebSocket) {
-    const existing = chatIdleTimers.get(ws);
-    if (existing) clearTimeout(existing);
+  // ============================================
+  // SERVER-LEVEL IDLE TIMER
+  // ============================================
 
-    if (!chatAutoEval.get(ws)) return;
+  function resetServerIdleTimer() {
+    if (serverIdleTimer) clearTimeout(serverIdleTimer);
+    serverIdleTimer = null;
 
-    const timer = setTimeout(() => triggerAutoEval(ws), IDLE_TIMEOUT);
-    chatIdleTimers.set(ws, timer);
+    if (!serverAutoEvalEnabled) return;
+
+    serverIdleTimer = setTimeout(() => triggerServerAutoEval(), IDLE_TIMEOUT);
   }
 
-  function triggerAutoEval(ws: WebSocket) {
-    if (ws.readyState !== WebSocket.OPEN) return;
-    if (chatProcesses.get(ws)?.killed === false) return; // already running
+  function getGitBranch(cwd: string): string {
+    try {
+      return execSync("git branch --show-current", { cwd, stdio: "pipe" }).toString().trim();
+    } catch {
+      return "unknown";
+    }
+  }
 
-    const cwd = chatCwds.get(ws) || process.cwd();
+  function broadcastToChat(data: Record<string, unknown>) {
+    const msg = JSON.stringify(data);
+    wssChat.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msg);
+      }
+    });
+  }
+
+  function triggerServerAutoEval() {
+    // Don't run if already running
+    if (serverAutoEvalProcess && !serverAutoEvalProcess.killed) return;
+
+    const cwd = getLastCwd();
     const branchName = "dev";
 
     try {
-      // Switch to dev branch, creating it from main if it doesn't exist
-      const currentBranch = execSync("git branch --show-current", { cwd, stdio: "pipe" }).toString().trim();
+      const currentBranch = getGitBranch(cwd);
       if (currentBranch !== branchName) {
         try {
           execSync(`git checkout ${branchName}`, { cwd, stdio: "pipe" });
         } catch {
-          // Branch doesn't exist yet — create it
           execSync(`git checkout -b ${branchName}`, { cwd, stdio: "pipe" });
         }
       }
     } catch (err: any) {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "error", message: `Failed to switch to dev branch: ${err.message}` }));
-      }
+      console.error(`Failed to switch to dev branch: ${err.message}`);
+      broadcastToChat({ type: "error", message: `Failed to switch to dev branch: ${err.message}` });
       return;
     }
 
-    // Notify client
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: "auto_eval_start", branch: branchName }));
-    }
+    // Notify connected clients
+    broadcastToChat({ type: "auto_eval_start", branch: branchName });
 
     // Read the eval prompt
     let prompt: string;
@@ -101,25 +136,102 @@ app.prepare().then(() => {
       const promptPath = join(process.cwd(), "..", "automations", "auto-eval", "prompt.md");
       prompt = readFileSync(promptPath, "utf-8");
     } catch {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "error", message: "Auto-eval prompt not found" }));
-      }
+      console.error("Auto-eval prompt not found");
+      broadcastToChat({ type: "error", message: "Auto-eval prompt not found" });
       return;
     }
 
-    // Send through existing chat handler
-    const currentSession = chatSessions.get(ws) ?? null;
-    handleChatMessage(ws, prompt, currentSession, false, undefined);
+    const home = process.env.HOME || "/Users/abereyes";
+    const claudePath = `${home}/.local/bin/claude`;
+
+    const args = [
+      "-p",
+      "--output-format=stream-json",
+      "--verbose",
+      "--include-partial-messages",
+      prompt,
+    ];
+
+    const envPath = process.env.PATH || "";
+    const localBin = `${home}/.local/bin`;
+    const fullPath = envPath.includes(localBin) ? envPath : `${localBin}:${envPath}`;
+
+    const proc = spawn(claudePath, args, {
+      cwd,
+      env: { ...process.env, PATH: fullPath },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    serverAutoEvalProcess = proc;
+
+    let buffer = "";
+
+    proc.stdout?.on("data", (chunk: Buffer) => {
+      buffer += chunk.toString();
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        // Forward to any connected clients
+        const hasClients = [...wssChat.clients].some((c) => c.readyState === WebSocket.OPEN);
+        if (hasClients) {
+          wssChat.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(trimmed);
+            }
+          });
+        }
+      }
+    });
+
+    proc.stderr?.on("data", (chunk: Buffer) => {
+      const errText = chunk.toString().trim();
+      if (errText) {
+        console.error(`[auto-eval stderr] ${errText}`);
+        broadcastToChat({ type: "error", message: errText });
+      }
+    });
+
+    proc.on("close", () => {
+      // Flush remaining buffer
+      if (buffer.trim()) {
+        broadcastToChat(JSON.parse(buffer.trim()) as Record<string, unknown>);
+      }
+      buffer = "";
+      serverAutoEvalProcess = null;
+
+      // Get change summary
+      let summary = "";
+      try {
+        summary = execSync("git diff HEAD~1 --stat", { cwd, stdio: "pipe" }).toString().trim();
+      } catch {
+        summary = "No changes detected";
+      }
+
+      const branch = getGitBranch(cwd);
+      broadcastToChat({ type: "auto_eval_complete", summary, branch });
+
+      // Reset idle timer (prevents chaining evals)
+      resetServerIdleTimer();
+    });
+
+    proc.on("error", (err) => {
+      console.error(`[auto-eval error] ${err.message}`);
+      broadcastToChat({ type: "error", message: err.message });
+      serverAutoEvalProcess = null;
+    });
   }
 
   const defaultCwd = process.env.HOME || "/Users/abereyes";
   const cwdFile = require("path").join(process.cwd(), "..", ".last-cwd");
 
   function getLastCwd(): string {
-    const fs = require("fs");
     try {
-      const saved = fs.readFileSync(cwdFile, "utf-8").trim();
-      if (saved && fs.existsSync(saved) && fs.statSync(saved).isDirectory()) {
+      const saved = readFileSync(cwdFile, "utf-8").trim();
+      if (saved && existsSync(saved)) {
         return saved;
       }
     } catch {}
@@ -127,8 +239,7 @@ app.prepare().then(() => {
   }
 
   function saveLastCwd(cwd: string): void {
-    const fs = require("fs");
-    try { fs.writeFileSync(cwdFile, cwd); } catch {}
+    try { writeFileSync(cwdFile, cwd); } catch {}
   }
 
   wssChat.on("connection", (ws: WebSocket) => {
@@ -136,14 +247,15 @@ app.prepare().then(() => {
     const initialCwd = getLastCwd();
     chatCwds.set(ws, initialCwd);
 
-    // Send initial state including cwd
-    ws.send(JSON.stringify({ type: "state", cwd: initialCwd }));
+    // Send initial state including branch and auto-eval
+    const branch = getGitBranch(initialCwd);
+    ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled }));
 
     ws.on("message", (msg: Buffer | string) => {
       try {
         const parsed = JSON.parse(msg.toString());
         if (parsed.type === "message") {
-          resetIdleTimer(ws);
+          resetServerIdleTimer();
           handleChatMessage(ws, parsed.text, parsed.sessionId || chatSessions.get(ws), parsed.thinking, parsed.model);
         } else if (parsed.type === "stop") {
           const proc = chatProcesses.get(ws);
@@ -151,28 +263,29 @@ app.prepare().then(() => {
             proc.kill("SIGTERM");
           }
         } else if (parsed.type === "set_cwd") {
-          // Validate directory exists
-          const fs = require("fs");
           const target = parsed.cwd;
-          if (target && fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+          if (target && existsSync(target)) {
             chatCwds.set(ws, target);
             saveLastCwd(target);
-            // Reset session when changing directory (new context)
             chatSessions.set(ws, null);
-            ws.send(JSON.stringify({ type: "state", cwd: target }));
+            const branch = getGitBranch(target);
+            ws.send(JSON.stringify({ type: "state", cwd: target, branch, autoEval: serverAutoEvalEnabled }));
           } else {
             ws.send(JSON.stringify({ type: "error", message: `Directory not found: ${target}` }));
           }
         } else if (parsed.type === "set_auto_eval") {
-          chatAutoEval.set(ws, !!parsed.enabled);
-          if (parsed.enabled) {
-            resetIdleTimer(ws);
+          serverAutoEvalEnabled = !!parsed.enabled;
+          saveAutoEvalEnabled(serverAutoEvalEnabled);
+          if (serverAutoEvalEnabled) {
+            resetServerIdleTimer();
           } else {
-            const timer = chatIdleTimers.get(ws);
-            if (timer) clearTimeout(timer);
-            chatIdleTimers.delete(ws);
+            if (serverIdleTimer) clearTimeout(serverIdleTimer);
+            serverIdleTimer = null;
           }
-          ws.send(JSON.stringify({ type: "auto_eval_state", enabled: !!parsed.enabled }));
+          // Broadcast to all clients
+          broadcastToChat({ type: "auto_eval_state", enabled: serverAutoEvalEnabled });
+        } else if (parsed.type === "trigger_auto_eval") {
+          triggerServerAutoEval();
         }
       } catch {
         // Ignore malformed messages
@@ -187,10 +300,7 @@ app.prepare().then(() => {
       chatProcesses.delete(ws);
       chatSessions.delete(ws);
       chatCwds.delete(ws);
-      const timer = chatIdleTimers.get(ws);
-      if (timer) clearTimeout(timer);
-      chatIdleTimers.delete(ws);
-      chatAutoEval.delete(ws);
+      // Note: idle timer is server-level now, not cleaned up per-connection
     });
   });
 
@@ -284,15 +394,15 @@ app.prepare().then(() => {
       }
     });
 
-    proc.on("close", (code: number | null) => {
+    proc.on("close", () => {
       // Flush any remaining buffer
       if (buffer.trim() && ws.readyState === WebSocket.OPEN) {
         ws.send(buffer.trim());
       }
       buffer = "";
       chatProcesses.delete(ws);
-      // Reset idle timer after completion (prevents chaining evals)
-      resetIdleTimer(ws);
+      // Reset server idle timer after completion
+      resetServerIdleTimer();
     });
 
     proc.on("error", (err) => {
@@ -436,5 +546,10 @@ app.prepare().then(() => {
 
   server.listen(port, () => {
     console.log(`> Bridgette ready on http://${hostname}:${port}`);
+    // Start idle timer on server startup if auto-eval is enabled
+    if (serverAutoEvalEnabled) {
+      resetServerIdleTimer();
+      console.log("> Auto-eval enabled — idle timer started (15 min)");
+    }
   });
 });
