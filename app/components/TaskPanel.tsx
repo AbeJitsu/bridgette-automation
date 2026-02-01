@@ -144,7 +144,7 @@ export function RightTaskPanel({ onCollapse }: { onCollapse?: () => void }) {
           </svg>
         </button>
         {showCompleted && (
-          <div className="px-2 pb-2 space-y-0.5 max-h-48 overflow-y-auto">
+          <div className="px-2 pb-2 space-y-0.5 max-h-80 overflow-y-auto">
             {completed.length > 0 && (
               <div className="flex justify-end px-1 pb-1">
                 <button
@@ -341,10 +341,26 @@ function TaskItem({
           {task.description}
         </div>
       )}
+      {/* Auto-show summary preview for completed tasks, full summary on click */}
+      {task.status === "completed" && task.summary && !showSummary && (
+        <button
+          onClick={() => setShowSummary(true)}
+          className="mt-1.5 ml-5 text-xs text-gray-500 leading-relaxed text-left w-full hover:text-gray-400 transition-colors duration-150"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          {parseSummaryLines(task.summary).slice(0, 3).map((line, i) => (
+            <div key={i} className="truncate">{line}</div>
+          ))}
+          {parseSummaryLines(task.summary).length > 3 && (
+            <div className="text-gray-600 mt-0.5">+ more...</div>
+          )}
+        </button>
+      )}
       {showSummary && task.summary && (
         <div
-          className="mt-1.5 ml-5 text-xs text-gray-500 overflow-x-auto max-h-40 overflow-y-auto rounded-md border border-white/[0.06] px-2.5 py-2 space-y-1"
+          className="mt-1.5 ml-5 text-xs text-gray-500 overflow-x-auto max-h-40 overflow-y-auto rounded-md border border-white/[0.06] px-2.5 py-2 space-y-1 cursor-pointer"
           style={{ background: 'var(--surface-2)' }}
+          onClick={() => setShowSummary(false)}
         >
           {parseSummaryLines(task.summary).map((line, i) => (
             <div key={i} className="leading-relaxed" style={{ fontFamily: 'var(--font-mono)' }}>{line}</div>
