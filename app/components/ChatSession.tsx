@@ -75,6 +75,7 @@ export default function ChatSession() {
   const [showHistory, setShowHistory] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
   const [autoEval, setAutoEval] = useState(false);
+  const [sessionSearch, setSessionSearch] = useState("");
   const [branch, setBranch] = useState<string | null>(null);
   const [evalRunning, setEvalRunning] = useState(false);
   const [evalType, setEvalType] = useState<string | null>(null);
@@ -604,15 +605,15 @@ export default function ChatSession() {
             </button>
             {showHistory && (
               <div
-                className="absolute right-0 top-full mt-1 w-72 max-h-80 overflow-y-auto rounded-xl border border-white/[0.08] shadow-2xl z-50"
+                className="absolute right-0 top-full mt-1 w-72 max-h-96 rounded-xl border border-white/[0.08] shadow-2xl z-50 flex flex-col"
                 style={{ background: 'var(--surface-2)' }}
               >
-                <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between">
+                <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between flex-shrink-0">
                   <span className="text-xs uppercase tracking-widest text-gray-500 font-semibold" style={{ fontFamily: 'var(--font-mono)' }}>
                     Recent Sessions
                   </span>
                   <button
-                    onClick={() => setShowHistory(false)}
+                    onClick={() => { setShowHistory(false); setSessionSearch(""); }}
                     className="text-gray-600 hover:text-gray-400 transition-colors"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -620,49 +621,68 @@ export default function ChatSession() {
                     </svg>
                   </button>
                 </div>
-                {/* Current session */}
-                {sessionId && messages.length > 0 && !sessions.some((s) => s.sessionId === sessionId) && (
-                  <div className="px-3 py-2.5 border-b border-white/[0.04] bg-emerald-500/5">
-                    <div className="text-[13px] text-gray-300 truncate leading-snug">
-                      {messages.find((m) => m.role === "user")?.content.slice(0, 100) || "Current session"}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
-                      <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>{sessionId.slice(0, 8)}</span>
-                    </div>
-                  </div>
-                )}
-                {sessions.length === 0 && !sessionId ? (
-                  <div className="px-3 py-4 text-xs text-gray-600 text-center">No previous sessions</div>
-                ) : (
-                  sessions.map((s) => (
-                    <button
-                      key={s.sessionId}
-                      onClick={() => resumeSession(s)}
-                      className={`w-full text-left px-3 py-2.5 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0 ${
-                        s.sessionId === sessionId ? "bg-emerald-500/5" : ""
-                      }`}
-                    >
-                      <div className="text-[13px] text-gray-300 truncate leading-snug">{s.firstMessage}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        {s.sessionId === sessionId && (
-                          <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
-                        )}
-                        <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
-                          {s.sessionId.slice(0, 8)}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          {formatRelativeTime(s.timestamp)}
-                        </span>
-                        {s.model && (
-                          <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
-                            {formatModel(s.model)}
-                          </span>
-                        )}
+                {/* Search input */}
+                <div className="px-3 py-2 border-b border-white/[0.06] flex-shrink-0">
+                  <input
+                    type="text"
+                    value={sessionSearch}
+                    onChange={(e) => setSessionSearch(e.target.value)}
+                    placeholder="Search sessions..."
+                    className="w-full text-xs border border-white/[0.08] rounded-md px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500/40 transition-all duration-200 placeholder:text-gray-600"
+                    style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
+                    autoFocus
+                  />
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {/* Current session */}
+                  {sessionId && messages.length > 0 && !sessions.some((s) => s.sessionId === sessionId) && (
+                    <div className="px-3 py-2.5 border-b border-white/[0.04] bg-emerald-500/5">
+                      <div className="text-[13px] text-gray-300 truncate leading-snug">
+                        {messages.find((m) => m.role === "user")?.content.slice(0, 100) || "Current session"}
                       </div>
-                    </button>
-                  ))
-                )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
+                        <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>{sessionId.slice(0, 8)}</span>
+                      </div>
+                    </div>
+                  )}
+                  {(() => {
+                    const query = sessionSearch.toLowerCase().trim();
+                    const filteredSessions = query
+                      ? sessions.filter((s) => s.firstMessage.toLowerCase().includes(query) || s.sessionId.includes(query))
+                      : sessions;
+                    if (filteredSessions.length === 0 && !sessionId) {
+                      return <div className="px-3 py-4 text-xs text-gray-600 text-center">{query ? "No matching sessions" : "No previous sessions"}</div>;
+                    }
+                    return filteredSessions.map((s) => (
+                      <button
+                        key={s.sessionId}
+                        onClick={() => { resumeSession(s); setSessionSearch(""); }}
+                        className={`w-full text-left px-3 py-2.5 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0 ${
+                          s.sessionId === sessionId ? "bg-emerald-500/5" : ""
+                        }`}
+                      >
+                        <div className="text-[13px] text-gray-300 truncate leading-snug">{s.firstMessage}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {s.sessionId === sessionId && (
+                            <span className="text-xs text-emerald-400" style={{ fontFamily: 'var(--font-mono)' }}>active</span>
+                          )}
+                          <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                            {s.sessionId.slice(0, 8)}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            {formatRelativeTime(s.timestamp)}
+                          </span>
+                          {s.model && (
+                            <span className="text-xs text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                              {formatModel(s.model)}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ));
+                  })()}
+                </div>
               </div>
             )}
           </div>

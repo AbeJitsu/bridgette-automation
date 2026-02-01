@@ -2,18 +2,18 @@
 
 import { useState, useCallback, useRef } from "react";
 import ChatSession from "@/components/ChatSession";
-import Terminal from "@/components/Terminal";
 import MemoryEditor from "@/components/MemoryEditor";
 import Automations from "@/components/Automations";
+import EvalLogs from "@/components/EvalLogs";
 import { LeftTaskPanel, RightTaskPanel } from "@/components/TaskPanel";
 
-type Tab = "chat" | "terminal" | "memory" | "automations";
+type Tab = "chat" | "memory" | "automations" | "logs";
 
 const TABS: { id: Tab; label: string; icon: string; activeClass: string }[] = [
   { id: "chat", label: "Chat", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", activeClass: "text-emerald-400 border-emerald-400" },
-  { id: "terminal", label: "Terminal", icon: "M4 17l6-5-6-5M12 19h8", activeClass: "text-gray-200 border-gray-200" },
   { id: "memory", label: "Memory", icon: "M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z", activeClass: "text-blue-400 border-blue-400" },
   { id: "automations", label: "Automations", icon: "M13 2L3 14h9l-1 8 10-12h-9l1-8", activeClass: "text-purple-400 border-purple-400" },
+  { id: "logs", label: "Eval Logs", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8", activeClass: "text-amber-400 border-amber-400" },
 ];
 
 export default function Home() {
@@ -84,20 +84,24 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* Content */}
-      <main className="flex-1 overflow-hidden flex" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
-        {activeTab === "chat" && (
-          <>
-            <LeftTaskPanel />
-            <div className="flex-1 overflow-hidden">
-              <ChatSession />
-            </div>
-            <RightTaskPanel />
-          </>
-        )}
-        {activeTab === "terminal" && <Terminal />}
-        {activeTab === "memory" && <MemoryEditor />}
-        {activeTab === "automations" && <Automations />}
+      {/* Content — all tabs stay mounted, hidden via CSS to preserve state */}
+      <main className="flex-1 overflow-hidden flex flex-col" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
+        <div className={`flex-1 overflow-hidden flex ${activeTab !== "chat" ? "hidden" : ""}`}>
+          <LeftTaskPanel />
+          <div className="flex-1 overflow-hidden">
+            <ChatSession />
+          </div>
+          <RightTaskPanel />
+        </div>
+        <div className={`flex-1 overflow-hidden ${activeTab !== "memory" ? "hidden" : ""}`}>
+          <MemoryEditor />
+        </div>
+        <div className={`flex-1 overflow-hidden ${activeTab !== "automations" ? "hidden" : ""}`}>
+          <Automations />
+        </div>
+        <div className={`flex-1 overflow-hidden ${activeTab !== "logs" ? "hidden" : ""}`}>
+          <EvalLogs />
+        </div>
       </main>
     </div>
   );
