@@ -188,6 +188,7 @@ export default function MemoryEditor() {
               className="flex-1 p-4 font-mono text-sm text-gray-200 resize-none focus:outline-none"
               style={{ background: 'var(--surface-0)' }}
               spellCheck={false}
+              aria-label={`Editing ${selectedFile}`}
             />
           </>
         ) : (

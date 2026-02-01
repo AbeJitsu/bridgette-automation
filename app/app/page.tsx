@@ -89,26 +89,26 @@ export default function Home() {
 
       {/* Content — all tabs stay mounted, hidden via CSS to preserve state */}
       <main className="flex-1 overflow-hidden flex flex-col">
-        <div role="tabpanel" id="tabpanel-chat" aria-labelledby="tab-chat" className={`flex-1 overflow-hidden flex ${activeTab !== "chat" ? "hidden" : ""}`}>
+        <div role="tabpanel" id="tabpanel-chat" aria-labelledby="tab-chat" tabIndex={0} className={`flex-1 overflow-hidden flex ${activeTab !== "chat" ? "hidden" : ""}`} hidden={activeTab !== "chat" || undefined}>
           <LeftTaskPanel />
           <div className="flex-1 overflow-hidden">
             <ChatSession />
           </div>
           <RightTaskPanel />
         </div>
-        <div role="tabpanel" id="tabpanel-memory" aria-labelledby="tab-memory" className={`flex-1 overflow-hidden ${activeTab !== "memory" ? "hidden" : ""}`}>
+        <div role="tabpanel" id="tabpanel-memory" aria-labelledby="tab-memory" tabIndex={0} className={`flex-1 overflow-hidden ${activeTab !== "memory" ? "hidden" : ""}`} hidden={activeTab !== "memory" || undefined}>
           <MemoryEditor />
         </div>
-        <div role="tabpanel" id="tabpanel-automations" aria-labelledby="tab-automations" className={`flex-1 overflow-hidden ${activeTab !== "automations" ? "hidden" : ""}`}>
+        <div role="tabpanel" id="tabpanel-automations" aria-labelledby="tab-automations" tabIndex={0} className={`flex-1 overflow-hidden ${activeTab !== "automations" ? "hidden" : ""}`} hidden={activeTab !== "automations" || undefined}>
           <Automations onSendToChat={(text) => {
             window.dispatchEvent(new CustomEvent("bridgette-send-to-chat", { detail: text }));
             setActiveTab("chat");
           }} />
         </div>
-        <div role="tabpanel" id="tabpanel-logs" aria-labelledby="tab-logs" className={`flex-1 overflow-hidden ${activeTab !== "logs" ? "hidden" : ""}`}>
+        <div role="tabpanel" id="tabpanel-logs" aria-labelledby="tab-logs" tabIndex={0} className={`flex-1 overflow-hidden ${activeTab !== "logs" ? "hidden" : ""}`} hidden={activeTab !== "logs" || undefined}>
           <EvalLogs />
         </div>
-        <div role="tabpanel" id="tabpanel-status" aria-labelledby="tab-status" className={`flex-1 overflow-hidden overflow-y-auto ${activeTab !== "status" ? "hidden" : ""}`}>
+        <div role="tabpanel" id="tabpanel-status" aria-labelledby="tab-status" tabIndex={0} className={`flex-1 overflow-hidden overflow-y-auto ${activeTab !== "status" ? "hidden" : ""}`} hidden={activeTab !== "status" || undefined}>
           <Status />
         </div>
       </main>

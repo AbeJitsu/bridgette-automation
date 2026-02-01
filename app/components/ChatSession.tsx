@@ -602,7 +602,7 @@ export default function ChatSession() {
     <div className="flex flex-col h-full" style={{ background: 'var(--surface-0)' }}>
       {/* Status bar */}
       <div
-        className="flex items-center gap-2.5 px-4 py-1.5 border-b border-white/[0.06] text-xs"
+        className="flex items-center flex-wrap gap-x-2.5 gap-y-1 px-4 py-1.5 border-b border-white/[0.06] text-xs"
         style={{ background: 'var(--surface-1)' }}
       >
         <StatusDot status={status} />
@@ -635,6 +635,7 @@ export default function ChatSession() {
           className="ml-1 flex items-center gap-1.5 text-gray-500 hover:text-gray-300 transition-all duration-200 text-xs px-2.5 py-1 rounded-md border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.03]"
           style={{ fontFamily: 'var(--font-mono)' }}
           title="Change working directory"
+          aria-label="Change working directory"
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -642,7 +643,7 @@ export default function ChatSession() {
           {cwd ? shortenPath(cwd) : "Select directory"}
         </button>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center flex-wrap gap-x-2 gap-y-1">
           {/* Divider — separates connection/directory from controls */}
           <span className="w-px h-4 bg-white/[0.08]" aria-hidden="true" />
 
@@ -787,8 +788,11 @@ export default function ChatSession() {
               onClick={() => { setSessions(loadSessions()); setShowHistory(!showHistory); }}
               className="text-gray-500 hover:text-gray-300 transition-all duration-200 p-1 rounded-md hover:bg-white/[0.05]"
               title="Session history"
+              aria-label="Session history"
+              aria-expanded={showHistory}
+              aria-haspopup="true"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v6l4 2" />
               </svg>
@@ -940,8 +944,9 @@ export default function ChatSession() {
               }}
               className="text-gray-500 hover:text-gray-300 transition-all duration-200 p-1 rounded-md hover:bg-white/[0.05]"
               title="Export chat as Markdown"
+              aria-label="Export chat as Markdown"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
@@ -953,8 +958,9 @@ export default function ChatSession() {
               onClick={startNewChat}
               className="text-gray-500 hover:text-gray-300 transition-all duration-200 p-1 rounded-md hover:bg-white/[0.05]"
               title="New chat"
+              aria-label="New chat"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>

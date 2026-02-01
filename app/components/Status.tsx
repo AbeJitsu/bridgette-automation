@@ -101,8 +101,9 @@ export default function Status() {
           onClick={() => { setLoading(true); fetchStatus(); }}
           className="text-gray-500 hover:text-gray-300 p-1.5 rounded-md hover:bg-white/[0.05] transition-all duration-200 border border-white/[0.06]"
           title="Refresh status"
+          aria-label="Refresh status"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M23 4v6h-6M1 20v-6h6" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
