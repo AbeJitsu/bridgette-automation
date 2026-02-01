@@ -29,6 +29,7 @@ Update these with **curated, useful information** — not raw logs:
 
 - **`CLAUDE.md`** — Update "What's Built", "Decisions Made", "Things Discovered" sections if changes warrant it
 - **`app/CLAUDE.md`** — Update API routes table, component list, or architecture notes
+- **`roadmap.md`** — Update "What's Built" list, move completed roadmap items, update project structure if files were added/removed
 
 ## Curation Rules
 
