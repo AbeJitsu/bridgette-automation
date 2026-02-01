@@ -100,9 +100,9 @@ export default function MemoryEditor() {
   return (
     <div className="flex h-full">
       {/* Sidebar — file list */}
-      <div className="w-64 border-r border-gray-200 bg-white overflow-y-auto">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+      <div className="w-64 border-r border-white/[0.06] overflow-y-auto" style={{ background: 'var(--surface-1)' }}>
+        <div className="px-4 py-3 border-b border-white/[0.06]">
+          <h2 className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest" style={{ fontFamily: 'var(--font-mono)' }}>
             Memory Files
           </h2>
         </div>
@@ -110,7 +110,7 @@ export default function MemoryEditor() {
           {Object.entries(grouped).map(([dir, dirFiles]) => (
             <div key={dir}>
               {dir !== "root" && (
-                <div className="px-4 py-1.5 text-xs font-medium text-gray-400 uppercase">
+                <div className="px-4 py-1.5 text-xs font-medium text-gray-600 uppercase">
                   {dir}/
                 </div>
               )}
@@ -118,16 +118,16 @@ export default function MemoryEditor() {
                 <button
                   key={file.path}
                   onClick={() => loadFile(file.path)}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors duration-150 ${
                     selectedFile === file.path
-                      ? "bg-emerald-50 text-emerald-700 font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-emerald-500/10 text-emerald-400 font-medium"
+                      : "text-gray-300 hover:bg-white/[0.03]"
                   }`}
                 >
                   <div className="truncate">
                     {dir !== "root" ? file.name : file.path}
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
+                  <div className="text-xs text-gray-600 mt-0.5">
                     {new Date(file.modified).toLocaleDateString()}
                   </div>
                 </button>
@@ -142,31 +142,34 @@ export default function MemoryEditor() {
         {selectedFile ? (
           <>
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.06]" style={{ background: 'var(--surface-1)' }}>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-200">
                   {selectedFile}
                 </span>
                 {hasChanges && (
-                  <span className="text-xs text-amber-600 font-medium">
+                  <span className="text-xs text-amber-400 font-medium">
                     unsaved
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-gray-600" style={{ fontFamily: 'var(--font-mono)' }}>
+                  {"\u2318"}S
+                </span>
                 {saveStatus === "saved" && (
-                  <span className="text-xs text-emerald-600">Saved</span>
+                  <span className="text-xs text-emerald-400">Saved</span>
                 )}
                 {saveStatus === "error" && (
-                  <span className="text-xs text-red-600">Save failed</span>
+                  <span className="text-xs text-red-400">Save failed</span>
                 )}
                 <button
                   onClick={saveFile}
                   disabled={saving || !hasChanges}
-                  className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${
+                  className={`px-3 py-1 text-sm rounded-lg font-medium transition-all duration-200 ${
                     hasChanges
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      ? "bg-emerald-500/80 text-white hover:bg-emerald-500 shadow-sm shadow-emerald-500/15"
+                      : "bg-white/[0.04] text-gray-600 cursor-not-allowed"
                   }`}
                 >
                   {saving ? "Saving..." : "Save"}
@@ -178,12 +181,13 @@ export default function MemoryEditor() {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="flex-1 p-4 font-mono text-sm text-gray-800 bg-gray-50 resize-none focus:outline-none"
+              className="flex-1 p-4 font-mono text-sm text-gray-200 resize-none focus:outline-none"
+              style={{ background: 'var(--surface-0)' }}
               spellCheck={false}
             />
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
+          <div className="flex items-center justify-center h-full text-gray-600">
             Select a file to edit
           </div>
         )}

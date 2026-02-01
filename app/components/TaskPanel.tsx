@@ -187,7 +187,7 @@ function TaskItem({
       >
         {task.title}
       </span>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
+      <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
         {task.status !== "completed" && (
           <button
             onClick={() => onAdvance(task.id)}
