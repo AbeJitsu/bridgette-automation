@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import ChatSession from "@/components/ChatSession";
 import Terminal from "@/components/Terminal";
 import MemoryEditor from "@/components/MemoryEditor";
@@ -18,14 +18,39 @@ const TABS: { id: Tab; label: string; icon: string; activeClass: string }[] = [
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("chat");
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTabKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const currentIndex = TABS.findIndex((t) => t.id === activeTab);
+    let nextIndex: number | null = null;
+
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % TABS.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + TABS.length) % TABS.length;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      nextIndex = TABS.length - 1;
+    }
+
+    if (nextIndex !== null) {
+      setActiveTab(TABS[nextIndex].id);
+      tabRefs.current[nextIndex]?.focus();
+    }
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col h-screen text-gray-100" style={{ background: 'var(--surface-0)' }}>
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-2.5 border-b border-white/[0.06]" style={{ background: 'var(--surface-1)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center shadow-lg shadow-emerald-500/20" role="img" aria-label="Bridgette logo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
           </div>
@@ -33,18 +58,24 @@ export default function Home() {
             Bridgette
           </h1>
         </div>
-        <nav className="flex gap-0.5">
-          {TABS.map((tab) => (
+        <nav role="tablist" aria-label="Dashboard sections" className="flex gap-0.5">
+          {TABS.map((tab, index) => (
             <button
               key={tab.id}
+              ref={(el) => { tabRefs.current[index] = el; }}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`tabpanel-${tab.id}`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
+              onKeyDown={handleTabKeyDown}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border-b-2 ${
                 activeTab === tab.id
                   ? `${tab.activeClass} bg-white/[0.04]`
                   : "text-gray-500 border-transparent hover:text-gray-300 hover:bg-white/[0.03]"
               }`}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d={tab.icon} />
               </svg>
               {tab.label}
@@ -54,7 +85,7 @@ export default function Home() {
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-hidden flex">
+      <main className="flex-1 overflow-hidden flex" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
         {activeTab === "chat" && (
           <>
             <LeftTaskPanel />

@@ -67,12 +67,14 @@ export function LeftTaskPanel() {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="Add task..."
+            aria-label="New task title"
             className="flex-1 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/40 input-glow transition-all duration-200"
             style={{ background: 'var(--surface-2)', fontFamily: 'var(--font-sans)' }}
           />
           <button
             type="submit"
             disabled={!newTitle.trim()}
+            aria-label="Add task"
             className="bg-emerald-500/80 text-white px-2.5 py-1.5 rounded-lg text-sm hover:bg-emerald-500 disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 shadow-sm shadow-emerald-500/15 disabled:shadow-none"
           >
             +
@@ -169,10 +171,11 @@ function TaskItem({
   };
 
   return (
-    <div className="group flex items-start gap-2 px-2.5 py-2 rounded-lg hover:bg-white/[0.03] transition-all duration-150">
+    <div className="group flex items-start gap-2 px-2.5 py-2 rounded-lg hover:bg-white/[0.03] focus-within:bg-white/[0.03] transition-all duration-150">
       <button
         onClick={() => onAdvance(task.id)}
         className={`mt-0.5 text-sm flex-shrink-0 ${statusIcon[task.status]} hover:text-emerald-400 transition-colors duration-150`}
+        aria-label={`${advanceTitle[task.status]}: ${task.title}`}
         title={advanceTitle[task.status]}
       >
         {statusSymbol[task.status]}
@@ -184,12 +187,13 @@ function TaskItem({
       >
         {task.title}
       </span>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-150">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
         {task.status !== "completed" && (
           <button
             onClick={() => onAdvance(task.id)}
             className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors duration-150"
             style={{ fontFamily: 'var(--font-mono)' }}
+            aria-label={task.status === "pending" ? `Move "${task.title}" to testing` : `Mark "${task.title}" done`}
           >
             {task.status === "pending" ? "test" : "done"}
           </button>
@@ -197,6 +201,7 @@ function TaskItem({
         <button
           onClick={() => onDelete(task.id)}
           className="text-gray-600 hover:text-red-400 transition-colors duration-150 text-xs"
+          aria-label={`Delete task: ${task.title}`}
           title="Delete"
         >
           ×
