@@ -4,7 +4,7 @@ import { join } from "path";
 
 const AUTOMATIONS_DIR = join(process.cwd(), "..", "automations");
 
-const VALID_AUTOMATIONS = ["content-creation", "job-search", "codebase-eval"];
+const VALID_AUTOMATIONS = ["content-creation", "job-search", "codebase-eval", "auto-eval"];
 
 export async function GET(
   _request: NextRequest,

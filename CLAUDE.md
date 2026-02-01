@@ -116,6 +116,15 @@ Direct file edit of `tasks.json` also works if the server isn't running.
 { "id": "uuid", "title": "...", "status": "pending|needs_testing|completed", "createdAt": "ISO" }
 ```
 
+## Auto-Iteration System
+
+When auto-eval triggers (after 15 min idle):
+- **Always works on `dev` branch**, never main
+- Switches to `dev` (creates from main if it doesn't exist), commits there
+- After eval completes, changes stay on `dev` until user reviews and merges to main
+- Don't chain evals back-to-back — timer resets after each run
+- The eval prompt lives at `automations/auto-eval/prompt.md`
+
 ## Commands
 
 ```bash

@@ -62,6 +62,12 @@
 - **Dark mode** — Full dark theme across all components and markdown
 - **Working directory selector** — Browse and select project directories, works even when disconnected
 - **Terminal (legacy)** — PTY-based terminal kept as fallback tab
+- **Session resume** — Browse and resume previous conversations via session history dropdown, localStorage persistence
+- **Model switcher** — Opus 4.5, Sonnet 4, Haiku 3.5 with localStorage persistence
+- **Task advance buttons** — Hover to reveal test/done actions on tasks
+- **Escape key + stop button** — Cancel streaming responses
+- **Stop hook** — TypeScript check + server health verification (no longer kills running server)
+- **Auto-iteration system** — Idle detection (15 min) triggers auto-eval on a new branch
 
 ### Dashboard
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
@@ -92,6 +98,13 @@
 - Code syntax highlighting in markdown
 - Search/filter conversation history
 - Multiple sessions support
+
+### Auto-Iteration System
+- Idle detection (15 min) triggers auto-eval on `dev` branch
+- Frontend + backend + functionality evaluation prompt
+- Auto-implements one improvement per cycle
+- Branch safety — all work on `dev`, never touches main directly
+- Toggle in status bar, persisted to localStorage
 
 ### Advanced Features
 - Task descriptions and priorities

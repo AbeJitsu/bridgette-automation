@@ -2,7 +2,9 @@ import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
 import { WebSocketServer, WebSocket } from "ws";
-import { spawn, ChildProcess } from "child_process";
+import { spawn, ChildProcess, execSync } from "child_process";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -48,6 +50,67 @@ app.prepare().then(() => {
   const chatSessions = new Map<WebSocket, string | null>();
   const chatProcesses = new Map<WebSocket, ChildProcess>();
   const chatCwds = new Map<WebSocket, string>();
+  const chatIdleTimers = new Map<WebSocket, NodeJS.Timeout>();
+  const chatAutoEval = new Map<WebSocket, boolean>();
+
+  const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+
+  function resetIdleTimer(ws: WebSocket) {
+    const existing = chatIdleTimers.get(ws);
+    if (existing) clearTimeout(existing);
+
+    if (!chatAutoEval.get(ws)) return;
+
+    const timer = setTimeout(() => triggerAutoEval(ws), IDLE_TIMEOUT);
+    chatIdleTimers.set(ws, timer);
+  }
+
+  function triggerAutoEval(ws: WebSocket) {
+    if (ws.readyState !== WebSocket.OPEN) return;
+    if (chatProcesses.get(ws)?.killed === false) return; // already running
+
+    const cwd = chatCwds.get(ws) || process.cwd();
+    const branchName = "dev";
+
+    try {
+      // Switch to dev branch, creating it from main if it doesn't exist
+      const currentBranch = execSync("git branch --show-current", { cwd, stdio: "pipe" }).toString().trim();
+      if (currentBranch !== branchName) {
+        try {
+          execSync(`git checkout ${branchName}`, { cwd, stdio: "pipe" });
+        } catch {
+          // Branch doesn't exist yet — create it
+          execSync(`git checkout -b ${branchName}`, { cwd, stdio: "pipe" });
+        }
+      }
+    } catch (err: any) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "error", message: `Failed to switch to dev branch: ${err.message}` }));
+      }
+      return;
+    }
+
+    // Notify client
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: "auto_eval_start", branch: branchName }));
+    }
+
+    // Read the eval prompt
+    let prompt: string;
+    try {
+      const promptPath = join(process.cwd(), "..", "automations", "auto-eval", "prompt.md");
+      prompt = readFileSync(promptPath, "utf-8");
+    } catch {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "error", message: "Auto-eval prompt not found" }));
+      }
+      return;
+    }
+
+    // Send through existing chat handler
+    const currentSession = chatSessions.get(ws) ?? null;
+    handleChatMessage(ws, prompt, currentSession, false, undefined);
+  }
 
   const defaultCwd = process.env.HOME || "/Users/abereyes";
   const cwdFile = require("path").join(process.cwd(), "..", ".last-cwd");
@@ -80,6 +143,7 @@ app.prepare().then(() => {
       try {
         const parsed = JSON.parse(msg.toString());
         if (parsed.type === "message") {
+          resetIdleTimer(ws);
           handleChatMessage(ws, parsed.text, parsed.sessionId || chatSessions.get(ws), parsed.thinking, parsed.model);
         } else if (parsed.type === "stop") {
           const proc = chatProcesses.get(ws);
@@ -99,6 +163,16 @@ app.prepare().then(() => {
           } else {
             ws.send(JSON.stringify({ type: "error", message: `Directory not found: ${target}` }));
           }
+        } else if (parsed.type === "set_auto_eval") {
+          chatAutoEval.set(ws, !!parsed.enabled);
+          if (parsed.enabled) {
+            resetIdleTimer(ws);
+          } else {
+            const timer = chatIdleTimers.get(ws);
+            if (timer) clearTimeout(timer);
+            chatIdleTimers.delete(ws);
+          }
+          ws.send(JSON.stringify({ type: "auto_eval_state", enabled: !!parsed.enabled }));
         }
       } catch {
         // Ignore malformed messages
@@ -113,6 +187,10 @@ app.prepare().then(() => {
       chatProcesses.delete(ws);
       chatSessions.delete(ws);
       chatCwds.delete(ws);
+      const timer = chatIdleTimers.get(ws);
+      if (timer) clearTimeout(timer);
+      chatIdleTimers.delete(ws);
+      chatAutoEval.delete(ws);
     });
   });
 
@@ -213,6 +291,8 @@ app.prepare().then(() => {
       }
       buffer = "";
       chatProcesses.delete(ws);
+      // Reset idle timer after completion (prevents chaining evals)
+      resetIdleTimer(ws);
     });
 
     proc.on("error", (err) => {

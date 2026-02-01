@@ -72,11 +72,20 @@ export default function ChatSession() {
   const [thinking, setThinking] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
+  const [autoEval, setAutoEval] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("bridgette-auto-eval") === "true";
+    }
+    return false;
+  });
+  const [autoEvalBranch, setAutoEvalBranch] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamingMessageRef = useRef<ChatMessage | null>(null);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptRef = useRef(0);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -107,13 +116,31 @@ export default function ChatSession() {
     setSessions(loadSessions());
   }, []);
 
+  const connectRef = useRef<(() => void) | null>(null);
+
   const connectWebSocket = useCallback(() => {
+    // Don't reconnect if already connected or actively connecting
+    if (wsRef.current) {
+      const state = wsRef.current.readyState;
+      if (state === WebSocket.CONNECTING || state === WebSocket.OPEN) return;
+      // Clean up stale socket
+      wsRef.current = null;
+    }
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws/chat`);
     wsRef.current = ws;
     setStatus("connecting");
 
-    ws.onopen = () => setStatus("connected");
+    ws.onopen = () => {
+      setStatus("connected");
+      reconnectAttemptRef.current = 0;
+      // Sync auto-eval state with server
+      const savedAutoEval = localStorage.getItem("bridgette-auto-eval") === "true";
+      if (savedAutoEval) {
+        ws.send(JSON.stringify({ type: "set_auto_eval", enabled: true }));
+      }
+    };
 
     ws.onmessage = (event) => {
       try {
@@ -127,14 +154,31 @@ export default function ChatSession() {
     ws.onclose = () => {
       setStatus("disconnected");
       wsRef.current = null;
+      // Auto-reconnect with exponential backoff
+      if (!reconnectTimerRef.current) {
+        const attempt = reconnectAttemptRef.current;
+        const delay = Math.min(1000 * Math.pow(2, attempt), 15000);
+        reconnectAttemptRef.current = attempt + 1;
+        reconnectTimerRef.current = setTimeout(() => {
+          reconnectTimerRef.current = null;
+          connectRef.current?.();
+        }, delay);
+      }
     };
 
-    ws.onerror = () => setStatus("disconnected");
+    ws.onerror = () => {
+      setStatus("disconnected");
+    };
   }, []);
+
+  connectRef.current = connectWebSocket;
 
   useEffect(() => {
     connectWebSocket();
-    return () => { wsRef.current?.close(); };
+    return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      wsRef.current?.close();
+    };
   }, [connectWebSocket]);
 
   // ============================================
@@ -256,6 +300,16 @@ export default function ChatSession() {
         if (!msg.toolUses?.some((t) => t.id === toolUseId)) return msg;
         return { ...msg, toolUses: msg.toolUses?.map((t) => t.id === toolUseId ? { ...t, result, isComplete: true } : t) };
       }));
+      return;
+    }
+
+    if (type === "auto_eval_start") {
+      setAutoEvalBranch(data.branch || null);
+      return;
+    }
+
+    if (type === "auto_eval_state") {
+      setAutoEval(!!data.enabled);
       return;
     }
 
@@ -385,7 +439,7 @@ export default function ChatSession() {
       >
         <StatusDot status={status} />
         <span className="text-gray-400" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
-          {status === "disconnected" && "Disconnected"}
+          {status === "disconnected" && `Reconnecting in ${Math.min(Math.pow(2, reconnectAttemptRef.current), 15)}s...`}
           {status === "connecting" && "Connecting..."}
           {status === "connected" && (currentModel ? formatModel(currentModel) : "Ready")}
           {status === "streaming" && "Responding..."}
@@ -417,6 +471,40 @@ export default function ChatSession() {
             <option value="claude-sonnet-4-20250514">Sonnet 4</option>
             <option value="claude-haiku-3-5-20241022">Haiku 3.5</option>
           </select>
+
+          {/* Auto-eval toggle */}
+          <button
+            onClick={() => {
+              const next = !autoEval;
+              setAutoEval(next);
+              localStorage.setItem("bridgette-auto-eval", String(next));
+              wsRef.current?.send(JSON.stringify({ type: "set_auto_eval", enabled: next }));
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-200 border ${
+              autoEval
+                ? "bg-blue-500/10 text-blue-300 border-blue-500/30 shadow-sm shadow-blue-500/10"
+                : "text-gray-500 border-white/[0.06] hover:text-gray-300 hover:border-white/[0.12] hover:bg-white/[0.03]"
+            }`}
+            title={autoEval ? "Auto-eval enabled (15 min idle)" : "Auto-eval disabled"}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+            Auto
+          </button>
+
+          {/* Branch indicator */}
+          {autoEvalBranch && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20" style={{ fontFamily: 'var(--font-mono)' }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="6" y1="3" x2="6" y2="15" />
+                <circle cx="18" cy="6" r="3" />
+                <circle cx="6" cy="18" r="3" />
+                <path d="M18 9a9 9 0 0 1-9 9" />
+              </svg>
+              {autoEvalBranch}
+            </span>
+          )}
 
           {/* Thinking toggle */}
           <button
