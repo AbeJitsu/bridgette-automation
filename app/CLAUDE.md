@@ -7,9 +7,9 @@
 ## Current State
 
 ### Built
-- `server.ts` — Custom HTTP + WebSocket server on port 3000. Spawns `claude --print --stream-json` per message via `child_process.spawn`. Auto-iteration system with four-eval rotation. Process lifecycle management.
-- `components/ChatSession.tsx` — Chat UI with streaming text, markdown, tool use cards, cost tracking, session resume, model switcher, click-outside dropdowns, working directory selector.
-- `components/TaskPanel.tsx` — Left/right task sidebars with add/advance/delete, hover action buttons.
+- `server.ts` — Custom HTTP + WebSocket server on port 3000. Spawns `claude --print --stream-json` per message via `child_process.spawn`. Auto-iteration system with three-eval rotation. WebSocket heartbeat (30s ping/pong). Process lifecycle management.
+- `components/ChatSession.tsx` — Chat UI with streaming text, markdown, tool use cards, cost tracking, session resume, model switcher, click-outside dropdowns, working directory selector, chat export to Markdown.
+- `components/TaskPanel.tsx` — Left/right task sidebars with add/advance/delete, inline rename (double-click), clear completed button.
 - `components/MemoryEditor.tsx` — File sidebar grouped by directory, monospace editor, Cmd+S save, unsaved indicator.
 - `components/Automations.tsx` — Lists automations with BJJ belt colors, view/copy prompts, curl examples.
 - `components/EvalLogs.tsx` — Auto-eval run history with type filtering, expandable diffs, status indicators.
@@ -19,13 +19,12 @@
 
 ### Polish Remaining
 - Responsive layout refinements
-- Error states and reconnection UX
 - File diff viewer for edit tool results
 
 ## Key Architecture
 
 - **Chat core:** `claude --print --output-format=stream-json --verbose --include-partial-messages` spawned per message. Session continuity via `--resume`. stdin set to `'ignore'` (hangs otherwise).
-- **Auto-iteration:** Server-level idle timer, four-eval rotation (frontend → backend → functionality → memory), merges main into dev before each run.
+- **Auto-iteration:** Server-level idle timer, three-eval rotation (frontend → backend → functionality), merges main into dev before each run.
 - **Process management:** Graceful shutdown, child process cleanup on server restart.
 
 ## API Routes
@@ -40,6 +39,7 @@
 | `/api/health` | GET | Server uptime and status |
 | `/api/tasks` | GET/POST | List/create tasks |
 | `/api/tasks/[id]` | PUT/DELETE | Update/delete task |
+| `/api/tasks/clear-completed` | POST | Remove all completed tasks |
 | `/api/directories` | GET | List project directories |
 | `/api/eval-logs` | GET | Auto-eval run history |
 | `/api/status` | GET | Server health, git, eval config, launchd |

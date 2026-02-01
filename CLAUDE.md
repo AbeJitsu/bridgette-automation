@@ -18,7 +18,8 @@
 - **Prompt templates** — Content creation, job search, codebase eval in `automations/`
 - **launchd plists** — Scheduled curl triggers (5 AM daily, weekly Monday) + install script
 - **Three-panel chat layout** — Pending tasks (left), chat (center), in-progress/completed tasks (right)
-- **Task management** — Add/advance/delete tasks via sidebars, persisted to `tasks.json`, API at `/api/tasks`
+- **Task management** — Add/advance/delete/rename tasks via sidebars, clear completed, auto-purge at 500, persisted to `tasks.json`, API at `/api/tasks`
+- **Chat export** — Download current conversation as Markdown file
 - **Dark mode** — Full dark theme (gray-950 bg), dark markdown styles, dark tool cards
 - **Dashboard** — Five-tab layout (Chat, Memory, Automations, Eval Logs, Status) with BJJ belt colors
 - **Stop hook** — Blocks Claude from stopping if build is failing; forces iteration until passing

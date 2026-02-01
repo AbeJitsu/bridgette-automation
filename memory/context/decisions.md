@@ -29,3 +29,13 @@
 - **Decision:** Extracted duplicated formatRelativeTime/formatBytes/formatUptime/formatInterval into shared `lib/format.ts`
 - **Reason:** Same formatting logic was copy-pasted across 3+ components (Status, EvalLogs, ChatSession)
 - **Trade-off:** None — pure DRY improvement
+
+## 2026-02-01: Task store auto-purge at 500 limit
+- **Decision:** Auto-purge oldest completed tasks when hitting 500 total to prevent `tasks.json` from blocking new task creation
+- **Reason:** Continuous auto-eval runs create many tasks; without a cap, the file grows indefinitely
+- **Trade-off:** Oldest completed tasks lost silently — acceptable since completed tasks are historical
+
+## 2026-02-01: WebSocket heartbeat for stale connection cleanup
+- **Decision:** Added 30s ping/pong heartbeat to WebSocket server
+- **Reason:** Stale connections leaked child processes and map entries when browsers disconnected without close frames
+- **Trade-off:** Minor network overhead (negligible)

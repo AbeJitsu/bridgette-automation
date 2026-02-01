@@ -66,6 +66,13 @@
 - **Session resume** — Browse and resume previous conversations via session history dropdown, localStorage persistence
 - **Model switcher** — Opus 4.5, Sonnet 4, Haiku 3.5 with localStorage persistence
 - **Task advance buttons** — Hover to reveal test/done actions on tasks
+- **Task inline rename** — Double-click pending/in-progress tasks to rename
+- **Clear completed tasks** — Button + `/api/tasks/clear-completed` endpoint
+- **Chat export** — Download current conversation as Markdown file
+- **Auto-purge tasks** — Oldest completed tasks auto-removed at 500 limit
+- **WebSocket heartbeat** — 30s ping/pong detects and cleans up stale connections
+- **Diff highlighting in eval logs** — Color-coded additions/removals/hunks
+- **Button visibility** — Higher resting opacity for task actions and disabled buttons
 - **Escape key + stop button** — Cancel streaming responses
 - **Reconnection UX** — Disconnect banner, retry button, automatic reconnection with backoff
 - **Tool card enhancements** — Copy-to-clipboard buttons on input/result, diff syntax highlighting (green/red/blue)
@@ -140,7 +147,7 @@ OpenClaw Research/
 │   ├── server.ts            ← custom HTTP + WebSocket server
 │   ├── components/
 │   │   ├── ChatSession.tsx  ← chat UI (dark mode, streaming)
-│   │   ├── TaskPanel.tsx    ← left/right task sidebars
+│   │   ├── TaskPanel.tsx    ← left/right task sidebars + inline rename
 │   │   ├── MemoryEditor.tsx
 │   │   ├── Automations.tsx
 │   │   ├── EvalLogs.tsx
