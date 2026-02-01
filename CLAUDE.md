@@ -53,6 +53,9 @@
 - **Resizable panels** — Horizontal drag on task sidebars (180–500px), vertical drag between needs_testing/completed
 - **Chat persistence** — Messages survive browser refresh via sessionStorage
 - **Secure remote access** — Bearer token auth on all routes + WebSocket, token prompt for non-localhost, Tailscale-ready
+- **Browser notifications** — Native OS notifications when auto-evals complete while tab is in background
+- **Edit tool diff viewer** — Side-by-side old/new display for Edit tool results in tool cards (red removed, green added)
+- **Collapsed panel badges** — Task count badges on collapsed sidebar buttons (green pending, amber needs_testing)
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
 
 ### What's Left

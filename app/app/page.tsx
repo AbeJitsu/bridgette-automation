@@ -6,7 +6,7 @@ import MemoryEditor from "@/components/MemoryEditor";
 import Automations from "@/components/Automations";
 import EvalLogs from "@/components/EvalLogs";
 import Status from "@/components/Status";
-import { LeftTaskPanel, RightTaskPanel } from "@/components/TaskPanel";
+import { LeftTaskPanel, RightTaskPanel, useTaskCounts } from "@/components/TaskPanel";
 
 type Tab = "chat" | "memory" | "automations" | "logs" | "status";
 
@@ -24,6 +24,7 @@ export default function Home() {
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [leftPanelWidth, setLeftPanelWidth] = useState(240);
   const [rightPanelWidth, setRightPanelWidth] = useState(240);
+  const taskCounts = useTaskCounts();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const draggingRef = useRef<"left" | "right" | null>(null);
   const startXRef = useRef(0);
@@ -150,7 +151,7 @@ export default function Home() {
           {!leftPanelOpen && (
             <button
               onClick={() => setLeftPanelOpen(true)}
-              className="flex-shrink-0 w-8 flex items-center justify-center border-r border-white/[0.06] hover:bg-white/[0.03] transition-colors text-gray-600 hover:text-gray-400"
+              className="relative flex-shrink-0 w-8 flex items-center justify-center border-r border-white/[0.06] hover:bg-white/[0.03] transition-colors text-gray-600 hover:text-gray-400"
               style={{ background: 'var(--surface-1)' }}
               title="Show pending tasks"
               aria-label="Show pending tasks panel"
@@ -158,6 +159,9 @@ export default function Home() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
+              {taskCounts.pending > 0 && (
+                <span className="absolute top-1.5 right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-emerald-500/80 text-white text-[10px] font-bold px-1">{taskCounts.pending}</span>
+              )}
             </button>
           )}
           {leftPanelOpen && (
@@ -192,7 +196,7 @@ export default function Home() {
           {!rightPanelOpen && (
             <button
               onClick={() => setRightPanelOpen(true)}
-              className="flex-shrink-0 w-8 flex items-center justify-center border-l border-white/[0.06] hover:bg-white/[0.03] transition-colors text-gray-600 hover:text-gray-400"
+              className="relative flex-shrink-0 w-8 flex items-center justify-center border-l border-white/[0.06] hover:bg-white/[0.03] transition-colors text-gray-600 hover:text-gray-400"
               style={{ background: 'var(--surface-1)' }}
               title="Show active tasks"
               aria-label="Show active tasks panel"
@@ -200,6 +204,9 @@ export default function Home() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
+              {taskCounts.needsTesting > 0 && (
+                <span className="absolute top-1.5 left-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-amber-500/80 text-white text-[10px] font-bold px-1">{taskCounts.needsTesting}</span>
+              )}
             </button>
           )}
         </div>

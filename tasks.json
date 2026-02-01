@@ -247,8 +247,15 @@
   },
   {
     "id": "5d2a9e3d-be42-4a76-af13-396832fa357f",
-    "title": "[Auto-eval] Backend eval running...",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:20:24.596Z",
+    "summary": "What: Backend quality pass — updated .auto-eval-index, tasks API, server\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 5 files changed (+131 -3 lines)"
+  },
+  {
+    "id": "1e63ffbd-2ef0-4ba9-b657-7f9153c5c05c",
+    "title": "[Auto-eval] Functionality eval running...",
     "status": "pending",
-    "createdAt": "2026-02-01T20:20:24.596Z"
+    "createdAt": "2026-02-01T20:23:08.469Z"
   }
 ]

@@ -171,9 +171,12 @@ export default function ChatSession() {
     saveChat(sessionId, messages);
   }, [sessionId, messages]);
 
-  // Focus input on mount
+  // Focus input on mount + request notification permission
   useEffect(() => {
     inputRef.current?.focus();
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
   }, []);
 
   // Listen for "Send to Chat" events from Automations tab
@@ -475,6 +478,15 @@ export default function ChatSession() {
         content: `**${evalLabel} eval complete**\n\n\`\`\`\n${data.summary || "No changes"}\n\`\`\``,
       };
       setMessages((prev) => [...prev, summaryMsg]);
+
+      // Browser notification when tab is not focused
+      if (document.hidden && Notification.permission === "granted") {
+        const statusEmoji = data.status === "error" ? "\u274C" : "\u2705";
+        new Notification(`${statusEmoji} ${evalLabel} eval complete`, {
+          body: data.summary ? data.summary.split("\n")[0] : "No changes",
+          tag: "bridgette-eval",
+        });
+      }
       return;
     }
 
@@ -1456,6 +1468,44 @@ function DiffResult({ text }: { text: string }) {
   );
 }
 
+function EditToolInput({ input }: { input: Record<string, unknown> }) {
+  const filePath = String(input.file_path || "");
+  const oldStr = String(input.old_string || "");
+  const newStr = String(input.new_string || "");
+
+  if (!oldStr && !newStr) return null;
+
+  return (
+    <div className="space-y-2">
+      {filePath && (
+        <div className="text-xs text-gray-500 font-medium" style={{ fontFamily: "var(--font-mono)" }}>
+          {filePath}
+        </div>
+      )}
+      {oldStr && (
+        <div>
+          <span className="text-xs text-red-400/80 font-medium uppercase tracking-wider">Removed</span>
+          <pre className="mt-1 rounded-md border border-red-500/15 p-2.5 overflow-x-auto text-xs max-h-32 overflow-y-auto" style={{ background: "rgba(239,68,68,0.05)", fontFamily: "var(--font-mono)" }}>
+            {oldStr.split("\n").map((line, i) => (
+              <div key={i} className="text-red-400/80">{line || " "}</div>
+            ))}
+          </pre>
+        </div>
+      )}
+      {newStr && (
+        <div>
+          <span className="text-xs text-emerald-400/80 font-medium uppercase tracking-wider">Added</span>
+          <pre className="mt-1 rounded-md border border-emerald-500/15 p-2.5 overflow-x-auto text-xs max-h-32 overflow-y-auto" style={{ background: "rgba(16,185,129,0.05)", fontFamily: "var(--font-mono)" }}>
+            {newStr.split("\n").map((line, i) => (
+              <div key={i} className="text-emerald-400/80">{line || " "}</div>
+            ))}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ToolUseCard({ tool }: { tool: ToolUse }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -1463,6 +1513,7 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
   const summary = getToolSummary(tool);
   const resultText = tool.result || "";
   const showDiff = resultText && isDiffContent(resultText);
+  const isEditTool = tool.name === "Edit" && tool.input.old_string && tool.input.new_string;
 
   return (
     <div
@@ -1501,12 +1552,16 @@ function ToolUseCard({ tool }: { tool: ToolUse }) {
               <span className="font-medium text-gray-500 text-xs uppercase tracking-wider">Input</span>
               <CopyButton text={JSON.stringify(tool.input, null, 2)} />
             </div>
-            <pre
-              className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-40 overflow-y-auto text-gray-400"
-              style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
-            >
-              {JSON.stringify(tool.input, null, 2)}
-            </pre>
+            {isEditTool ? (
+              <div className="mt-1.5"><EditToolInput input={tool.input} /></div>
+            ) : (
+              <pre
+                className="mt-1.5 rounded-md border border-white/[0.06] p-2.5 overflow-x-auto text-xs max-h-40 overflow-y-auto text-gray-400"
+                style={{ background: 'var(--surface-1)', fontFamily: 'var(--font-mono)' }}
+              >
+                {JSON.stringify(tool.input, null, 2)}
+              </pre>
+            )}
           </div>
           {tool.result && (
             <div>

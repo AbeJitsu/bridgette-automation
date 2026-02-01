@@ -610,3 +610,34 @@ function formatEST(iso: string): string {
 function parseSummaryLines(summary: string): string[] {
   return summary.split("\n").filter((line) => line.trim());
 }
+
+// ============================================
+// EXPORTED HOOK — task counts for collapsed badges
+// ============================================
+
+export function useTaskCounts() {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const listener = () => setTick((t) => t + 1);
+    listeners.push(listener);
+
+    // Start polling if first subscriber
+    if (!pollInterval) {
+      fetchTasks();
+      pollInterval = window.setInterval(fetchTasks, 3000);
+    }
+
+    return () => {
+      listeners = listeners.filter((l) => l !== listener);
+      if (listeners.length === 0 && pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    };
+  }, []);
+
+  const pending = globalTasks.filter((t) => t.status === "pending").length;
+  const needsTesting = globalTasks.filter((t) => t.status === "needs_testing").length;
+  return { pending, needsTesting };
+}
