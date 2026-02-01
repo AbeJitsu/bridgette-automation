@@ -93,11 +93,34 @@ function clearAllSessions() {
 // CHAT SESSION COMPONENT
 // ============================================
 
+const CHAT_STATE_KEY = "bridgette-chat-state";
+
+function saveChat(sessionId: string | null, messages: ChatMessage[]) {
+  try {
+    sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({ sessionId, messages }));
+  } catch { /* storage full — ignore */ }
+}
+
+function loadChat(): { sessionId: string | null; messages: ChatMessage[] } | null {
+  try {
+    const raw = sessionStorage.getItem(CHAT_STATE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data && Array.isArray(data.messages)) return data;
+  } catch { /* corrupt — ignore */ }
+  return null;
+}
+
+function clearChat() {
+  sessionStorage.removeItem(CHAT_STATE_KEY);
+}
+
 export default function ChatSession() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const restored = typeof window !== "undefined" ? loadChat() : null;
+  const [messages, setMessages] = useState<ChatMessage[]>(restored?.messages ?? []);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(restored?.sessionId ?? null);
   const [currentModel, setCurrentModel] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -139,6 +162,11 @@ export default function ChatSession() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Persist chat state to sessionStorage so it survives refresh
+  useEffect(() => {
+    saveChat(sessionId, messages);
+  }, [sessionId, messages]);
 
   // Focus input on mount
   useEffect(() => {
@@ -529,6 +557,7 @@ export default function ChatSession() {
   const startNewChat = useCallback(() => {
     setMessages([]);
     setSessionId(null);
+    clearChat();
     streamingMessageRef.current = null;
     setStatus("connected");
     setShowHistory(false);
