@@ -4,6 +4,8 @@ import { randomUUID } from "crypto";
 
 const TASKS_FILE = path.join(process.cwd(), "..", "tasks.json");
 
+export type TaskPriority = "high" | "normal" | "low";
+
 export interface Task {
   id: string;
   title: string;
@@ -11,6 +13,7 @@ export interface Task {
   createdAt: string;
   summary?: string;
   description?: string;
+  priority?: TaskPriority;
 }
 
 export const VALID_STATUSES: Task["status"][] = [
@@ -141,9 +144,11 @@ export function getAllTasks(): Promise<Task[]> {
 // Number of oldest completed tasks to purge when approaching the limit
 const PURGE_BATCH = 50;
 
+export const VALID_PRIORITIES: TaskPriority[] = ["high", "normal", "low"];
+
 export function createTask(
   title: string,
-  options?: { status?: Task["status"]; summary?: string; description?: string }
+  options?: { status?: Task["status"]; summary?: string; description?: string; priority?: TaskPriority }
 ): Promise<Task> {
   return withLock(() => {
     let tasks = readTasks();
@@ -177,6 +182,7 @@ export function createTask(
     };
     if (options?.summary) task.summary = options.summary;
     if (options?.description) task.description = options.description;
+    if (options?.priority && VALID_PRIORITIES.includes(options.priority)) task.priority = options.priority;
     tasks.push(task);
     writeTasks(tasks);
     return task;
@@ -185,7 +191,7 @@ export function createTask(
 
 export function updateTask(
   id: string,
-  updates: { title?: string; status?: Task["status"]; summary?: string; description?: string }
+  updates: { title?: string; status?: Task["status"]; summary?: string; description?: string; priority?: TaskPriority }
 ): Promise<Task | null> {
   return withLock(() => {
     const tasks = readTasks();
@@ -203,6 +209,11 @@ export function updateTask(
     }
     if (updates.description !== undefined) {
       tasks[index].description = updates.description;
+    }
+    if (updates.priority !== undefined) {
+      if (VALID_PRIORITIES.includes(updates.priority)) {
+        tasks[index].priority = updates.priority;
+      }
     }
 
     writeTasks(tasks);

@@ -20,8 +20,10 @@ const TABS: { id: Tab; label: string; icon: string; activeClass: string }[] = [
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("chat");
-  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
-  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  // Auto-collapse panels on narrow screens
+  const isNarrow = typeof window !== "undefined" && window.innerWidth < 1024;
+  const [leftPanelOpen, setLeftPanelOpen] = useState(!isNarrow);
+  const [rightPanelOpen, setRightPanelOpen] = useState(!isNarrow);
   const [leftPanelWidth, setLeftPanelWidth] = useState(240);
   const [rightPanelWidth, setRightPanelWidth] = useState(240);
   const taskCounts = useTaskCounts();
@@ -62,6 +64,18 @@ export default function Home() {
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
   }
+
+  // Auto-collapse panels when window becomes narrow
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 1024) {
+        setLeftPanelOpen(false);
+        setRightPanelOpen(false);
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Cmd+1-5 keyboard shortcuts for tab switching
   useEffect(() => {
@@ -106,18 +120,18 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen text-gray-100" style={{ background: 'var(--surface-0)' }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-2.5 border-b border-white/[0.06]" style={{ background: 'var(--surface-1)' }}>
+      <header className="flex items-center justify-between px-3 sm:px-6 py-2.5 border-b border-white/[0.06] flex-wrap gap-y-1" style={{ background: 'var(--surface-1)' }}>
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center shadow-lg shadow-emerald-500/20" role="img" aria-label="Bridgette logo">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
           </div>
-          <h1 className="text-sm font-semibold tracking-tight text-gray-100" style={{ fontFamily: 'var(--font-mono)' }}>
+          <h1 className="text-sm font-semibold tracking-tight text-gray-100 hidden sm:block" style={{ fontFamily: 'var(--font-mono)' }}>
             Bridgette
           </h1>
         </div>
-        <nav role="tablist" aria-label="Dashboard sections" className="flex gap-0.5">
+        <nav role="tablist" aria-label="Dashboard sections" className="flex gap-0.5 flex-wrap">
           {TABS.map((tab, index) => (
             <button
               key={tab.id}
@@ -138,7 +152,7 @@ export default function Home() {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d={tab.icon} />
               </svg>
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </nav>

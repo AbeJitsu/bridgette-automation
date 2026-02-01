@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateTask, deleteTask, isValidTaskId, VALID_STATUSES, type Task } from "../task-store";
+import { updateTask, deleteTask, isValidTaskId, VALID_STATUSES, VALID_PRIORITIES, type Task, type TaskPriority } from "../task-store";
 import { isAuthorized, unauthorizedResponse, parseJsonBody } from "@/lib/auth";
 
 export async function PUT(
@@ -17,7 +17,7 @@ export async function PUT(
   if (result instanceof NextResponse) return result;
   const body = result;
 
-  const updates: { title?: string; status?: Task["status"]; summary?: string; description?: string } = {};
+  const updates: { title?: string; status?: Task["status"]; summary?: string; description?: string; priority?: TaskPriority } = {};
 
   if (typeof body.title === "string" && body.title.trim()) {
     const title = body.title.trim();
@@ -45,6 +45,16 @@ export async function PUT(
   }
   if (typeof body.description === "string") {
     updates.description = body.description.slice(0, 2000);
+  }
+  if (body.priority !== undefined) {
+    if (VALID_PRIORITIES.includes(body.priority as TaskPriority)) {
+      updates.priority = body.priority as TaskPriority;
+    } else {
+      return NextResponse.json(
+        { error: `Invalid priority. Must be one of: ${VALID_PRIORITIES.join(", ")}` },
+        { status: 400 }
+      );
+    }
   }
 
   try {

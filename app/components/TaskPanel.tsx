@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 
+type TaskPriority = "high" | "normal" | "low";
+
 interface Task {
   id: string;
   title: string;
@@ -9,6 +11,7 @@ interface Task {
   createdAt: string;
   summary?: string;
   description?: string;
+  priority?: TaskPriority;
 }
 
 // Brief error flash for failed task operations
@@ -29,11 +32,21 @@ function setError(msg: string) {
 // TASK PANEL — Left sidebar (Pending)
 // ============================================
 
+const PRIORITY_ORDER: Record<string, number> = { high: 0, normal: 1, low: 2 };
+
+function sortByPriority(tasks: Task[]): Task[] {
+  return [...tasks].sort((a, b) => {
+    const pa = PRIORITY_ORDER[a.priority || "normal"] ?? 1;
+    const pb = PRIORITY_ORDER[b.priority || "normal"] ?? 1;
+    return pa - pb;
+  });
+}
+
 export function LeftTaskPanel({ onCollapse, width }: { onCollapse?: () => void; width?: number }) {
-  const { tasks, error, addTask, advanceTask, deleteTask, renameTask, updateDescription } = useTasks();
+  const { tasks, error, addTask, advanceTask, deleteTask, renameTask, updateDescription, updatePriority } = useTasks();
   const [newTitle, setNewTitle] = useState("");
 
-  const pending = tasks.filter((t) => t.status === "pending");
+  const pending = sortByPriority(tasks.filter((t) => t.status === "pending"));
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +70,7 @@ export function LeftTaskPanel({ onCollapse, width }: { onCollapse?: () => void; 
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
         {pending.map((task) => (
-          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
+          <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} onUpdatePriority={updatePriority} />
         ))}
         {pending.length === 0 && (
           <p className="text-xs text-gray-500 px-2 py-6 text-center">No pending tasks</p>
@@ -99,9 +112,9 @@ export function LeftTaskPanel({ onCollapse, width }: { onCollapse?: () => void; 
 // ============================================
 
 export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void; width?: number }) {
-  const { tasks, advanceTask, deleteTask, renameTask, updateDescription, clearCompleted, advanceAll } = useTasks();
+  const { tasks, advanceTask, deleteTask, renameTask, updateDescription, updatePriority, clearCompleted, advanceAll } = useTasks();
 
-  const needsTesting = tasks.filter((t) => t.status === "needs_testing");
+  const needsTesting = sortByPriority(tasks.filter((t) => t.status === "needs_testing"));
   const completed = tasks.filter((t) => t.status === "completed");
 
   // Vertical resize: track the percentage of height for needs_testing section
@@ -167,7 +180,7 @@ export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void;
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
           {needsTesting.map((task) => (
-            <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
+            <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} onUpdatePriority={updatePriority} />
           ))}
           {needsTesting.length === 0 && (
             <p className="text-xs text-gray-500 px-2 py-6 text-center">Nothing to test</p>
@@ -202,7 +215,7 @@ export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void;
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
           {completed.map((task) => (
-            <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} />
+            <TaskItem key={task.id} task={task} onAdvance={advanceTask} onDelete={deleteTask} onRename={renameTask} onUpdateDescription={updateDescription} onUpdatePriority={updatePriority} />
           ))}
           {completed.length === 0 && (
             <p className="text-xs text-gray-500 px-2 py-6 text-center">No completed tasks</p>
@@ -217,18 +230,38 @@ export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void;
 // TASK ITEM
 // ============================================
 
+const PRIORITY_COLORS: Record<TaskPriority, string> = {
+  high: "text-red-400",
+  normal: "text-gray-600",
+  low: "text-blue-400/60",
+};
+
+const PRIORITY_LABELS: Record<TaskPriority, string> = {
+  high: "!!",
+  normal: "",
+  low: "\u2193",
+};
+
+const PRIORITY_CYCLE: Record<TaskPriority, TaskPriority> = {
+  normal: "high",
+  high: "low",
+  low: "normal",
+};
+
 function TaskItem({
   task,
   onAdvance,
   onDelete,
   onRename,
   onUpdateDescription,
+  onUpdatePriority,
 }: {
   task: Task;
   onAdvance: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onUpdateDescription: (id: string, description: string) => void;
+  onUpdatePriority: (id: string, priority: TaskPriority) => void;
 }) {
   const [showSummary, setShowSummary] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -255,7 +288,9 @@ function TaskItem({
   };
 
   return (
-    <div className="group px-2.5 py-2 rounded-lg hover:bg-white/[0.03] focus-within:bg-white/[0.03] transition-all duration-150">
+    <div className={`group px-2.5 py-2 rounded-lg hover:bg-white/[0.03] focus-within:bg-white/[0.03] transition-all duration-150 ${
+      task.priority === "high" && task.status !== "completed" ? "border-l-2 border-red-400/60" : ""
+    }`}>
       <div className="flex items-start gap-2">
         <button
           onClick={() => onAdvance(task.id)}
@@ -265,6 +300,17 @@ function TaskItem({
         >
           {statusSymbol[task.status]}
         </button>
+        {task.status !== "completed" && (task.priority || "normal") !== "normal" && (
+          <button
+            onClick={() => onUpdatePriority(task.id, PRIORITY_CYCLE[task.priority || "normal"])}
+            className={`mt-0.5 text-xs flex-shrink-0 font-bold ${PRIORITY_COLORS[task.priority || "normal"]} hover:opacity-70 transition-opacity duration-150`}
+            title={`Priority: ${task.priority || "normal"} (click to cycle)`}
+            aria-label={`Priority ${task.priority}, click to change`}
+            style={{ fontFamily: 'var(--font-mono)', minWidth: '14px' }}
+          >
+            {PRIORITY_LABELS[task.priority || "normal"]}
+          </button>
+        )}
         <div className="flex-1 min-w-0">
           {editing ? (
             <input
@@ -312,6 +358,21 @@ function TaskItem({
           )}
         </div>
         <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-150">
+          {task.status !== "completed" && (
+            <button
+              onClick={() => onUpdatePriority(task.id, PRIORITY_CYCLE[task.priority || "normal"])}
+              className={`text-xs px-1 py-0.5 rounded transition-colors duration-150 ${
+                task.priority === "high" ? "text-red-400 bg-red-500/10 hover:bg-red-500/20" :
+                task.priority === "low" ? "text-blue-400/60 bg-blue-500/5 hover:bg-blue-500/10" :
+                "text-gray-600 hover:text-gray-400 hover:bg-white/[0.03]"
+              }`}
+              style={{ fontFamily: 'var(--font-mono)' }}
+              title={`Priority: ${task.priority || "normal"} (click to cycle)`}
+              aria-label={`Set priority for "${task.title}"`}
+            >
+              {task.priority === "high" ? "!!" : task.priority === "low" ? "\u2193" : "\u2022"}
+            </button>
+          )}
           {task.status !== "completed" && (
             <button
               onClick={() => onAdvance(task.id)}
@@ -599,6 +660,28 @@ function useTasks() {
     }
   }, []);
 
+  const updatePriority = useCallback(async (id: string, priority: TaskPriority) => {
+    const previous = [...globalTasks];
+    globalTasks = globalTasks.map((t) => (t.id === id ? { ...t, priority } : t));
+    notify();
+
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority }),
+      });
+      if (!res.ok) throw new Error("Failed to update priority");
+      const updated = await res.json();
+      globalTasks = globalTasks.map((t) => (t.id === id ? updated : t));
+      notify();
+    } catch {
+      globalTasks = previous;
+      notify();
+      setError("Failed to update priority");
+    }
+  }, []);
+
   const updateDescription = useCallback(async (id: string, description: string) => {
     const previous = [...globalTasks];
     globalTasks = globalTasks.map((t) => (t.id === id ? { ...t, description } : t));
@@ -621,7 +704,7 @@ function useTasks() {
     }
   }, []);
 
-  return { tasks: globalTasks, error: errorMessage, addTask, advanceTask, deleteTask, renameTask, updateDescription, clearCompleted, advanceAll };
+  return { tasks: globalTasks, error: errorMessage, addTask, advanceTask, deleteTask, renameTask, updateDescription, updatePriority, clearCompleted, advanceAll };
 }
 
 // ============================================

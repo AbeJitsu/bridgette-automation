@@ -304,5 +304,77 @@
     "commitHash": "65c7dfc51639f75bd4312401cdd2d43ba5cb45cd",
     "diffSummary": ".auto-eval-index                |  2 +-\n app/app/api/tasks/task-store.ts | 39 +++++++++++++++++++++++++++++++++++++++\n app/server.ts                   | 23 +++++++++++++++++++++--\n eval-log.json                   | 36 ++++++++++++++++++++++++++++++++++++\n tasks.json                      | 34 ++++++++++++++++++++++++++++++++++\n 5 files changed, 131 insertions(+), 3 deletions(-)",
     "status": "success"
+  },
+  {
+    "id": "d93f289a-87b8-4dac-a4d4-d59650e34814",
+    "evalType": "functionality",
+    "timestamp": "2026-02-01T20:26:08.635Z",
+    "branch": "dev",
+    "commitHash": "f04c18c3bd9a9ec1390a8b5e627fbb17530c8e73",
+    "diffSummary": ".auto-eval-index               |  2 +-\n CLAUDE.md                      |  3 ++\n app/app/page.tsx               | 13 ++++++--\n app/components/ChatSession.tsx | 69 +++++++++++++++++++++++++++++++++++++-----\n app/components/TaskPanel.tsx   | 31 +++++++++++++++++++\n eval-log.json                  |  9 ++++++\n tasks.json                     | 11 +++++--\n 7 files changed, 125 insertions(+), 13 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "95a32a71-d5fa-42f3-b5a5-7e73956dfa60",
+    "evalType": "memory",
+    "timestamp": "2026-02-01T20:27:37.759Z",
+    "branch": "dev",
+    "commitHash": "04b759d22a272bec2e98d0fbc5763a9042bdf68c",
+    "diffSummary": ".auto-eval-index              |  2 +-\n eval-log.json                 |  9 +++++++++\n memory/MEMORY.md              |  1 +\n memory/context/active-work.md | 16 +++++++---------\n memory/context/decisions.md   |  5 +++++\n roadmap.md                    |  5 ++++-\n tasks.json                    | 11 +++++++++--\n 7 files changed, 36 insertions(+), 13 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "dcc0c11b-f7ad-438b-9088-1e9e4b7262f5",
+    "evalType": "frontend",
+    "timestamp": "2026-02-01T20:29:49.691Z",
+    "branch": "dev",
+    "commitHash": "e664506b98597cd077fd66339dadde799f364a2d",
+    "diffSummary": ".auto-eval-index                |  2 +-\n app/components/Automations.tsx  | 22 ++++++++++++----------\n app/components/ChatSession.tsx  |  2 +-\n app/components/MemoryEditor.tsx |  8 +++++---\n eval-log.json                   | 18 ++++++++++++++++++\n tasks.json                      | 18 ++++++++++++++++--\n 6 files changed, 53 insertions(+), 17 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "2c4b5d50-379f-4a37-887e-c67d2283a1b0",
+    "evalType": "backend",
+    "timestamp": "2026-02-01T20:32:14.930Z",
+    "branch": "dev",
+    "commitHash": "07e3da79b4b024b694c88e483f54c327a8ee8b92",
+    "diffSummary": ".auto-eval-index |  2 +-\n app/server.ts    | 35 +++++++++++++++++++++++++++++++++++\n eval-log.json    | 27 +++++++++++++++++++++++++++\n tasks.json       | 25 +++++++++++++++++++++++--\n 4 files changed, 86 insertions(+), 3 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "af966b83-0179-473c-b171-f276fbec573e",
+    "evalType": "functionality",
+    "timestamp": "2026-02-01T20:35:53.132Z",
+    "branch": "dev",
+    "commitHash": "991d620426464b3e86f5d83d16940990ac177fef",
+    "diffSummary": "app/app/api/tasks/advance-all/route.ts | 30 ++++++++++++++++++++++\n app/app/api/tasks/task-store.ts        | 18 +++++++++++++\n app/components/ChatSession.tsx         | 47 +++++++++++++++++++++++++++++++---\n app/components/TaskPanel.tsx           | 40 +++++++++++++++++++++++++++--\n eval-log.json                          | 36 ++++++++++++++++++++++++++\n tasks.json                             | 30 +++++++++++++++++++++-\n 6 files changed, 195 insertions(+), 6 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "8842693e-c378-4a56-b6d1-397e9142de7f",
+    "evalType": "memory",
+    "timestamp": "2026-02-01T20:38:42.038Z",
+    "branch": "dev",
+    "commitHash": "24576bce67ff05ffcadcace9a4f5d6906e32a8f4",
+    "diffSummary": ".auto-eval-index              |  2 +-\n CLAUDE.md                     |  6 ++++++\n eval-log.json                 | 45 +++++++++++++++++++++++++++++++++++++++++++\n memory/MEMORY.md              |  1 +\n memory/context/active-work.md | 10 +++++-----\n memory/context/decisions.md   | 10 ++++++++++\n roadmap.md                    |  5 ++++-\n tasks.json                    | 39 +++++++++++++++++++++++++++++++++++--\n 8 files changed, 109 insertions(+), 9 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "0525d43e-10d0-42b9-a179-a2a7c0e8044d",
+    "evalType": "frontend",
+    "timestamp": "2026-02-01T20:40:36.787Z",
+    "branch": "dev",
+    "commitHash": "fa50f6e92de3f4528da35107a5433301371bcf72",
+    "diffSummary": ".auto-eval-index                |  2 +-\n app/components/ChatSession.tsx  |  4 ++-\n app/components/MemoryEditor.tsx |  9 +++++++\n eval-log.json                   | 54 +++++++++++++++++++++++++++++++++++++++++\n tasks.json                      | 46 +++++++++++++++++++++++++++++++++--\n 5 files changed, 111 insertions(+), 4 deletions(-)",
+    "status": "success"
+  },
+  {
+    "id": "e974e9b2-b152-49b2-8457-fef445195b72",
+    "evalType": "backend",
+    "timestamp": "2026-02-01T20:43:33.961Z",
+    "branch": "dev",
+    "commitHash": "89292bc0b116829b9b058e6bcea3bc4ed53d208b",
+    "diffSummary": ".auto-eval-index                       |  2 +-\n app/app/api/tasks/advance-all/route.ts |  7 ++++\n app/server.ts                          | 12 +++++--\n eval-log.json                          | 63 ++++++++++++++++++++++++++++++++++\n tasks.json                             | 53 ++++++++++++++++++++++++++--\n 5 files changed, 132 insertions(+), 5 deletions(-)",
+    "status": "success"
   }
 ]

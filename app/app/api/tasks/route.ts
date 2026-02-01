@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllTasks, createTask, VALID_STATUSES, type Task } from "./task-store";
+import { getAllTasks, createTask, VALID_STATUSES, VALID_PRIORITIES, type Task, type TaskPriority } from "./task-store";
 import { isAuthorized, unauthorizedResponse, parseJsonBody } from "@/lib/auth";
 
 export async function GET(request: Request) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const options: { status?: Task["status"]; summary?: string; description?: string } = {};
+  const options: { status?: Task["status"]; summary?: string; description?: string; priority?: TaskPriority } = {};
   if (body.status && VALID_STATUSES.includes(body.status as Task["status"])) {
     options.status = body.status as Task["status"];
   }
@@ -41,6 +41,9 @@ export async function POST(request: Request) {
   }
   if (typeof body.description === "string") {
     options.description = body.description.slice(0, 2000);
+  }
+  if (body.priority && VALID_PRIORITIES.includes(body.priority as TaskPriority)) {
+    options.priority = body.priority as TaskPriority;
   }
 
   try {

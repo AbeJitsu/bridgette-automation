@@ -206,7 +206,16 @@ function createEvalTask(evalType: string, diffSummary: string): void {
   const summary = buildEvalSummary(evalType, diffSummary);
   const title = `[Auto-eval] ${evalLabel} eval needs review`;
 
-  import("./app/api/tasks/task-store").then(({ createTask }) => {
+  import("./app/api/tasks/task-store").then(async ({ createTask, getAllTasks }) => {
+    // Prevent duplicate: skip if there's already a needs_testing task for this eval type
+    const existing = await getAllTasks();
+    const hasDuplicate = existing.some(
+      (t) => t.status === "needs_testing" && t.title === title
+    );
+    if (hasDuplicate) {
+      console.log(`[auto-eval] Skipping duplicate task: ${title} (already exists in needs_testing)`);
+      return;
+    }
     return createTask(title, { status: "needs_testing", summary });
   }).then(() => {
     console.log(`[auto-eval] Created task: ${title}`);

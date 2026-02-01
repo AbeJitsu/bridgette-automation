@@ -254,8 +254,64 @@
   },
   {
     "id": "1e63ffbd-2ef0-4ba9-b657-7f9153c5c05c",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:23:08.469Z",
+    "summary": "What: Functionality quality pass — updated .auto-eval-index, docs, page and 2 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 7 files changed (+125 -13 lines)"
+  },
+  {
+    "id": "fcad5637-9cf5-4200-b7a5-f8dd64b863d7",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:26:38.699Z",
+    "summary": "What: Memory quality pass — updated .auto-eval-index, docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 7 files changed (+36 -13 lines)"
+  },
+  {
+    "id": "ee559399-17ad-4b20-aa40-c5db012da181",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:28:07.825Z",
+    "summary": "What: Frontend quality pass — updated .auto-eval-index, Automations, ChatSession and 1 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 6 files changed (+53 -17 lines)"
+  },
+  {
+    "id": "645f6bfb-2a4a-42c8-995c-a3ee3d7f748c",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:30:19.751Z",
+    "summary": "What: Backend quality pass — updated .auto-eval-index, server\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 4 files changed (+86 -3 lines)"
+  },
+  {
+    "id": "edaded92-fff8-4cc1-966b-4fa28af106a4",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:32:44.986Z",
+    "summary": "What: Functionality quality pass — updated tasks API, ChatSession, TaskPanel\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 6 files changed (+195 -6 lines)"
+  },
+  {
+    "id": "c402a81a-65b5-4c5c-a78b-759bd5cef8fc",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:36:23.190Z",
+    "summary": "What: Memory quality pass — updated .auto-eval-index, docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 8 files changed (+109 -9 lines)"
+  },
+  {
+    "id": "a685319e-9668-41bf-82e0-f28990d151d3",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:39:12.104Z",
+    "summary": "What: Frontend quality pass — updated .auto-eval-index, ChatSession, MemoryEditor\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 5 files changed (+111 -4 lines)"
+  },
+  {
+    "id": "4dd34828-3d91-4b6b-8dab-b4293e5dcf0d",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-01T20:41:06.848Z",
+    "summary": "What: Backend quality pass — updated .auto-eval-index, tasks API, server\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 5 files changed (+132 -5 lines)"
+  },
+  {
+    "id": "9e634a97-b420-41f8-a30f-c64a0ddc91e9",
     "title": "[Auto-eval] Functionality eval running...",
     "status": "pending",
-    "createdAt": "2026-02-01T20:23:08.469Z"
+    "createdAt": "2026-02-01T20:44:04.023Z"
   }
 ]
