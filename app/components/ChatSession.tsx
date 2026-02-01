@@ -75,6 +75,7 @@ export default function ChatSession() {
   const [autoEval, setAutoEval] = useState(false);
   const [branch, setBranch] = useState<string | null>(null);
   const [evalRunning, setEvalRunning] = useState(false);
+  const [evalType, setEvalType] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -183,6 +184,8 @@ export default function ChatSession() {
       if (data.cwd) setCwd(data.cwd);
       if (data.branch) setBranch(data.branch);
       if (data.autoEval !== undefined) setAutoEval(!!data.autoEval);
+      if (data.evalRunning !== undefined) setEvalRunning(!!data.evalRunning);
+      if (data.evalType !== undefined) setEvalType(data.evalType);
       return;
     }
 
@@ -299,17 +302,19 @@ export default function ChatSession() {
     if (type === "auto_eval_start") {
       if (data.branch) setBranch(data.branch);
       setEvalRunning(true);
+      setEvalType(data.evalType || null);
       return;
     }
 
     if (type === "auto_eval_complete") {
       if (data.branch) setBranch(data.branch);
       setEvalRunning(false);
-      // Show summary as a system message in chat
+      setEvalType(null);
+      const evalLabel = data.evalType ? data.evalType.charAt(0).toUpperCase() + data.evalType.slice(1) : "Auto";
       const summaryMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: `**Auto-eval complete**\n\n\`\`\`\n${data.summary || "No changes"}\n\`\`\``,
+        content: `**${evalLabel} eval complete**\n\n\`\`\`\n${data.summary || "No changes"}\n\`\`\``,
       };
       setMessages((prev) => [...prev, summaryMsg]);
       return;
@@ -320,10 +325,20 @@ export default function ChatSession() {
       return;
     }
 
+    if (type === "error") {
+      // Reset eval state on error (eval may have failed)
+      setEvalRunning(false);
+      setEvalType(null);
+      return;
+    }
+
     if (type === "result") {
       setStatus("connected");
       streamingMessageRef.current = null;
       if (data.session_id) setSessionId(data.session_id);
+      // Reset eval state — if an eval's claude process finished, this fires
+      setEvalRunning(false);
+      setEvalType(null);
       setMessages((prev) => {
         if (prev.length === 0) return prev;
         const last = prev[prev.length - 1];
@@ -522,7 +537,7 @@ export default function ChatSession() {
                   <polygon points="5,3 19,12 5,21" />
                 </svg>
               )}
-              {evalRunning ? "Running..." : "Run Now"}
+              {evalRunning ? `Running: ${evalType ? evalType.charAt(0).toUpperCase() + evalType.slice(1) : "Eval"}...` : "Run Now"}
             </button>
           )}
 

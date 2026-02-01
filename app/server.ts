@@ -39,6 +39,26 @@ let serverAutoEvalEnabled = loadAutoEvalEnabled();
 let serverIdleTimer: NodeJS.Timeout | null = null;
 let serverAutoEvalProcess: ChildProcess | null = null;
 
+// Three-eval rotation system
+const EVAL_TYPES = ["frontend", "backend", "functionality"] as const;
+type EvalType = (typeof EVAL_TYPES)[number];
+const autoEvalIndexFile = join(process.cwd(), "..", ".auto-eval-index");
+
+function loadEvalIndex(): number {
+  try {
+    const val = parseInt(readFileSync(autoEvalIndexFile, "utf-8").trim(), 10);
+    return isNaN(val) ? 0 : val % EVAL_TYPES.length;
+  } catch {
+    return 0;
+  }
+}
+
+function saveEvalIndex(index: number): void {
+  try { writeFileSync(autoEvalIndexFile, String(index)); } catch {}
+}
+
+let currentEvalType: EvalType | null = null;
+
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
     const parsedUrl = parse(req.url!, true);
@@ -127,18 +147,31 @@ app.prepare().then(() => {
       return;
     }
 
-    // Notify connected clients
-    broadcastToChat({ type: "auto_eval_start", branch: branchName });
+    // Rotation: pick the next eval type
+    const evalIndex = loadEvalIndex();
+    const evalType = EVAL_TYPES[evalIndex];
+    currentEvalType = evalType;
+    saveEvalIndex((evalIndex + 1) % EVAL_TYPES.length);
 
-    // Read the eval prompt
+    // Notify connected clients
+    broadcastToChat({ type: "auto_eval_start", branch: branchName, evalType });
+
+    // Read the eval prompt for this type
     let prompt: string;
     try {
-      const promptPath = join(process.cwd(), "..", "automations", "auto-eval", "prompt.md");
+      const promptPath = join(process.cwd(), "..", "automations", "auto-eval", `${evalType}.md`);
       prompt = readFileSync(promptPath, "utf-8");
     } catch {
-      console.error("Auto-eval prompt not found");
-      broadcastToChat({ type: "error", message: "Auto-eval prompt not found" });
-      return;
+      // Fallback to generic prompt
+      try {
+        const fallbackPath = join(process.cwd(), "..", "automations", "auto-eval", "prompt.md");
+        prompt = readFileSync(fallbackPath, "utf-8");
+      } catch {
+        console.error("Auto-eval prompt not found");
+        broadcastToChat({ type: "error", message: "Auto-eval prompt not found" });
+        currentEvalType = null;
+        return;
+      }
     }
 
     const home = process.env.HOME || "/Users/abereyes";
@@ -213,6 +246,8 @@ app.prepare().then(() => {
       }
       buffer = "";
       serverAutoEvalProcess = null;
+      const completedEvalType = currentEvalType;
+      currentEvalType = null;
 
       // Get change summary
       let summary = "";
@@ -223,7 +258,7 @@ app.prepare().then(() => {
       }
 
       const branch = getGitBranch(cwd);
-      broadcastToChat({ type: "auto_eval_complete", summary, branch });
+      broadcastToChat({ type: "auto_eval_complete", summary, branch, evalType: completedEvalType });
 
       // Reset idle timer (prevents chaining evals)
       resetServerIdleTimer();
@@ -234,6 +269,7 @@ app.prepare().then(() => {
       console.error(`[auto-eval error] ${err.message}`);
       broadcastToChat({ type: "error", message: err.message });
       serverAutoEvalProcess = null;
+      currentEvalType = null;
     });
   }
 
@@ -261,7 +297,8 @@ app.prepare().then(() => {
 
     // Send initial state including branch and auto-eval
     const branch = getGitBranch(initialCwd);
-    ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled }));
+    const evalRunning = !!serverAutoEvalProcess && !serverAutoEvalProcess.killed;
+    ws.send(JSON.stringify({ type: "state", cwd: initialCwd, branch, autoEval: serverAutoEvalEnabled, evalRunning, evalType: evalRunning ? currentEvalType : null }));
 
     ws.on("message", (msg: Buffer | string) => {
       try {
@@ -281,7 +318,8 @@ app.prepare().then(() => {
             saveLastCwd(target);
             chatSessions.set(ws, null);
             const branch = getGitBranch(target);
-            ws.send(JSON.stringify({ type: "state", cwd: target, branch, autoEval: serverAutoEvalEnabled }));
+            const evalRunningNow = !!serverAutoEvalProcess && !serverAutoEvalProcess.killed;
+            ws.send(JSON.stringify({ type: "state", cwd: target, branch, autoEval: serverAutoEvalEnabled, evalRunning: evalRunningNow, evalType: evalRunningNow ? currentEvalType : null }));
           } else {
             ws.send(JSON.stringify({ type: "error", message: `Directory not found: ${target}` }));
           }
