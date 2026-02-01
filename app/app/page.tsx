@@ -165,10 +165,12 @@ export default function Home() {
               <LeftTaskPanel onCollapse={() => setLeftPanelOpen(false)} width={leftPanelWidth} />
               <div
                 onMouseDown={(e) => startDrag("left", e)}
-                className="flex-shrink-0 w-1 cursor-col-resize hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors duration-100"
+                className="group/drag flex-shrink-0 w-1.5 cursor-col-resize hover:bg-emerald-500/20 active:bg-emerald-500/40 transition-colors duration-100 flex items-center justify-center"
                 style={{ background: draggingRef.current === "left" ? "rgba(16,185,129,0.3)" : undefined }}
                 title="Drag to resize"
-              />
+              >
+                <div className="w-0.5 h-8 rounded-full bg-white/[0.06] group-hover/drag:bg-emerald-400/40 transition-colors" />
+              </div>
             </>
           )}
           <div className="flex-1 overflow-hidden">
@@ -178,10 +180,12 @@ export default function Home() {
             <>
               <div
                 onMouseDown={(e) => startDrag("right", e)}
-                className="flex-shrink-0 w-1 cursor-col-resize hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors duration-100"
+                className="group/drag flex-shrink-0 w-1.5 cursor-col-resize hover:bg-emerald-500/20 active:bg-emerald-500/40 transition-colors duration-100 flex items-center justify-center"
                 style={{ background: draggingRef.current === "right" ? "rgba(16,185,129,0.3)" : undefined }}
                 title="Drag to resize"
-              />
+              >
+                <div className="w-0.5 h-8 rounded-full bg-white/[0.06] group-hover/drag:bg-emerald-400/40 transition-colors" />
+              </div>
               <RightTaskPanel onCollapse={() => setRightPanelOpen(false)} width={rightPanelWidth} />
             </>
           )}

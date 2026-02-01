@@ -166,9 +166,11 @@ export function RightTaskPanel({ onCollapse, width }: { onCollapse?: () => void;
       {/* Vertical drag handle */}
       <div
         onMouseDown={startVDrag}
-        className="flex-shrink-0 h-1 cursor-row-resize hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors duration-100 border-t border-white/[0.06]"
+        className="group/vdrag flex-shrink-0 h-1.5 cursor-row-resize hover:bg-emerald-500/20 active:bg-emerald-500/40 transition-colors duration-100 border-t border-white/[0.06] flex items-center justify-center"
         title="Drag to resize"
-      />
+      >
+        <div className="h-0.5 w-8 rounded-full bg-white/[0.06] group-hover/vdrag:bg-emerald-400/40 transition-colors" />
+      </div>
 
       {/* Completed */}
       <div className="flex flex-col min-h-0" style={{ height: `${100 - topPercent}%` }}>

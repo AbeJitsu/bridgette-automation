@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import TabEmptyState from "@/components/TabEmptyState";
 
 interface MemoryFile {
@@ -181,14 +181,11 @@ export default function MemoryEditor() {
               </div>
             </div>
 
-            {/* Textarea */}
-            <textarea
+            {/* Editor with line numbers */}
+            <LineNumberEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="flex-1 p-4 font-mono text-sm text-gray-200 resize-none focus:outline-none"
-              style={{ background: 'var(--surface-0)' }}
-              spellCheck={false}
-              aria-label={`Editing ${selectedFile}`}
+              onChange={setContent}
+              fileName={selectedFile}
             />
           </>
         ) : (
@@ -197,6 +194,62 @@ export default function MemoryEditor() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================
+// LINE NUMBER EDITOR
+// ============================================
+
+function LineNumberEditor({
+  value,
+  onChange,
+  fileName,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  fileName: string;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const gutterRef = useRef<HTMLDivElement>(null);
+
+  const lines = value.split("\n");
+  const lineCount = lines.length;
+
+  function syncScroll() {
+    if (textareaRef.current && gutterRef.current) {
+      gutterRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  }
+
+  return (
+    <div className="flex-1 flex overflow-hidden" style={{ background: "var(--surface-0)" }}>
+      {/* Line number gutter */}
+      <div
+        ref={gutterRef}
+        className="flex-shrink-0 overflow-hidden select-none text-right pr-3 pl-2 py-4 border-r border-white/[0.06]"
+        style={{ background: "var(--surface-1)", fontFamily: "var(--font-mono)", fontSize: "14px", lineHeight: "1.5rem" }}
+        aria-hidden="true"
+      >
+        {Array.from({ length: lineCount }, (_, i) => (
+          <div key={i} className="text-gray-600 text-xs leading-6">
+            {i + 1}
+          </div>
+        ))}
+      </div>
+
+      {/* Textarea */}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onScroll={syncScroll}
+        className="flex-1 py-4 px-4 font-mono text-sm text-gray-200 resize-none focus:outline-none leading-6"
+        style={{ background: "var(--surface-0)", tabSize: 2 }}
+        spellCheck={false}
+        aria-label={`Editing ${fileName}`}
+      />
     </div>
   );
 }
