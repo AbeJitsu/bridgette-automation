@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync, renameSync, copyFileSync, existsSync, read
 import { join } from "path";
 import crypto from "crypto";
 import { getNextAutomation } from "./lib/automation-queue";
+import * as pty from "node-pty";
 
 // Load .env if present
 try {
@@ -317,24 +318,37 @@ app.prepare().then(() => {
   });
 
   const wssChat = new WebSocketServer({ noServer: true });
+  const wssTerminal = new WebSocketServer({ noServer: true });
 
   server.on("upgrade", (req, socket, head) => {
     const { pathname, query } = parse(req.url!, true);
 
+    // Token auth check helper
+    function checkAuth(): boolean {
+      if (!BRIDGETTE_TOKEN) return true;
+      const authHeader = req.headers["authorization"];
+      const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      const queryToken = typeof query.token === "string" ? query.token : null;
+      return headerToken === BRIDGETTE_TOKEN || queryToken === BRIDGETTE_TOKEN;
+    }
+
     if (pathname === "/ws/chat") {
-      // Token auth check (skip if no token configured)
-      if (BRIDGETTE_TOKEN) {
-        const authHeader = req.headers["authorization"];
-        const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-        const queryToken = typeof query.token === "string" ? query.token : null;
-        if (headerToken !== BRIDGETTE_TOKEN && queryToken !== BRIDGETTE_TOKEN) {
-          socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-          socket.destroy();
-          return;
-        }
+      if (!checkAuth()) {
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        socket.destroy();
+        return;
       }
       wssChat.handleUpgrade(req, socket, head, (ws) => {
         wssChat.emit("connection", ws, req);
+      });
+    } else if (pathname === "/ws/terminal") {
+      if (!checkAuth()) {
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        socket.destroy();
+        return;
+      }
+      wssTerminal.handleUpgrade(req, socket, head, (ws) => {
+        wssTerminal.emit("connection", ws, req);
       });
     } else {
       socket.destroy();
@@ -1193,6 +1207,75 @@ app.prepare().then(() => {
     });
   }
 
+  // ============================================
+  // TERMINAL WebSocket — real PTY via node-pty
+  // ============================================
+
+  const terminalPtys = new Map<WebSocket, pty.IPty>();
+
+  wssTerminal.on("connection", (ws: WebSocket) => {
+    const cwd = getLastCwd();
+    const shell = process.env.SHELL || "/bin/zsh";
+
+    const ptyProcess = pty.spawn(shell, [], {
+      name: "xterm-256color",
+      cols: 80,
+      rows: 24,
+      cwd,
+      env: {
+        ...process.env,
+        TERM: "xterm-256color",
+        COLORTERM: "truecolor",
+      } as Record<string, string>,
+    });
+
+    terminalPtys.set(ws, ptyProcess);
+
+    ptyProcess.onData((data: string) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+      }
+    });
+
+    ptyProcess.onExit(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+      terminalPtys.delete(ws);
+    });
+
+    ws.on("message", (msg: Buffer | string) => {
+      const raw = msg.toString();
+
+      // Check for JSON control messages
+      if (raw.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.type === "resize" && typeof parsed.cols === "number" && typeof parsed.rows === "number") {
+            ptyProcess.resize(Math.max(1, parsed.cols), Math.max(1, parsed.rows));
+            return;
+          }
+          if (parsed.type === "set_cwd" && typeof parsed.cwd === "string") {
+            // Can't change cwd of running PTY, but write a cd command
+            ptyProcess.write(`cd ${JSON.stringify(parsed.cwd)}\r`);
+            saveLastCwd(parsed.cwd);
+            return;
+          }
+        } catch {
+          // Not JSON — treat as regular input
+        }
+      }
+
+      // Regular terminal input
+      ptyProcess.write(raw);
+    });
+
+    ws.on("close", () => {
+      ptyProcess.kill();
+      terminalPtys.delete(ws);
+    });
+  });
+
   server.listen(port, () => {
     console.log(`> Bridgette ready on http://${hostname}:${port}`);
     // Start idle timer on server startup if auto-eval is enabled
@@ -1246,6 +1329,12 @@ app.prepare().then(() => {
     if (chatKills > 0) {
       console.log(`[shutdown] Killed ${chatKills} active chat process(es)`);
     }
+
+    // Kill all terminal PTYs
+    for (const [, ptyProc] of terminalPtys) {
+      ptyProc.kill();
+    }
+    terminalPtys.clear();
 
     // Close all WebSocket connections
     wssChat.clients.forEach((client) => {

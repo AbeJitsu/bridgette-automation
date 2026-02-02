@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
-import ChatSession from "@/components/ChatSession";
+import dynamic from "next/dynamic";
+const Terminal = dynamic(() => import("@/components/Terminal"), { ssr: false });
 import MemoryEditor from "@/components/MemoryEditor";
 import Automations from "@/components/Automations";
 import EvalLogs from "@/components/EvalLogs";
@@ -192,7 +193,7 @@ export default function Home() {
             </>
           )}
           <div className="flex-1 overflow-hidden">
-            <ChatSession />
+            <Terminal />
           </div>
           {rightPanelOpen && (
             <>
