@@ -1359,8 +1359,9 @@
   },
   {
     "id": "a692367a-f5c9-47ed-9113-2591148d1d96",
-    "title": "[Auto-eval] Frontend eval running...",
-    "status": "pending",
-    "createdAt": "2026-02-02T00:10:59.849Z"
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T00:10:59.849Z",
+    "summary": "What: Frontend quality pass — updated .auto-eval-index, styles, page and 8 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 13 files changed (+5380 -32 lines)"
   }
 ]
