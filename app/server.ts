@@ -103,25 +103,12 @@ function getRetryDelay(attempt: number): number | null {
   return attempt < RETRY_DELAYS.length ? RETRY_DELAYS[attempt] : null;
 }
 
-// Three-eval rotation system
+// Five-eval rotation system — all 5 run sequentially per trigger
 const EVAL_TYPES = ["frontend", "backend", "functionality", "features", "memory"] as const;
 type EvalType = (typeof EVAL_TYPES)[number];
-const autoEvalIndexFile = join(process.cwd(), "..", ".auto-eval-index");
-
-function loadEvalIndex(): number {
-  try {
-    const val = parseInt(readFileSync(autoEvalIndexFile, "utf-8").trim(), 10);
-    return isNaN(val) ? 0 : val % EVAL_TYPES.length;
-  } catch {
-    return 0;
-  }
-}
-
-function saveEvalIndex(index: number): void {
-  try { writeFileSync(autoEvalIndexFile, String(index)); } catch {}
-}
 
 let currentEvalType: EvalType | null = null;
+let evalRoundQueue: EvalType[] = []; // remaining evals in current round
 
 // ============================================
 // EVAL LOG — persists eval run history
@@ -489,11 +476,12 @@ app.prepare().then(() => {
       return;
     }
 
-    // Rotation: pick the next eval type
-    const evalIndex = loadEvalIndex();
-    const evalType = EVAL_TYPES[evalIndex];
+    // Round: if queue is empty, start a new full round
+    if (evalRoundQueue.length === 0) {
+      evalRoundQueue = [...EVAL_TYPES];
+    }
+    const evalType = evalRoundQueue.shift()!;
     currentEvalType = evalType;
-    saveEvalIndex((evalIndex + 1) % EVAL_TYPES.length);
 
     // Create pending task for this eval run
     // The dynamic import is async — store the promise so the close handler can
@@ -715,10 +703,27 @@ app.prepare().then(() => {
 
       broadcastToChat({ type: "auto_eval_complete", summary, branch: evalBranch, evalType: completedEvalType, status: evalStatus });
 
-      // Chain: next eval fires after short cooldown (only if auto-eval is still enabled)
-      if (serverAutoEvalEnabled) {
+      // Chain: if more evals remain in this round and eval succeeded, run next after short cooldown
+      if (serverAutoEvalEnabled && exitedCleanly && evalRoundQueue.length > 0) {
+        const ROUND_COOLDOWN = 30 * 1000; // 30s between evals in a round
+        console.log(`[auto-eval] ${evalRoundQueue.length} evals remaining in round, next in 30s`);
+        broadcastToChat({ type: "eval_round_progress", remaining: evalRoundQueue.length, next: evalRoundQueue[0] });
         evalChaining = true;
-        resetServerIdleTimer();
+        setTimeout(() => {
+          if (serverAutoEvalEnabled && !serverAutoEvalProcess) {
+            triggerServerAutoEval();
+          }
+        }, ROUND_COOLDOWN);
+      } else {
+        // Round complete or eval failed — reset idle timer for next round
+        if (evalRoundQueue.length > 0 && !exitedCleanly) {
+          console.log(`[auto-eval] Eval failed, discarding remaining ${evalRoundQueue.length} evals in round`);
+          evalRoundQueue = [];
+        }
+        if (serverAutoEvalEnabled) {
+          evalChaining = true;
+          resetServerIdleTimer();
+        }
       }
     });
 
@@ -909,6 +914,8 @@ app.prepare().then(() => {
             console.log("[auto-eval] Stopping eval via user request");
             killProcessWithTimeout(serverAutoEvalProcess);
           }
+          // Cancel remaining round
+          evalRoundQueue = [];
           // Cancel eval retry timer if pending
           if (evalRetryTimer) {
             clearTimeout(evalRetryTimer);
