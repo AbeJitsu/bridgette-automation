@@ -804,7 +804,7 @@ app.prepare().then(() => {
     const pendingAuto = getNextAutomation();
     if (pendingAuto) {
       console.log("[automation] Executing queued automation prompt");
-      handleChatMessage(ws, pendingAuto.prompt, chatSessions.get(ws) || null, false, undefined);
+      handleChatMessage(ws, pendingAuto.prompt, chatSessions.get(ws) || null, undefined);
     }
 
     ws.on("message", (msg: Buffer | string) => {
@@ -927,7 +927,7 @@ app.prepare().then(() => {
           // Receive automation prompt from API and forward to chat as a user message
           const prompt = typeof parsed.prompt === "string" ? parsed.prompt : null;
           if (prompt) {
-            handleChatMessage(ws, prompt, chatSessions.get(ws) || null, false, undefined);
+            handleChatMessage(ws, prompt, chatSessions.get(ws) || null, undefined);
           }
         }
       } catch (err) {
