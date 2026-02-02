@@ -104,7 +104,7 @@ function getRetryDelay(attempt: number): number | null {
 }
 
 // Three-eval rotation system
-const EVAL_TYPES = ["frontend", "backend", "functionality", "memory"] as const;
+const EVAL_TYPES = ["frontend", "backend", "functionality", "features", "memory"] as const;
 type EvalType = (typeof EVAL_TYPES)[number];
 const autoEvalIndexFile = join(process.cwd(), "..", ".auto-eval-index");
 

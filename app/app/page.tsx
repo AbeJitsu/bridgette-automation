@@ -227,7 +227,7 @@ export default function Home() {
         <div role="tabpanel" id="tabpanel-memory" aria-labelledby="tab-memory" tabIndex={0} className={`flex-1 overflow-hidden ${activeTab !== "memory" ? "hidden" : ""}`} hidden={activeTab !== "memory" || undefined}>
           <MemoryEditor />
         </div>
-        <div role="tabpanel" id="tabpanel-automations" aria-labelledby="tab-automations" tabIndex={0} className={`flex-1 overflow-hidden ${activeTab !== "automations" ? "hidden" : ""}`} hidden={activeTab !== "automations" || undefined}>
+        <div role="tabpanel" id="tabpanel-automations" aria-labelledby="tab-automations" tabIndex={0} className={`flex-1 overflow-hidden overflow-y-auto ${activeTab !== "automations" ? "hidden" : ""}`} hidden={activeTab !== "automations" || undefined}>
           <Automations onSendToChat={(text) => {
             window.dispatchEvent(new CustomEvent("bridgette-send-to-chat", { detail: text }));
             setActiveTab("chat");
