@@ -2,36 +2,30 @@
 
 ## What This Project Is
 
-**Bridgette** is a native replacement for OpenClaw. A Next.js dashboard with a chat UI powered by `claude --print --stream-json`, plus a legacy PTY terminal, memory editor, and automations panel. Authenticated through macOS Keychain with Max subscription. Runs on the Mac Mini at localhost:3000.
+**Bridgette** is a native replacement for OpenClaw. A Next.js dashboard with a real interactive terminal (xterm.js + node-pty) as the primary interface, plus a memory editor and automations panel. Authenticated through macOS Keychain with Max subscription. Runs on the Mac Mini at localhost:3000.
 
 ## Current State
 
 ### What's Built
-- **Chat UI** — Polished chat interface powered by `claude --print --output-format=stream-json`. Real-time streaming text, markdown rendering, tool use cards, cost tracking, session continuity via `--resume`
-- **Working directory selector** — Browse and select project directories from the UI. Claude runs in the chosen directory context
-- **New chat button** — Clear conversation and start fresh
-- **Terminal (legacy)** — PTY-based terminal via node-pty + xterm.js. Kept as fallback tab
+- **Terminal** — Real interactive PTY terminal (xterm.js + node-pty) as the primary Chat tab. Full shell access — run `claude` interactively with colors, tool approvals, slash commands, or use as a regular terminal. Connected via `/ws/terminal` WebSocket. Auto-reconnects on disconnect.
+- **Working directory selector** — Browse and select project directories from the UI. Sends `cd` command to the terminal PTY
 - **Memory system** — All personality, identity, and context files merged from ~/claude-memory into `memory/`
 - **Memory editor** — Sidebar file browser, monospace editor, Cmd+S save, unsaved indicator
 - **Automations panel** — View/copy prompt templates, BJJ belt color coding, curl examples
 - **API routes** — `/api/memory/*` CRUD, `/api/automations/*` list/trigger, `/api/health`, `/api/directories`, `/api/status`, `/api/eval-logs`
 - **Prompt templates** — Content creation, job search, codebase eval in `automations/`
 - **launchd plists** — Scheduled curl triggers (5 AM daily, weekly Monday) + install script
-- **Three-panel chat layout** — Pending tasks (left), chat (center), in-progress/completed tasks (right)
+- **Three-panel terminal layout** — Pending tasks (left), terminal (center), in-progress/completed tasks (right)
 - **Task management** — Add/advance/delete/rename tasks via sidebars, clear completed, auto-purge at 500, persisted to `tasks.json`, API at `/api/tasks`
-- **Chat export** — Download current conversation as Markdown file
-- **Dark mode** — Full dark theme (gray-950 bg), dark markdown styles, dark tool cards
-- **Dashboard** — Five-tab layout (Chat, Memory, Automations, Eval Logs, Status) with BJJ belt colors
+- **Dark mode** — Full dark theme (gray-950 bg), dark terminal theme with emerald cursor
+- **Dashboard** — Five-tab layout (Chat/Terminal, Memory, Automations, Eval Logs, Status) with BJJ belt colors
 - **Stop hook** — Blocks Claude from stopping if build is failing; forces iteration until passing
-- **Session resume** — Browse and resume previous conversations via session history dropdown (clock icon). Sessions saved to localStorage with first message, timestamp, model
 - **Eval Logs tab** — View auto-eval run history with type filtering, expandable diffs, status indicators. Supports frontend/backend/functionality/memory eval types
 - **Status tab** — Server health, git info, memory file timestamps, auto-eval config with rotation visualization, launchd job status. Auto-refreshes every 30s
-- **Send to Chat** — Automations execute prompt templates directly in chat via WebSocket
-- **Session management** — Delete individual sessions, clear all, Cmd+K new chat shortcut
-- **Code block copy** — Hover-to-copy on all code blocks, click-to-copy on curl examples
+- **Send to Terminal** — Automations inject prompt text directly into the PTY terminal
+- **Code block copy** — Click-to-copy on curl examples
 - **Backend hardening v2** — Shell injection guard, corruption recovery, rate limiting, temp file cleanup, graceful 400 on invalid memory PUT
 - **Eval logs improvements** — Auto-refresh, reverse chronological order, type filtering
-- **Chat cost summary** — Aggregated cost display per conversation
 - **Text contrast fixes** — Improved contrast and input focus across all tabs
 - **Direct task creation** — Server creates tasks internally without self-referencing HTTP API
 - **Task descriptions** — Optional description field on tasks for additional context
@@ -46,32 +40,25 @@
 - **Status route optimization** — Consolidated 3 sequential git commands into 1 (max blocking time 15s → 5s)
 - **Frontend a11y** — WAI-ARIA tab panel pattern (hidden/tabIndex), aria-labels on icon buttons, aria-expanded on dropdowns, responsive status bar
 - **Memory write cleanup** — Orphan .tmp files cleaned up when rename fails
-- **Conversation search** — Search/filter session history by keyword in session dropdown
-- **Session resume context** — First message preview and timestamp shown when browsing past sessions
-- **Clear confirmation** — Confirmation dialog before clearing all sessions
 - **Eval task pipeline** — Auto-evals create pending tasks, advance to needs_testing on completion for user review
 - **Resizable panels** — Horizontal drag on task sidebars (180–500px), vertical drag between needs_testing/completed
-- **Chat persistence** — Messages survive browser refresh via sessionStorage
 - **Secure remote access** — Bearer token auth on all routes + WebSocket, token prompt for non-localhost, Tailscale-ready
 - **Browser notifications** — Native OS notifications when auto-evals complete while tab is in background
-- **Edit tool diff viewer** — Side-by-side old/new display for Edit tool results in tool cards (red removed, green added)
 - **Collapsed panel badges** — Task count badges on collapsed sidebar buttons (green pending, amber needs_testing)
 - **Bulk task operations** — "Done all" button advances all needs_testing tasks at once, `/api/tasks/advance-all` endpoint
-- **Auto-scroll lock** — Chat pauses auto-scroll when user scrolls up during streaming, "Scroll to bottom" pill to resume
-- **Process safety** — 5MB stdout buffer cap on chat/eval processes, 10-min timeout on hung chat processes
+- **Process safety** — 5MB stdout buffer cap on eval processes, PTY cleanup on disconnect and graceful shutdown
 - **Task priorities** — High/normal/low priority with red border highlights, sorting, click-to-cycle button
 - **Responsive layout** — Auto-collapse sidebars under 1024px, icon-only tabs on mobile, wrapped navigation
 - **Eval task deduplication** — Skips creating needs_testing task when duplicate exists; race condition fix in close handler
-- **Scroll-to-bottom always visible** — Button appears whenever user scrolls up, not just during streaming
-- **Tool card a11y** — aria-expanded and aria-label on expand/collapse buttons
 - **Memory editor empty state** — Placeholder when no files exist
 - **Connection cleanup** — Rate limit counters cleaned on stale connections
 - **Build passes** — `next build` clean, dev server runs on localhost:3000, all APIs tested
-- **Task-to-chat action** — "chat" button on tasks sends title + description to Claude as a message
+- **Task-to-terminal action** — "chat" button on tasks injects title + description as text into the PTY
 - **Keyboard shortcuts overlay** — Cmd+/ toggles grouped shortcut reference panel, also linked from input footer
 - **Working directory persistence** — Selection saved to localStorage, restored on page reload, session-aware
 - **Automation execution** — Automation queue system for inter-process communication; POST /api/automations/{name} queues prompts, server executes on next WebSocket event; scheduled curl triggers work end-to-end
 - **Responsive task polling** — Task list polls every 1s for snappy feedback when auto-eval creates tasks
+- **Nightly eval schedule** — Configurable nightly cycle running all 4 eval types (frontend, backend, functionality, memory) sequentially with hourly intervals. Start time + interval configurable via UI. Runs independently from idle-timer auto-eval. Config persisted to `.nightly-eval-config`. All prompts rewritten to use TDD and fix minimum 5 issues per eval.
 
 ### What's Left
 - **Polish** — Design system refinements
@@ -79,11 +66,13 @@
 ## Architecture
 
 ```
-Browser (Chat UI)  ←WebSocket /ws/chat→  server.ts  ←stdio pipes→  claude --print --stream-json
+Browser (xterm.js)  ←WebSocket /ws/terminal→  server.ts  ←node-pty→  /bin/zsh (user's shell)
+Browser (auto-eval) ←WebSocket /ws/chat→      server.ts  ←stdio→     claude --print --stream-json
 ```
 
-- **Chat core:** `claude --print --output-format=stream-json --verbose --include-partial-messages` spawned per message via `child_process.spawn`. Session continuity via `--resume <session-id>`. Working directory configurable per connection.
-- **Dashboard:** Next.js app with five tabs: Chat, Memory, Automations, Eval Logs, Status
+- **Terminal:** Real PTY via node-pty, connected to xterm.js in the browser over `/ws/terminal` WebSocket. User runs `claude` (or any command) interactively. Dynamically imported (`ssr: false`) to avoid xterm browser global issues.
+- **Auto-eval:** Still uses `claude --print --stream-json` spawned headlessly for automated eval runs. Streams output to connected clients via `/ws/chat`.
+- **Dashboard:** Next.js app with five tabs: Chat/Terminal, Memory, Automations, Eval Logs, Status
 - **Memory:** Markdown files in `memory/` — curated, not automated
 - **Scheduling:** launchd plists curl API routes on schedule
 - **Auth:** Keychain via Max subscription (no API key needed)
@@ -100,9 +89,9 @@ Browser (Chat UI)  ←WebSocket /ws/chat→  server.ts  ←stdio pipes→  claud
 ## Decisions Made
 
 - Named the dashboard **Bridgette** after the assistant personality
-- Chat UI over PTY terminal — `claude --print --stream-json` gives structured events, no PTY needed in sandbox
-- PTY terminal kept as fallback — useful when running from real terminal (not sandbox)
-- `stdio: ['ignore', 'pipe', 'pipe']` — claude hangs when stdin is a pipe; must be `'ignore'`
+- Real PTY terminal over structured chat UI — interactive `claude` with full color, tool approvals, slash commands beats parsed stream-json. The old `claude --print --stream-json` chat UI is replaced.
+- node-pty@1.0.0, not 1.1.0 — version 1.1.0 has a `posix_spawnp` bug on Node 22/macOS arm64
+- Terminal component dynamically imported (`ssr: false`) — xterm.js references `self` which breaks Next.js SSR/prerendering
 - Next.js API routes for orchestration — automations trigger via REST
 - Markdown as database — memory files are the source of truth, no DB
 - Merged ~/claude-memory into this repo under `memory/`
@@ -116,9 +105,10 @@ Browser (Chat UI)  ←WebSocket /ws/chat→  server.ts  ←stdio pipes→  claud
 - node-pty must be in `serverExternalPackages` in next.config.ts to avoid webpack bundling
 - Next.js catch-all routes (`[...filepath]`) work well for nested file paths in the memory API
 - launchd plists should stagger times (5:00, 5:15) to avoid overlapping curl calls
-- `claude --print` hangs when spawned with `stdio: ['pipe', ...]` — stdin must be `'ignore'`
-- `--include-partial-messages` gives `stream_event` with `content_block_delta` for real-time streaming
-- `--resume <session-id>` works for multi-turn conversations via `--print` mode
+- `claude --print` hangs when spawned with `stdio: ['pipe', ...]` — stdin must be `'ignore'` (still used for auto-eval)
+- node-pty@1.1.0 fails with `posix_spawnp` on Node 22 + macOS arm64 — downgrade to 1.0.0 fixes it
+- xterm.js uses browser globals (`self`) — must use `dynamic(() => import(...), { ssr: false })` in Next.js
+- PTY resize events must be sent as JSON `{ type: "resize", cols, rows }` — regular input is raw strings
 - `@tailwindcss/typography` `@import` doesn't work with Next.js 15 + Tailwind v4 — use custom CSS classes instead
 - Hook commands with `$CLAUDE_PROJECT_DIR` must be quoted (`"$CLAUDE_PROJECT_DIR/..."`) when the project path contains spaces
 - `npm run dev` uses `server.ts` (custom server) — don't use `npx tsx server.ts` separately, the npm script handles it
@@ -196,6 +186,15 @@ Evals rotate through four focus areas, one per trigger:
 - Connected clients see `evalRunning` and `evalType` in the initial `state` event
 - "Run Now" button becomes a stop button while an eval is running
 
+### Eval Fixes Log
+
+All fixes from nightly evals are documented in `.nightly-eval-fixes.md`:
+
+- **Purpose** — Track what issues were fixed to avoid duplication and understand codebase state
+- **Format** — Markdown log with issue name, description, solution, and commit reference
+- **Maintenance** — Each eval appends its fixes to this log after completing
+- **Usage** — Future evals read this at the start to focus on remaining high-impact issues
+
 ### Testing
 
 ```bash
@@ -215,12 +214,40 @@ cd app && npm run build  # Production build
 
 Always ensure the dev server is running on port 3000 so the user can test changes in the browser.
 
+### Proper Restart Sequence
+
+When restarting after code changes (especially `server.ts`):
+
+```bash
+# 1. Kill the existing process(es)
+pkill -f "npm run dev" || true
+pkill -f "tsx server.ts" || true
+sleep 1
+
+# 2. Verify port is free
+lsof -i :3000 && echo "Port still in use!" || echo "Port is free"
+
+# 3. Start with nohup (proper backgrounding)
+nohup npm run dev > /tmp/bridgette-dev.log 2>&1 &
+sleep 4
+
+# 4. Verify it's responding
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
+# Expect: 200
+```
+
+### Checklist
+
 - **Before making UI changes:** Check `lsof -ti:3000` — start the server if it's not running
-- **After changes that affect server.ts or API routes:** Kill and restart (`kill -9 $(lsof -ti:3000) && cd app && npm run dev`)
-- **After build or any code changes:** Restart the dev server and verify with `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000` (expect 200)
+- **After changes that affect server.ts or API routes:** Follow the restart sequence above (kill + wait + start + verify)
+- **After build or any code changes:** Restart dev server and verify with curl (expect 200)
 - **After build failures:** Fix the issue, restart the server, verify it returns 200
 - **Never leave the server down** after finishing work
-- **Verification sequence:** Build → Restart dev server → Confirm 200 → Then done
+- **Verification sequence:** Kill old → Verify port free → Start with nohup → Confirm 200 → Done
+
+### Why nohup?
+
+`npm run dev &` doesn't truly background the process. Use `nohup` to properly detach from the parent shell. The `&` alone can leave zombie/stale processes behind that block port 3000.
 
 ## Documentation
 

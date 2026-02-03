@@ -9,6 +9,14 @@ interface Automation {
   modified: string;
 }
 
+interface NightlySchedule {
+  enabled: boolean;
+  startHour: number;
+  startMinute: number;
+  intervalMinutes: number;
+  nextRun: number | null;
+}
+
 const COLORS: Record<string, { bg: string; text: string; border: string; accent: string }> = {
   "content-creation": {
     bg: "bg-emerald-500/10",
@@ -43,6 +51,16 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
   const [copiedName, setCopiedName] = useState<string | null>(null);
   const [sendingName, setSendingName] = useState<string | null>(null);
 
+  // Nightly schedule state
+  const [nightly, setNightly] = useState<NightlySchedule>({
+    enabled: false,
+    startHour: 3,
+    startMinute: 0,
+    intervalMinutes: 60,
+    nextRun: null,
+  });
+  const wsRef = useRef<WebSocket | null>(null);
+
   useEffect(() => {
     fetch("/api/automations")
       .then((r) => r.json())
@@ -51,6 +69,37 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  // Connect to chat WS to get/set nightly schedule
+  useEffect(() => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws/chat`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "state" && data.nightlySchedule) {
+          setNightly(data.nightlySchedule);
+        } else if (data.type === "nightly_schedule_state" && data.nightlySchedule) {
+          setNightly(data.nightlySchedule);
+        }
+      } catch {}
+    };
+
+    return () => {
+      ws.close();
+      wsRef.current = null;
+    };
+  }, []);
+
+  const sendNightlyUpdate = useCallback((update: Partial<NightlySchedule>) => {
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: "set_nightly_schedule", ...update }));
+    }
   }, []);
 
   const viewPrompt = useCallback(async (name: string) => {
@@ -93,13 +142,19 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
+    <div className="max-w-3xl mx-auto p-6 space-y-4 overflow-y-auto h-full">
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-100">Automations</h2>
         <p className="text-sm text-gray-500 mt-1">
           Prompt templates for scheduled tasks. Send directly to chat, copy to clipboard, or trigger via API.
         </p>
       </div>
+
+      {/* Nightly Schedule Card */}
+      <NightlyScheduleCard
+        schedule={nightly}
+        onUpdate={sendNightlyUpdate}
+      />
 
       {automations.length === 0 && (
         <div className="text-sm text-gray-500 text-center py-12">
@@ -194,6 +249,152 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
             <CurlExample key={name} command={`curl -X POST http://localhost:3000/api/automations/${name}`} />
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// NIGHTLY SCHEDULE CARD
+// ============================================
+
+const EVAL_ORDER = ["Frontend", "Backend", "Functionality", "Memory"];
+
+function NightlyScheduleCard({
+  schedule,
+  onUpdate,
+}: {
+  schedule: NightlySchedule;
+  onUpdate: (update: Partial<NightlySchedule>) => void;
+}) {
+  const formatTime = (hour: number, minute: number) => {
+    const h = hour % 12 || 12;
+    const ampm = hour < 12 ? "AM" : "PM";
+    return `${h}:${String(minute).padStart(2, "0")} ${ampm}`;
+  };
+
+  const formatNextRun = (ts: number | null) => {
+    if (!ts) return "Not scheduled";
+    const d = new Date(ts);
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+    const timeStr = formatTime(d.getHours(), d.getMinutes());
+    if (isToday) return `Today at ${timeStr}`;
+    if (isTomorrow) return `Tomorrow at ${timeStr}`;
+    return `${d.toLocaleDateString()} at ${timeStr}`;
+  };
+
+  // Build the schedule preview showing eval times
+  const getEvalTimes = () => {
+    return EVAL_ORDER.map((name, i) => {
+      const totalMinutes = schedule.startHour * 60 + schedule.startMinute + i * schedule.intervalMinutes;
+      const h = Math.floor(totalMinutes / 60) % 24;
+      const m = totalMinutes % 60;
+      return { name, time: formatTime(h, m) };
+    });
+  };
+
+  return (
+    <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 overflow-hidden">
+      <div className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-medium text-blue-300">Nightly Eval Schedule</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Runs all 4 eval types sequentially overnight
+            </p>
+          </div>
+          <button
+            onClick={() => onUpdate({ enabled: !schedule.enabled })}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:outline-1 focus-visible:outline-emerald-500/60 ${
+              schedule.enabled ? "bg-emerald-500" : "bg-gray-600"
+            }`}
+            role="switch"
+            aria-checked={schedule.enabled}
+            aria-label="Enable nightly eval schedule"
+          >
+            <span
+              className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                schedule.enabled ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
+
+        {schedule.enabled && (
+          <>
+            <div className="flex flex-wrap gap-4">
+              <div className="space-y-1">
+                <label className="text-xs text-gray-500">Start time</label>
+                <div className="flex items-center gap-1">
+                  <select
+                    value={schedule.startHour}
+                    onChange={(e) => onUpdate({ startHour: parseInt(e.target.value) })}
+                    className="px-2 py-1 text-sm rounded-md border border-white/[0.08] text-gray-200 focus:outline-none focus-visible:outline-1 focus-visible:outline-emerald-500/60"
+                    style={{ background: 'var(--surface-2)' }}
+                    aria-label="Start hour"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i === 0 ? "12" : i > 12 ? String(i - 12) : String(i)}
+                        {i < 12 ? " AM" : " PM"}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-gray-500">:</span>
+                  <select
+                    value={schedule.startMinute}
+                    onChange={(e) => onUpdate({ startMinute: parseInt(e.target.value) })}
+                    className="px-2 py-1 text-sm rounded-md border border-white/[0.08] text-gray-200 focus:outline-none focus-visible:outline-1 focus-visible:outline-emerald-500/60"
+                    style={{ background: 'var(--surface-2)' }}
+                    aria-label="Start minute"
+                  >
+                    {[0, 15, 30, 45].map((m) => (
+                      <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-gray-500">Interval</label>
+                <select
+                  value={schedule.intervalMinutes}
+                  onChange={(e) => onUpdate({ intervalMinutes: parseInt(e.target.value) })}
+                  className="px-2 py-1 text-sm rounded-md border border-white/[0.08] text-gray-200 focus:outline-none focus-visible:outline-1 focus-visible:outline-emerald-500/60"
+                  style={{ background: 'var(--surface-2)' }}
+                  aria-label="Interval between evals"
+                >
+                  <option value={30}>30 min</option>
+                  <option value={45}>45 min</option>
+                  <option value={60}>1 hour</option>
+                  <option value={90}>1.5 hours</option>
+                  <option value={120}>2 hours</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="text-xs text-gray-500 space-y-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
+              {getEvalTimes().map(({ name, time }) => (
+                <div key={name} className="flex items-center gap-2">
+                  <span className="text-gray-600 w-3">
+                    {name === "Frontend" ? "1" : name === "Backend" ? "2" : name === "Functionality" ? "3" : "4"}
+                  </span>
+                  <span className="text-gray-400">{time}</span>
+                  <span className="text-gray-600">{name}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-gray-500">Next run:</span>
+              <span className="text-blue-400">{formatNextRun(schedule.nextRun)}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

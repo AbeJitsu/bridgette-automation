@@ -1515,5 +1515,1243 @@
     "title": "[Auto-eval] Functionality eval running...",
     "status": "pending",
     "createdAt": "2026-02-02T02:30:04.084Z"
+  },
+  {
+    "id": "e8052bc6-313c-467b-9a4d-b16e097c1301",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:32:58.404Z",
+    "summary": "What: Frontend quality pass — updated page, media\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+12 -5 lines)"
+  },
+  {
+    "id": "e790af84-2ca8-43a0-a75f-a34304bcb689",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:36:27.350Z",
+    "summary": "What: Backend quality pass — updated admin API, embeddings API, files API and 2 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 6 files changed (+82 -13 lines)"
+  },
+  {
+    "id": "5a09e92e-7a43-4c05-8330-d66a8564006b",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:41:57.372Z",
+    "summary": "What: Functionality quality pass — updated admin API, page, Footer and 2 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 5 files changed (+8 -13 lines)"
+  },
+  {
+    "id": "e8ee9990-c292-46df-8787-62186ebfe4d4",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:50:51.677Z",
+    "summary": "What: Features quality pass — updated stripe API, page\nWhy: Automatic features improvements to keep code clean and polished\nHow: 2 files changed (+37 -1 lines)"
+  },
+  {
+    "id": "c487a202-fd1f-41b6-87e8-bc01fc8332ba",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:55:35.462Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+36 -5 lines)"
+  },
+  {
+    "id": "68000cf3-d898-4bd2-855b-ca7e5c819ff7",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T03:56:59.788Z",
+    "summary": "What: Frontend quality pass — updated Navigation, ServiceCard, home\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+23 -24 lines)"
+  },
+  {
+    "id": "d79096cf-c1cf-408d-a029-1bb9eded25ff",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T04:01:40.677Z",
+    "summary": "What: Backend quality pass — updated cron API, stripe API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "39651e61-c168-43be-b3d0-8d1bf1cfefb1",
+    "title": "[Auto-eval] Functionality eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:05:49.031Z",
+    "summary": "What: Functionality quality pass — updated cron API, stripe API\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "3312d5b9-b90e-4867-9797-801b1c069f70",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:16:16.759Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "9487aa84-381d-468c-bc33-4b4da5853cd9",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:16:50.189Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "808372ac-0b83-4907-a33e-b9a7b9281c2c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:17:23.730Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "7e99366e-fa1a-4e72-aa0c-9f449c7393d9",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:17:56.857Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "042eab7d-f455-4d2a-9286-c190c9b42612",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:18:29.824Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "3818db9c-2e9b-4959-b573-d0f11ea82bcf",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:19:02.780Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "05d06bda-fb8e-43d4-953a-9d0cf8fb2b5c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:19:36.445Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "a08834fc-c0a1-476f-84cd-6c483643b2c5",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:20:09.620Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "cf2d22dd-6d5c-4c9e-81d8-be46cbfdbb69",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:20:42.900Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "fdf90afa-d6db-4a17-b7bf-a9ac0965d018",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:21:16.005Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "af7ebc07-ab14-4da5-bba0-31943dd5b78f",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:21:49.176Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "d06dedaf-ef1d-4bc1-9855-ed056bfe3447",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:22:22.163Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "d601d0ac-4ecb-49ea-9e80-c1c35966e2c2",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:22:55.305Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "0e37160e-5dcf-4477-94be-db6c042aca17",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:23:28.405Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "5df180b8-6f7d-46d4-ad95-195158a87885",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:24:01.861Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "d361a273-b5a2-4308-a383-55c0726e119a",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:24:34.743Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "3cb70744-beb1-4394-a7bb-e6fbb862f3f9",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:25:07.756Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "3c32da56-1694-4d5f-b3b7-719da3e297b3",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:25:40.791Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "a861b051-5d43-4be5-8b14-9dc8c85a1ac5",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:26:13.860Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "f86836f2-bcfe-4307-aec6-b95504804ab2",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:26:47.353Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "8249c0ad-6dd8-4621-8c16-65c61659abeb",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:27:20.293Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "33bcd5d1-78a9-4c9b-8c8b-752c5b9f0572",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:27:55.479Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "4d0d4f52-1bb4-4d4c-a0a7-df7f3cb86a37",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:28:28.350Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "85e165f6-cb23-4a6d-9b1d-2cfe401afbc3",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:29:01.521Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "a9274d01-5432-40af-9d98-e95920d13377",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:29:34.549Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "8643ddb0-1a6b-412a-b2bc-1acf00bfffcf",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:30:07.651Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "bbee9aed-88cf-44c1-9128-8b55d8bc7e72",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:30:40.817Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "12d1c88a-6e89-4d37-94e8-6a926c7079c8",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:31:13.808Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "add9d82b-be97-4f52-af04-325cdfe6f61d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:31:46.529Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "9bdfb1c7-1696-47be-a3a5-6370d1cb1d64",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:32:19.524Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "c242a513-d5a3-49f3-99d6-b92b0b9cdd96",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:32:52.351Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "b688f75f-89a2-42a4-a58f-e38593463b0d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:33:25.389Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "ef23b648-1924-4240-b894-8c9504e9b44a",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:33:58.354Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "154bc543-812d-4c55-be2f-7262ebe48ea0",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:34:31.549Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "79885b47-d32b-4be5-8eaa-506a532f85ee",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:35:04.537Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "653edc38-11f3-4971-af6a-ac10c1c2fd60",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:35:37.917Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "6c8ecc9c-b89a-49d0-b4ca-71cae1df069c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:36:10.761Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "0b156778-4a10-4490-8f00-2086d4b12c9e",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:36:43.696Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "87b0b0df-b8ee-4e68-b358-ba808ba70456",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:37:17.029Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "c55ce24b-183a-4048-9420-d1cbea841c69",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:37:50.376Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "765c1e01-7913-473d-81f9-c0bff189be85",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:38:23.298Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "d31f2a8d-bad4-4c3d-b654-c8eb389ab3fa",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:38:56.258Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "95d72cb6-ace4-4681-8361-e40ee5366dc5",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:39:29.355Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "f40ffbd1-b751-4c77-9665-9fdb2996585d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:40:02.433Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "f4234671-75d0-47da-bcad-b938c02f278b",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:40:35.645Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "f63aaaa4-3b50-4911-a9e8-d137f6959902",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:41:08.565Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "9a415f76-8222-4b40-9063-3780aa0fa1f1",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:41:41.578Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "61b1ad44-ac4e-471d-a307-f3d3e26a64d8",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:42:14.471Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "f07a8948-38aa-48a6-b622-e4114236f13d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:42:47.413Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "a33887e9-d046-472f-ac49-5d816e2d22e9",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:43:20.578Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "7ce11963-710a-4b63-a0a3-8d60550b628c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:43:53.746Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "880b0d08-7006-4bf2-bf8b-cbd0530a167d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:44:26.701Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "bd60e7bd-97a0-4e9c-9b54-1f818f2d6742",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:44:59.725Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "c8c17aac-8bf0-40d7-b9f3-aa87821c621c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:45:33.094Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "1416e6d6-65d4-47f1-a58a-f1d24be9e130",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:46:05.952Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "6c610f76-933b-4ddc-b772-5f726eea14c1",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:46:39.084Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "6a99804f-5631-4c8f-abb3-6985bfb85082",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:47:12.534Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "742bfb32-1f0f-454c-9818-79ab0d730b74",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:47:45.445Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "267297b2-6568-4aa6-8109-e1d91c6cd5a5",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:48:18.561Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "dbd3091e-968e-4f1a-8dd0-5457def221c7",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:48:51.491Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "48694852-9fbf-4624-9529-83bcfc794578",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:49:24.484Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "95b61e7b-7a42-4a7d-a830-fe0eee595a7f",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:49:57.806Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "4c996db7-5f49-4007-8af4-d25d99ce06da",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:50:30.686Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "49158fac-0be5-44af-8d3e-7f1650385c64",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:51:03.631Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "b1425d86-495e-40ef-9236-77338fb1fcd1",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:51:36.716Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "16a98ad6-0af1-4c85-855c-3456f5e0795f",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:52:09.560Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "e784cf6f-f769-4e99-9d53-488cb39b3d63",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:52:42.689Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "70355c56-13c5-402b-81de-cd5728e605b5",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:53:15.884Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "5c982e6e-9946-4186-92ab-a5a99fc6938f",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:53:48.799Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "3002462e-0e08-492b-bc24-e4dbe8f2ab9a",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:54:22.198Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "7bde8df1-033f-485d-a010-473b4d6910cd",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:54:55.164Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "67acf7c8-4489-4629-a406-fa3107cf6df7",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:55:29.064Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "97bfc697-f8de-4baa-b86e-8b33c0bb0cb8",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:56:01.847Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "68a8a3ed-0517-4477-b0d6-68ae05cd10fe",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:56:34.721Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "05819f69-a229-403d-b58b-6be491ef412a",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:57:07.766Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "41b7c2cd-0b07-4a6c-bc13-8ab2c9ec7028",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:57:40.642Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "61ae1e7b-ee00-4105-9760-3e2fe8aa67f4",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:58:13.817Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "7c15ae5a-c7c8-4c5e-97d1-bc55d52d541c",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:58:46.782Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "9e580c7f-e485-485d-8d80-5639adaff25d",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:59:19.602Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "886ac0eb-190e-4521-8925-ae2cb106ba76",
+    "title": "[Auto-eval] Frontend eval failed",
+    "status": "completed",
+    "createdAt": "2026-02-02T04:59:52.482Z",
+    "summary": "What: Frontend quality pass — updated cron API, stripe API\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+82 -7 lines)"
+  },
+  {
+    "id": "e6d19ffd-f0d1-4c27-a046-04219ee4cff0",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:00:25.372Z",
+    "summary": "What: Frontend quality pass — updated page, Navigation, StepCard\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+7 -7 lines)"
+  },
+  {
+    "id": "ef17f909-f811-40c2-b66c-718e1101156e",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:04:13.884Z",
+    "summary": "What: Backend quality pass — updated admin API, appointments API, quotes API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 4 files changed (+356 -192 lines)"
+  },
+  {
+    "id": "3ee66110-86cc-4582-a37a-1a7d339059fc",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:12:16.410Z",
+    "summary": "What: Functionality quality pass — updated debug-classes.spec, hardcoded-content-audit.spec\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 2 files changed (+0 -229 lines)"
+  },
+  {
+    "id": "5e6571d0-2235-46ec-a3f1-e80644b633b5",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:18:48.216Z",
+    "summary": "What: Features quality pass — updated cron API, AppointmentReminderEmail, email-service and 1 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 4 files changed (+895 -0 lines)"
+  },
+  {
+    "id": "4a36142e-6d2d-4de5-9504-db2d3c403cfe",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:23:36.708Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+25 -3 lines)"
+  },
+  {
+    "id": "ad0e53e6-13bf-4e48-83d1-69600670ee7e",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:25:14.971Z",
+    "summary": "What: Frontend quality pass — updated InlineEditor, home, ui\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 5 files changed (+16 -12 lines)"
+  },
+  {
+    "id": "e8741046-32c8-4a2c-bf17-801ec794832d",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:29:34.584Z",
+    "summary": "What: Backend quality pass — updated appointments API, auth API, quotes API and 1 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 5 files changed (+46 -6 lines)"
+  },
+  {
+    "id": "81cdddc3-c507-4120-9fe4-0eed86792e15",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:34:11.678Z",
+    "summary": "What: Functionality quality pass — updated page, ReviewCard\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 3 files changed (+19 -8 lines)"
+  },
+  {
+    "id": "cc48954d-50e9-4af7-a22c-0f6cba0af7f8",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:44:59.950Z",
+    "summary": "What: Features quality pass — updated wishlist API, layout, page and 3 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 7 files changed (+579 -25 lines)"
+  },
+  {
+    "id": "432f562b-4ced-4749-aa0d-09318f801a6a",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:51:26.359Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+32 -11 lines)"
+  },
+  {
+    "id": "458406a0-8c23-4ba6-905a-940db736fe08",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:52:51.509Z",
+    "summary": "What: Frontend quality pass — updated page\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 1 file changed (+91 -24 lines)"
+  },
+  {
+    "id": "1eee5e77-dd05-4cc5-ae5c-6e5d28e43eb4",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T05:56:52.418Z",
+    "summary": "What: Backend quality pass — updated appointments API, chat API, enrollments API and 4 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 7 files changed (+437 -43 lines)"
+  },
+  {
+    "id": "6e4f4c68-e994-417a-974c-0472d40beb10",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:00:43.700Z",
+    "summary": "What: Functionality quality pass — updated quotes API\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 1 file changed (+11 -7 lines)"
+  },
+  {
+    "id": "1d6a0ddb-dbf1-4f17-b49b-51d5fe89a0e6",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:08:31.599Z",
+    "summary": "What: Features quality pass — updated page, account API, account\nWhy: Automatic features improvements to keep code clean and polished\nHow: 3 files changed (+369 -0 lines)"
+  },
+  {
+    "id": "21cf647e-96cc-4a94-9e36-1d1838d2b654",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:15:44.610Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+50 -5 lines)"
+  },
+  {
+    "id": "61e2588a-9b7d-48a5-9471-f41b3410bcad",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:16:59.987Z",
+    "summary": "What: Frontend quality pass — updated Button, ui\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+9 -7 lines)"
+  },
+  {
+    "id": "89a89143-58fe-41dc-bc3c-65e0fcbefadd",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:20:07.381Z",
+    "summary": "What: Backend quality pass — updated stripe API, api-input-guard, error-recovery and 2 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 5 files changed (+2111 -188 lines)"
+  },
+  {
+    "id": "835b9ba6-5ffe-48ff-a410-59f1b233e469",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:26:24.693Z",
+    "summary": "What: Functionality quality pass — updated docs, route, appointments API and 4 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 8 files changed (+1284 -19 lines)"
+  },
+  {
+    "id": "7330ab8d-ae16-4455-9178-58b5aea8d27f",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:32:46.605Z",
+    "summary": "What: Features quality pass — updated shop\nWhy: Automatic features improvements to keep code clean and polished\nHow: 3 files changed (+644 -2 lines)"
+  },
+  {
+    "id": "a23b4c58-b9cb-462f-9dd6-79d2437283c3",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:37:50.736Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+26 -1 lines)"
+  },
+  {
+    "id": "bd960234-0149-460b-887b-e1d390d3f7a3",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:39:21.993Z",
+    "summary": "What: Frontend quality pass — updated AppointmentRequestForm, CouponInput, Navigation and 1 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 4 files changed (+36 -22 lines)"
+  },
+  {
+    "id": "5e6cd071-35a4-4f67-aa58-5e0c4c3d1d17",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:44:09.773Z",
+    "summary": "What: Backend quality pass — updated docs, appointments API, layout and 4 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 9 files changed (+1521 -18 lines)"
+  },
+  {
+    "id": "2eb02d60-8f18-4e81-ac68-a563a40dd462",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:48:08.022Z",
+    "summary": "What: Functionality quality pass — updated docs, appointments API, checkout API and 1 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 4 files changed (+351 -30 lines)"
+  },
+  {
+    "id": "d49dc71d-543f-42c0-b25a-03f7c994da0b",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:52:26.342Z",
+    "summary": "What: Features quality pass — updated docs, page\nWhy: Automatic features improvements to keep code clean and polished\nHow: 2 files changed (+371 -7 lines)"
+  },
+  {
+    "id": "9271096f-50f1-49a6-834f-2c4583d0b773",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:57:44.033Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 1 file changed (+33 -18 lines)"
+  },
+  {
+    "id": "8677bcc9-7a6d-4eba-80e2-cc2bdc68cd2c",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T06:59:18.034Z",
+    "summary": "What: Frontend quality pass — updated page, PaymentForm, shop\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+72 -23 lines)"
+  },
+  {
+    "id": "cc40c90b-61be-4b9e-af1d-cf1f1e322691",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:03:56.270Z",
+    "summary": "What: Backend quality pass — updated admin API, appointments API, stripe API and 4 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 7 files changed (+307 -180 lines)"
+  },
+  {
+    "id": "49892b7f-cddf-45f5-950a-58932288587a",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:08:09.185Z",
+    "summary": "What: Functionality quality pass — updated docs, analytics, page and 3 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 6 files changed (+377 -69 lines)"
+  },
+  {
+    "id": "9d9b874e-b680-4dcd-a5c2-0c4d0023cc45",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:20:47.528Z",
+    "summary": "What: Features quality pass — updated page, OrderInvoice\nWhy: Automatic features improvements to keep code clean and polished\nHow: 2 files changed (+347 -2 lines)"
+  },
+  {
+    "id": "88333df6-4803-4319-9e6b-7f8946b88818",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:26:46.561Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+37 -8 lines)"
+  },
+  {
+    "id": "524f4018-3531-4793-9520-63f3c83520e6",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:28:32.257Z",
+    "summary": "What: Frontend quality pass — updated Button, shop, ui and 2 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 6 files changed (+134 -18 lines)"
+  },
+  {
+    "id": "ceec3759-1b96-4296-aee2-07848744a46d",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:32:40.680Z",
+    "summary": "What: Backend quality pass — updated auth API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 2 files changed (+52 -14 lines)"
+  },
+  {
+    "id": "801d52cb-6546-49cf-a11d-140c4e10e23d",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:36:10.819Z",
+    "summary": "What: Functionality quality pass — updated docs\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 1 file changed (+6 -1 lines)"
+  },
+  {
+    "id": "b2249bb6-529e-4417-87c7-f60c89dd7ad2",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:43:11.965Z",
+    "summary": "What: Features quality pass — updated admin API, ReviewApprovedEmail, ReviewRejectedEmail and 1 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 4 files changed (+845 -1 lines)"
+  },
+  {
+    "id": "ef8aa16b-a183-4c81-8217-3f338b52bc79",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:47:21.642Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+12 -1 lines)"
+  },
+  {
+    "id": "60c94f2c-6c59-4a67-b5e4-a8e10b9bbdd8",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:48:37.962Z",
+    "summary": "What: Frontend quality pass — updated docs\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 1 file changed (+320 -0 lines)"
+  },
+  {
+    "id": "1f4327bd-590a-4f0c-a0a9-215856ad1060",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:52:29.267Z",
+    "summary": "What: Backend quality pass — updated docs, appointments API, auth API and 3 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 7 files changed (+975 -1 lines)"
+  },
+  {
+    "id": "f5636027-a7c4-47e9-b1f5-1baefe9aab52",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T07:58:24.209Z",
+    "summary": "What: Functionality quality pass — updated admin API, reviews API, stripe API and 1 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 4 files changed (+70 -40 lines)"
+  },
+  {
+    "id": "e5c2ba6d-a2d2-427a-b91b-a98e9aa455d8",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:04:38.736Z",
+    "summary": "What: Features quality pass — updated docs, user API, page\nWhy: Automatic features improvements to keep code clean and polished\nHow: 4 files changed (+578 -16 lines)"
+  },
+  {
+    "id": "144a9c84-a5fe-49e2-a008-fa29ab061303",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:07:48.152Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+31 -4 lines)"
+  },
+  {
+    "id": "7a8ebf7e-e44d-413c-8179-56bb74c85bb3",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:09:24.076Z",
+    "summary": "What: Frontend quality pass — updated ProductCard, shop\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 2 files changed (+73 -18 lines)"
+  },
+  {
+    "id": "0db2cf1a-19af-40ee-9d7e-9b3a38d839cc",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:14:09.897Z",
+    "summary": "What: Backend quality pass — updated stripe API, email-service, redis and 2 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 6 files changed (+167 -66 lines)"
+  },
+  {
+    "id": "763140aa-094d-4929-9575-6015cc662c71",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:19:48.123Z",
+    "summary": "What: Functionality quality pass — updated docs, page, PaymentForm and 8 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 12 files changed (+632 -113 lines)"
+  },
+  {
+    "id": "6e97a2dd-463f-4649-a75f-b5dd568f9a6f",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:25:31.709Z",
+    "summary": "What: Features quality pass — updated user API, UserDashboard, DashboardStatsOverview\nWhy: Automatic features improvements to keep code clean and polished\nHow: 3 files changed (+216 -0 lines)"
+  },
+  {
+    "id": "a59d1a1a-7423-4c74-bf58-722de0657596",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T08:30:42.675Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+22 -0 lines)"
+  },
+  {
+    "id": "7c63b0c4-1f7c-4962-a8e9-3463aab1b6b4",
+    "title": "[Auto-eval] Frontend eval running...",
+    "status": "pending",
+    "createdAt": "2026-02-02T08:32:15.393Z"
+  },
+  {
+    "id": "7bf5ff24-35dd-45b9-8082-40844dd31454",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:03:16.901Z",
+    "summary": "What: Frontend quality pass — updated page, Button, CouponInput and 1 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 4 files changed (+30 -11 lines)"
+  },
+  {
+    "id": "005a7f1f-62d5-4d72-a241-6a2faba675c6",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:05:44.043Z",
+    "summary": "What: Backend quality pass — updated coupons API, orders API, shop API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 3 files changed (+11 -11 lines)"
+  },
+  {
+    "id": "307446df-ff18-4cf0-b90c-408f5b9f52ba",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:12:04.292Z",
+    "summary": "What: Functionality quality pass — updated docs, admin API, chat API and 1 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 4 files changed (+594 -45 lines)"
+  },
+  {
+    "id": "5bb7fc9c-6746-4314-9bb1-8e227e784ce0",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:21:18.504Z",
+    "summary": "What: Features quality pass — updated docs\nWhy: Automatic features improvements to keep code clean and polished\nHow: 1 file changed (+181 -0 lines)"
+  },
+  {
+    "id": "4caec4c8-ce63-4b51-9f4b-e106899b9e31",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:30:38.630Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+52 -7 lines)"
+  },
+  {
+    "id": "f920ddb4-5b73-4e1b-be1d-099291ead5db",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:32:08.252Z",
+    "summary": "What: Frontend quality pass — updated AppointmentRequestForm, ProductCard, shop\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 4 files changed (+36 -22 lines)"
+  },
+  {
+    "id": "f4cc39fa-3aef-4f43-a7ff-398a10660e67",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:35:03.242Z",
+    "summary": "What: Backend quality pass — updated docs\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 1 file changed (+535 -0 lines)"
+  },
+  {
+    "id": "62bd11fc-8c5f-4ccb-aab9-2b457bb7c287",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:42:37.460Z",
+    "summary": "What: Functionality quality pass — updated admin API, cron API, WaitlistBackInStockEmail\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 3 files changed (+737 -0 lines)"
+  },
+  {
+    "id": "d28226f4-10d2-4429-95d0-fe0e38e9627a",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:48:29.709Z",
+    "summary": "What: Features quality pass — updated account API, user API, account and 2 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 6 files changed (+1199 -0 lines)"
+  },
+  {
+    "id": "652b0a22-9997-4ec1-be71-9826c320e039",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:52:26.876Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 21 files changed (+95 -32 lines)"
+  },
+  {
+    "id": "496f016f-d0e1-42d6-a9fb-6de273983783",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:54:28.906Z",
+    "summary": "What: Frontend quality pass — updated account, shop\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+33 -40 lines)"
+  },
+  {
+    "id": "70d1ded4-bdc6-45e2-b2af-f6b248683816",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T09:58:58.570Z",
+    "summary": "What: Backend quality pass — updated admin API, auth API, stripe API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 4 files changed (+181 -59 lines)"
+  },
+  {
+    "id": "fbfe03d5-f108-4130-947c-e0f535260ad9",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:01:46.609Z",
+    "summary": "What: Functionality quality pass — updated auth API, stripe API, error-01-empty-cart and 39 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 44 files changed (+32 -17 lines)"
+  },
+  {
+    "id": "9e35f744-bde2-488f-a840-9bc426c37a11",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:12:13.445Z",
+    "summary": "What: Features quality pass — updated page, layout, CompareButton and 43 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 47 files changed (+360 -9 lines)"
+  },
+  {
+    "id": "85542353-678b-4150-bf6e-211b41bbdc6e",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:16:59.956Z",
+    "summary": "What: Memory quality pass — updated docs, error-01-empty-cart, compare-blog and 38 more\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 43 files changed (+39 -11 lines)"
+  },
+  {
+    "id": "9cf027f4-8a48-4d3b-8f93-7a07577e7bd3",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:18:32.799Z",
+    "summary": "What: Frontend quality pass — updated ProductComparisonModal, shop, error-01-empty-cart and 39 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 43 files changed (+19 -17 lines)"
+  },
+  {
+    "id": "54376704-8b10-4c4f-a2de-b62f4a396fb3",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:22:53.016Z",
+    "summary": "What: Backend quality pass — updated auth API, cron API, reviews API and 41 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 46 files changed (+129 -73 lines)"
+  },
+  {
+    "id": "7c57dc1a-4db6-4114-bd68-a16e7e37cbb9",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:25:55.042Z",
+    "summary": "What: Functionality quality pass — updated page, AddressSelector, error-01-empty-cart and 40 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 44 files changed (+145 -3 lines)"
+  },
+  {
+    "id": "6fe65aaa-ec29-4e1b-92d4-b429c2aefb2e",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:32:24.933Z",
+    "summary": "What: Features quality pass — updated page, admin API, error-01-empty-cart and 40 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 47 files changed (+1286 -3 lines)"
+  },
+  {
+    "id": "c3dca28f-928c-445b-b517-f40d0b5c4ae7",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:37:00.333Z",
+    "summary": "What: Memory quality pass — updated docs, error-01-empty-cart, compare-blog and 38 more\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 44 files changed (+44 -11 lines)"
+  },
+  {
+    "id": "8e2e713f-089d-459a-9ae4-f18dc40bbf77",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:38:24.383Z",
+    "summary": "What: Frontend quality pass — updated page, AddressSelector, AppointmentStepForm and 42 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 46 files changed (+56 -26 lines)"
+  },
+  {
+    "id": "f392d8ea-23fb-4ab3-9c8a-87d543b21279",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:43:52.376Z",
+    "summary": "What: Backend quality pass — updated admin API, cron API, stripe API and 41 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 46 files changed (+48 -36 lines)"
+  },
+  {
+    "id": "dd0600f2-93d9-4052-bf2c-e081c44fccc9",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:50:22.235Z",
+    "summary": "What: Functionality quality pass — updated error-01-empty-cart, compare-blog, compare-cart and 38 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 41 files changed (+302 -0 lines)"
+  },
+  {
+    "id": "a92a15b4-e1de-4d76-a896-659fdf9923ed",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:54:37.282Z",
+    "summary": "What: Features quality pass — updated page, admin API, route and 43 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 49 files changed (+1489 -0 lines)"
+  },
+  {
+    "id": "af314cd6-d475-4a18-b685-efe608b63fc6",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T10:59:54.714Z",
+    "summary": "What: Memory quality pass — updated docs, error-01-empty-cart, compare-blog and 38 more\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 43 files changed (+27 -10 lines)"
+  },
+  {
+    "id": "e7006955-9210-49b0-86ab-9ef6e032a982",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:01:38.544Z",
+    "summary": "What: Frontend quality pass — updated shop, error-01-empty-cart, compare-blog and 38 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 41 files changed (+5 -5 lines)"
+  },
+  {
+    "id": "5d0e7b68-4137-4500-9a62-3c51c4982dd0",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:06:37.912Z",
+    "summary": "What: Backend quality pass — updated admin API, stripe API, error-01-empty-cart and 40 more\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 43 files changed (+67 -20 lines)"
+  },
+  {
+    "id": "e0da8bb2-4b07-4af3-a853-1dbd373b7395",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:09:57.978Z",
+    "summary": "What: Functionality quality pass — updated chat API, error-01-empty-cart, compare-blog and 38 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 42 files changed (+16 -4 lines)"
+  },
+  {
+    "id": "8d3bc5bd-aade-4804-8515-beb9c01d7ea0",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:13:03.279Z",
+    "summary": "What: Features quality pass — updated docs, page, admin API and 63 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 72 files changed (+2160 -0 lines)"
+  },
+  {
+    "id": "9296e9d4-f4ec-468d-926f-8fe07408088d",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:16:51.786Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 2 files changed (+45 -2 lines)"
+  },
+  {
+    "id": "f5f58167-584f-4aae-a969-3b6e2962c47b",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:18:23.770Z",
+    "summary": "What: Frontend quality pass — updated page, shop\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 2 files changed (+40 -10 lines)"
+  },
+  {
+    "id": "4be1f649-76ce-4d28-a9cf-f013780ee7c0",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:22:21.182Z",
+    "summary": "What: Backend quality pass — updated docs, request-dedup-atomicity.test, admin API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 3 files changed (+690 -105 lines)"
+  },
+  {
+    "id": "c1eee4d1-361f-4202-8dd3-54a5c9f58655",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:26:21.168Z",
+    "summary": "What: Functionality quality pass — updated admin API, referrals API, shop\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 3 files changed (+4 -4 lines)"
+  },
+  {
+    "id": "1b3476a4-862d-4357-b5d0-29300e1e2f4a",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:33:20.596Z",
+    "summary": "What: Features quality pass — updated layout, page, RecentlyViewedWidget and 2 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 6 files changed (+453 -1 lines)"
+  },
+  {
+    "id": "2c376b9f-c50e-4be7-8bb0-2de5e32d052c",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:38:09.527Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 3 files changed (+57 -26 lines)"
+  },
+  {
+    "id": "0eb75b3d-5ceb-45e6-95e3-7a91d5671c85",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:39:54.308Z",
+    "summary": "What: Frontend quality pass — updated layout, Navigation, ProductCard\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 3 files changed (+3 -24 lines)"
+  },
+  {
+    "id": "30bc5c2c-5b4d-4ba8-addd-4f0fd135dfbb",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:43:54.106Z",
+    "summary": "What: Backend quality pass — updated admin API, route, user API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 4 files changed (+205 -208 lines)"
+  },
+  {
+    "id": "42499d11-2e65-4420-acbe-7116882308e9",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T11:48:46.523Z",
+    "summary": "What: Functionality quality pass — updated docs, account API, admin API and 6 more\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 19 files changed (+534 -94 lines)"
+  },
+  {
+    "id": "b7149d7f-d895-495c-a257-cbb6d1bab7eb",
+    "title": "[Auto-eval] Features eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T12:01:22.563Z",
+    "summary": "What: Features quality pass — updated page, admin API, loyalty API and 3 more\nWhy: Automatic features improvements to keep code clean and polished\nHow: 9 files changed (+1068 -0 lines)"
+  },
+  {
+    "id": "4631a97b-47d4-47c5-b3cb-4b56a5f1a072",
+    "title": "[Auto-eval] Memory eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T12:06:14.692Z",
+    "summary": "What: Memory quality pass — updated docs\nWhy: Automatic memory improvements to keep code clean and polished\nHow: 1 file changed (+1 -1 lines)"
+  },
+  {
+    "id": "a69c004c-82d7-447b-950b-b4828b251e27",
+    "title": "[Auto-eval] Frontend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T12:08:09.943Z",
+    "summary": "What: Frontend quality pass — updated AppointmentRequestForm, AppointmentStepForm, CouponInput and 4 more\nWhy: Automatic frontend improvements to keep code clean and polished\nHow: 7 files changed (+54 -12 lines)"
+  },
+  {
+    "id": "284098cf-7290-4c48-ac96-bf3fa16d08fe",
+    "title": "[Auto-eval] Backend eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T12:12:28.326Z",
+    "summary": "What: Backend quality pass — updated admin API\nWhy: Automatic backend improvements to keep code clean and polished\nHow: 2 files changed (+47 -27 lines)"
+  },
+  {
+    "id": "19d9ee30-5b9c-4cc9-bdb7-ee5eccc467f1",
+    "title": "[Auto-eval] Functionality eval needs review",
+    "status": "needs_testing",
+    "createdAt": "2026-02-02T12:14:45.015Z",
+    "summary": "What: Functionality quality pass — updated account, error-alerts, error-recovery\nWhy: Automatic functionality improvements to keep code clean and polished\nHow: 3 files changed (+182 -3 lines)"
   }
 ]
