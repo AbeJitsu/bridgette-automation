@@ -1,6 +1,6 @@
 # Nightly Scheduler Testing Checklist
 
-Use this checklist when testing the nightly auto-eval scheduler. All four eval types (frontend, backend, functionality, memory) should cycle through in sequence.
+Use this checklist when testing the nightly auto-eval scheduler. All five eval types (frontend, backend, functionality, features, memory) should cycle through in sequence.
 
 ## Pre-Test Setup
 
@@ -18,7 +18,7 @@ Use this checklist when testing the nightly auto-eval scheduler. All four eval t
 - [ ] Set start time to current time + 2 minutes (e.g., if 3:15 PM now, set to 3:17 PM)
 - [ ] Set interval to 1 minute (for faster testing, normally hourly)
 - [ ] Toggle "Enabled" to ON
-- [ ] Verify save: check server logs for `[scheduler] Updated nightly schedule` message
+- [ ] Verify save: check server logs for `[nightly] Scheduled to start at` message
 
 ## Execution Monitoring
 
@@ -30,11 +30,10 @@ tail -f /tmp/bridgette-dev.log
 ```
 
 Watch for (within 2-3 minutes):
-- [ ] `[nightly] Triggered frontend eval (1/4)` (first eval of the cycle)
+- [ ] `[nightly] Triggering frontend eval (1/5)` (first eval of the cycle)
 - [ ] `[auto-eval] Starting frontend eval` with process ID
 - [ ] `[auto-eval] Process exited with code 0` (success) or non-zero code
 - [ ] Log shows eval duration in milliseconds
-- [ ] `[scheduler] Next nightly eval in X minutes`
 
 ### Browser Console
 
@@ -43,7 +42,7 @@ Open browser DevTools (Cmd+Option+I) and watch:
 Network tab:
 - [ ] WebSocket connection to `/ws/chat` is active (blue "101 Switching Protocols")
 
-Console tab (filter for "eval" or "WS"):
+Console tab (filter for "eval" or "WS") — search DevTools console for messages starting with "WS:":
 - [ ] Message: `WS: { type: 'evalRunning', running: true }`
 - [ ] Message: `WS: { type: 'auto_eval_complete', status: 'success', evalType: 'frontend' }`
 - [ ] Message shows `evalType: frontend` (or whatever eval is running)
@@ -79,7 +78,7 @@ cat tasks.json | tail -50
 
 - [ ] New task created with title like "Frontend eval results"
 - [ ] Task status is "needs_testing"
-- [ ] Task includes description with summary of changes
+- [ ] Task includes summary field with summary of changes
 - [ ] Task has correct `createdAt` timestamp (recent)
 
 Or check via API:
@@ -89,7 +88,7 @@ curl http://localhost:3000/api/tasks | jq '.[] | select(.status == "needs_testin
 
 ### Config State Files
 
-- [ ] `.auto-eval-index` now contains `1` (next eval type index)
+- [ ] `.auto-eval-index` now contains `1` (next eval type index, which is "backend")
 - [ ] Check: `cat .auto-eval-index` returns `1`
 - [ ] `.nightly-eval-config` still has your settings (unchanged by eval)
 
@@ -98,10 +97,10 @@ curl http://localhost:3000/api/tasks | jq '.[] | select(.status == "needs_testin
 The scheduler automatically triggers the next eval after the interval:
 
 - [ ] Wait 1 minute (or however long you set the interval)
-- [ ] Watch server logs for `[nightly] Triggered backend eval (2/4)`
+- [ ] Watch server logs for `[nightly] Triggering backend eval (2/5)`
 - [ ] Backend eval should start and show same logs as above
 - [ ] After success, `.auto-eval-index` should show `2`
-- [ ] Continue monitoring for all four cycles: frontend → backend → functionality → memory
+- [ ] Continue monitoring for all five cycles: frontend → backend → functionality → features → memory
 
 ## Cleanup
 
@@ -120,7 +119,7 @@ The scheduler automatically triggers the next eval after the interval:
 - [ ] Verify time was set correctly: `cat .nightly-eval-config | grep startTime`
 - [ ] Check if scheduled time has actually passed (compare with system time)
 - [ ] Verify toggle is ON: check `.nightly-eval-config` has `"enabled": true`
-- [ ] Check server logs at startup for `[scheduler] Nightly eval scheduler initialized`
+- [ ] Check server logs at startup for `[nightly] Initializing scheduler` message
 - [ ] Look for errors: `grep -i "error\|warn" /tmp/bridgette-dev.log`
 - [ ] If still stuck, restart dev server: `./scripts/dev-control.sh stop && ./scripts/dev-control.sh dev`
 
@@ -184,30 +183,31 @@ The scheduler automatically triggers the next eval after the interval:
 
 ## Testing Across Multiple Cycles
 
-To fully test the scheduler, let evals run through 2-4 cycles:
+To fully test the scheduler, let evals run through 2-5 cycles:
 
 ```
 Time 0:00   Eval 1 starts (frontend)
 Time 1:00   Eval 1 completes, Eval 2 starts (backend)
 Time 2:00   Eval 2 completes, Eval 3 starts (functionality)
-Time 3:00   Eval 3 completes, Eval 4 starts (memory)
-Time 4:00   Eval 4 completes, cycle repeats back to frontend
+Time 3:00   Eval 3 completes, Eval 4 starts (features)
+Time 4:00   Eval 4 completes, Eval 5 starts (memory)
+Time 5:00   Eval 5 completes, cycle repeats back to frontend
 ```
 
-- [ ] Verify index rotates: 0 → 1 → 2 → 3 → 0 (check `.auto-eval-index` after each)
-- [ ] Verify all four eval types run in correct order
+- [ ] Verify index rotates: 0 → 1 → 2 → 3 → 4 → 0 (check `.auto-eval-index` after each)
+- [ ] Verify all five eval types run in correct order
 - [ ] Verify each creates a task with correct type
-- [ ] Verify git commits accumulate (4 new commits by time 4:00)
+- [ ] Verify git commits accumulate (5 new commits by time 5:00)
 
 ## Final Verification Checklist
 
 Before marking scheduler as tested and working:
 
-- [ ] All four eval types triggered successfully in correct order
+- [ ] All five eval types triggered successfully in correct order
 - [ ] Each eval created a task with status "needs_testing"
 - [ ] Each eval created a git commit with meaningful changes
 - [ ] Browser UI shows eval running state correctly (evalRunning: true, then false)
-- [ ] Eval Logs tab shows all four entries with correct types and success status
+- [ ] Eval Logs tab shows all five entries with correct types and success status
 - [ ] Config properly persisted: `cat .nightly-eval-config` matches what was set
 - [ ] No "error" or "warn" messages in server logs related to nightly scheduler
 - [ ] Dev server remained stable (no crashes or restarts)
