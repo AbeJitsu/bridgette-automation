@@ -57,3 +57,232 @@
 - xterm.js uses browser globals (`self`) — must dynamically import with `ssr: false`
 - PTY resize events sent as JSON `{ type: "resize", cols, rows }` — regular input is raw strings
 - `@tailwindcss/typography` `@import` doesn't work with Next.js 15 + Tailwind v4
+
+## Development Workflow
+
+### Problem
+
+The server runs as a persistent background process via launchd (`com.bridgette.server`). During development and testing, this causes conflicts:
+
+- New dev server instances fail because port 3000 is occupied
+- Manual testing of nightly scheduler requires stopping/restarting
+- Need clear steps to safely test without breaking production behavior
+
+### Solution
+
+Use `scripts/dev-control.sh` to manage server lifecycle during development.
+
+### Phase 1: Prepare for Development
+
+Stop the background service and free port 3000:
+
+```bash
+./scripts/dev-control.sh stop
+```
+
+Verify port is free:
+
+```bash
+./scripts/dev-control.sh status
+```
+
+Expected output: "Port 3000 is free"
+
+### Phase 2: Run Dev Server for Testing
+
+Start the development server:
+
+```bash
+cd app
+../scripts/dev-control.sh dev
+```
+
+The server will start in the foreground. You can now:
+- Test API endpoints
+- Configure the nightly scheduler
+- Observe logs in real-time
+- Press `Ctrl+C` to stop when done
+
+### Phase 3: Configure Nightly Schedule (via browser)
+
+While dev server is running:
+
+1. Open http://localhost:3000 in your browser
+2. Navigate to the **Automations** tab
+3. Scroll to the **Nightly Schedule** card
+4. Configure:
+   - **Start time:** Set to current time + 2 minutes (allows time for testing)
+   - **Interval:** Set to 1 minute (short interval for rapid testing)
+   - **Toggle:** Enable nightly eval (switch to "on")
+5. Watch server logs as the scheduled time approaches
+
+### Phase 4: Verify Execution
+
+After the scheduled time passes, check these indicators:
+
+**Server logs:**
+```bash
+tail -100 /tmp/bridgette-dev.log
+```
+Look for: `[nightly] Triggering frontend eval`
+
+**Git commits:**
+```bash
+git log --oneline | head -5
+```
+
+**Eval log entry:**
+```bash
+cat eval-log.json | tail -1
+```
+
+**Tasks created:**
+```bash
+cat tasks.json | grep -A 2 '"title"' | tail -5
+```
+
+### Phase 5: Restore Production Behavior
+
+Restart the launchd service:
+
+```bash
+./scripts/dev-control.sh start
+```
+
+Verify it's running:
+
+```bash
+./scripts/dev-control.sh status
+```
+
+### Troubleshooting
+
+**Port still in use after `dev-control stop`:**
+```bash
+lsof -i:3000 | tail -1 | awk '{print $2}' | xargs kill -9
+lsof -i:3000  # should return empty
+```
+
+**Nightly schedule never triggered:**
+- Check server is running: `curl -s http://localhost:3000/api/health`
+- Check schedule is configured: `cat .nightly-eval-config`
+- Check WebSocket connection in browser DevTools
+- Check server logs: `tail -100 /tmp/bridgette-dev.log | grep -i 'nightly\|schedule'`
+
+**Dev server won't start:**
+```bash
+pkill -f "npm run dev"
+pkill -f "tsx server.ts"
+sleep 2
+./scripts/dev-control.sh dev
+```
+
+**Want to manually trigger eval:**
+Click the **"Run Now"** button in the Status tab.
+
+### Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `scripts/dev-control.sh` | Lifecycle management (stop/start/dev/status) |
+| `app/server.ts` | Nightly scheduler logic |
+| `app/components/Automations.tsx` | Nightly schedule UI configuration |
+| `.nightly-eval-config` | Current schedule (stored at project root) |
+| `.auto-eval-index` | Tracks which eval type runs next (0-4 rotation) |
+| `eval-log.json` | Complete history of all evals (success/error) |
+| `tasks.json` | Tasks created by evals (needs_testing status) |
+| `/tmp/bridgette-dev.log` | Dev server logs while running |
+
+## Testing
+
+### Nightly Auto-Eval Scheduler Testing Checklist
+
+Use this checklist when testing the nightly auto-eval scheduler.
+
+#### Pre-Test Setup
+
+- [ ] Run `./scripts/dev-control.sh stop` to free port 3000
+- [ ] Verify: `./scripts/dev-control.sh status` shows port is free
+- [ ] Run dev server: `cd app && npm run dev`
+- [ ] Wait for "Ready on http://localhost:3000" in server logs
+- [ ] Verify: `curl http://localhost:3000/api/health` returns 200
+
+#### Configuration
+
+- [ ] Open http://localhost:3000 in browser
+- [ ] Click on "Automations" tab
+- [ ] Scroll to "Nightly Schedule" section
+- [ ] Set start time to current time + 2 minutes
+- [ ] Set interval to 1 minute (for faster testing)
+- [ ] Toggle "Enabled" to ON
+- [ ] Verify save: check server logs for `[nightly] Scheduled to start at` message
+
+#### Execution Monitoring
+
+**Server Logs:**
+```bash
+tail -f /tmp/bridgette-dev.log
+```
+
+Watch for:
+- [ ] `[nightly] Triggering frontend eval (1/5)`
+- [ ] `[auto-eval] Started frontend eval` with process ID
+- [ ] `[auto-eval] Process exited with code 0`
+
+**Browser Console:**
+- [ ] WebSocket connection to `/ws/chat` is active
+- [ ] Message: `WS: { type: 'evalRunning', running: true }`
+- [ ] Message: `WS: { type: 'auto_eval_complete', status: 'success' }`
+
+#### Results Verification
+
+- [ ] Navigate to "Eval Logs" tab — new entry at top
+- [ ] Entry shows type: "frontend" and status: "success"
+- [ ] `git log --oneline | head -5` shows new commit
+- [ ] `cat tasks.json | tail -50` shows new task with status "needs_testing"
+- [ ] `.auto-eval-index` contains `1` (next eval type)
+
+#### Cleanup
+
+- [ ] Press Ctrl+C to stop dev server
+- [ ] Run `./scripts/dev-control.sh start` to restore launchd service
+- [ ] Verify: `./scripts/dev-control.sh status` shows service is running
+- [ ] Optional: Disable nightly schedule in UI if not needed
+
+#### If Something Fails
+
+**Nightly scheduler doesn't trigger:**
+- Verify time was set correctly: `cat .nightly-eval-config | grep startTime`
+- Check toggle is ON: check `.nightly-eval-config` has `"enabled": true`
+- Look for errors: `grep -i "error\|warn" /tmp/bridgette-dev.log`
+
+**Eval hangs (stuck in execution):**
+- Check Claude process: `ps aux | grep claude | grep -v grep`
+- Kill if stuck: `pkill -f "claude --print"`
+
+**Git commits not created:**
+- Check git status: `git status`
+- Check current branch: `git branch` (should be on `dev`)
+- Check merge conflicts: `git status | grep -i "conflict"`
+
+**Tasks not created:**
+- Verify tasks API: `curl http://localhost:3000/api/tasks`
+- Check if tasks.json is valid JSON: `jq . tasks.json`
+
+**Wrong eval type triggers:**
+- Check index file: `cat .auto-eval-index`
+- Manually reset: `echo "0" > .auto-eval-index`
+- Restart dev server
+
+#### Final Verification
+
+Before marking scheduler as tested and working:
+
+- [ ] All eval types triggered successfully in correct order
+- [ ] Each eval created a task with status "needs_testing"
+- [ ] Each eval created a git commit with meaningful changes
+- [ ] Browser UI shows eval running state correctly
+- [ ] Eval Logs tab shows entries with correct types and status
+- [ ] Config properly persisted
+- [ ] No errors in server logs related to nightly scheduler
+- [ ] Dev server remained stable
