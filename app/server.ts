@@ -111,6 +111,22 @@ type EvalType = (typeof EVAL_TYPES)[number];
 let currentEvalType: EvalType | null = null;
 let evalRoundQueue: EvalType[] = []; // remaining evals in current round
 
+// Eval index tracking for rotation
+const autoEvalIndexFile = join(process.cwd(), "..", ".auto-eval-index");
+
+function loadEvalIndex(): number {
+  try {
+    const val = parseInt(readFileSync(autoEvalIndexFile, "utf-8").trim(), 10);
+    return isNaN(val) ? 0 : val % EVAL_TYPES.length;
+  } catch {
+    return 0;
+  }
+}
+
+function saveEvalIndex(index: number): void {
+  try { writeFileSync(autoEvalIndexFile, String(index)); } catch {}
+}
+
 // ============================================
 // NIGHTLY EVAL SCHEDULE
 // ============================================
