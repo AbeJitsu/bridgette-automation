@@ -48,9 +48,11 @@ New files:
 
 The memory eval (4th of 4 nightly evals) updates documentation:
 
-- Runs daily at ~6 AM EST (default schedule: 3 AM + 3-hour intervals)
+- Runs daily at ~6 AM EST (default: starts 3 AM with 60-minute intervals between 4 sequential evals)
+- Configurable start time and interval via Automations UI; separate from idle-timer auto-eval system
 - Updates `CLAUDE.md`, memory files, and `roadmap.md` based on recent code changes
-- Reads `.nightly-eval-fixes.md` to understand what was fixed
+- Runs 4th (after frontend → backend → functionality); part of nightly eval rotation
+- Reads `.nightly-eval-fixes.md` at startup to avoid duplication, then appends fixes
 - Appends fixes to the log for tracking
 
 ### Things to Know
@@ -58,6 +60,6 @@ The memory eval (4th of 4 nightly evals) updates documentation:
 1. **Memory eval updates are automatic** — No user input needed, happens during nightly cycle
 2. **Can conflict with manual edits** — If you update CLAUDE.md overnight, memory eval might conflict
 3. **Updates are committed** — Each fix gets its own commit with message starting "Docs:"
-4. **No user notification** — Check Status tab or eval-log.json to see what was updated
+4. **No notification** — Check Status tab (or `/api/eval-logs` endpoint) to see updates
 
 For the full nightly eval system, see root `CLAUDE.md`.
