@@ -33,13 +33,13 @@ The nightly eval scheduler is different from launchd-triggered automations. Inst
 
 - **Server-side scheduling** — `app/server.ts` contains the nightly scheduler logic
 - **No launchd plists needed** — Evals run at configured time if server is running
-- **Configuration** — Set via Automations UI in dashboard (NightlyScheduleCard)
+- **Configuration** — Set via Automations UI in dashboard ('Nightly Schedule' card)
 - **Persistence** — Config saved to `.nightly-eval-config` at project root
 
-Unlike launchd automations (which curl the API), the nightly scheduler:
+The nightly scheduler differs from launchd automations in key ways:
 1. Is built into the server
 2. Runs 4 evals sequentially (frontend → backend → functionality → memory)
 3. Has configurable start time and interval
 4. Coexists with idle-timer auto-eval (different system)
 
-For details, see `CLAUDE.md` "Nightly eval schedule" section.
+For details, see root `CLAUDE.md` under 'What's Built'.
