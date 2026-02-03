@@ -193,7 +193,7 @@ The dev server doesn't auto-reload for server-side changes.
 | `app/server.ts` | Nightly scheduler logic (lines 141-235) |
 | `app/components/Automations.tsx` | Nightly schedule UI configuration |
 | `.nightly-eval-config` | Current schedule (stored at project root) |
-| `.auto-eval-index` | Tracks which eval type runs next (0-3 rotation) |
+| `.auto-eval-index` | Tracks which eval type runs next (0-4 rotation) |
 | `eval-log.json` | Complete history of all evals (success/error) |
 | `tasks.json` | Tasks created by evals (needs_testing status) |
 | `/tmp/bridgette-dev.log` | Dev server logs while running |

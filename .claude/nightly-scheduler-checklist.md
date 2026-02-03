@@ -31,7 +31,7 @@ tail -f /tmp/bridgette-dev.log
 
 Watch for (within 2-3 minutes):
 - [ ] `[nightly] Triggering frontend eval (1/5)` (first eval of the cycle)
-- [ ] `[auto-eval] Starting frontend eval` with process ID
+- [ ] `[auto-eval] Started frontend eval` with process ID
 - [ ] `[auto-eval] Process exited with code 0` (success) or non-zero code
 - [ ] Log shows eval duration in milliseconds
 
@@ -76,7 +76,7 @@ Check `tasks.json`:
 cat tasks.json | tail -50
 ```
 
-- [ ] New task created with title like "Frontend eval results"
+- [ ] New task created with title like "[Auto-eval] Frontend eval needs review"
 - [ ] Task status is "needs_testing"
 - [ ] Task includes summary field with summary of changes
 - [ ] Task has correct `createdAt` timestamp (recent)
@@ -125,7 +125,7 @@ The scheduler automatically triggers the next eval after the interval:
 
 ### Eval starts but subprocess hangs (stuck in execution)
 
-**Symptoms:** `[auto-eval] Starting` log appears but never reaches "Process exited"
+**Symptoms:** `[auto-eval] Started` log appears but never reaches "Process exited"
 
 **Checklist:**
 - [ ] Check Claude process: `ps aux | grep claude | grep -v grep`
