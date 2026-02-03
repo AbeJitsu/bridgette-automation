@@ -111,6 +111,40 @@ function getLaunchdJobs(): { name: string; loaded: boolean }[] {
   return results;
 }
 
+function getNightlyConfig(): {
+  enabled: boolean;
+  startHour: number;
+  startMinute: number;
+  intervalMinutes: number;
+  nextRun: string | null;
+} {
+  const DEFAULT_CONFIG = {
+    enabled: false,
+    startHour: 3,
+    startMinute: 0,
+    intervalMinutes: 60,
+    nextRun: null,
+  };
+
+  try {
+    const configPath = join(PROJECT_ROOT, ".nightly-eval-config");
+    if (!existsSync(configPath)) {
+      return DEFAULT_CONFIG;
+    }
+    const data = readFileSync(configPath, "utf-8");
+    const parsed = JSON.parse(data);
+    return {
+      enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : false,
+      startHour: typeof parsed.startHour === "number" ? parsed.startHour : 3,
+      startMinute: typeof parsed.startMinute === "number" ? parsed.startMinute : 0,
+      intervalMinutes: typeof parsed.intervalMinutes === "number" ? parsed.intervalMinutes : 60,
+      nextRun: null, // nextRun is computed server-side and broadcast via WS
+    };
+  } catch {
+    return DEFAULT_CONFIG;
+  }
+}
+
 export async function GET(request: Request) {
   if (!isAuthorized(request)) return unauthorizedResponse();
 
@@ -124,6 +158,7 @@ export async function GET(request: Request) {
     git: getGitInfo(),
     memoryFiles: getMemoryFiles(),
     autoEval: getAutoEvalConfig(),
+    nightly: getNightlyConfig(),
     launchdJobs: getLaunchdJobs(),
   });
 }

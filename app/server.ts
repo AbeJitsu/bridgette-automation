@@ -206,10 +206,18 @@ function runNightlyCycle(): void {
     const evalType = EVAL_TYPES[i];
 
     const timeout = setTimeout(() => {
+      if (!triggerServerAutoEvalFn) {
+        console.error("[nightly] ERROR: triggerServerAutoEvalFn is null! Skipping eval trigger.");
+        return;
+      }
       console.log(`[nightly] Triggering ${evalType} eval (${i + 1}/${EVAL_TYPES.length})`);
       // Override the rotation index to run this specific eval type
       saveEvalIndex(EVAL_TYPES.indexOf(evalType));
-      triggerServerAutoEvalFn?.();
+      try {
+        triggerServerAutoEvalFn();
+      } catch (err) {
+        console.error(`[nightly] Error calling triggerServerAutoEvalFn:`, err);
+      }
     }, delay);
 
     nightlyEvalTimeouts.push(timeout);
@@ -671,11 +679,19 @@ app.prepare().then(() => {
     const localBin = `${home}/.local/bin`;
     const fullPath = envPath.includes(localBin) ? envPath : `${localBin}:${envPath}`;
 
-    const proc = spawn(claudePath, args, {
-      cwd,
-      env: { ...process.env, PATH: fullPath },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    let proc: ChildProcess;
+    try {
+      proc = spawn(claudePath, args, {
+        cwd,
+        env: { ...process.env, PATH: fullPath },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      console.log(`[auto-eval] Started ${evalType} eval`);
+    } catch (err) {
+      console.error(`[auto-eval] ERROR: Failed to spawn eval process for ${evalType}:`, err);
+      broadcastToChat({ type: "error", message: `Failed to spawn eval process: ${err instanceof Error ? err.message : String(err)}` });
+      return;
+    }
 
     serverAutoEvalProcess = proc;
 
@@ -871,6 +887,13 @@ app.prepare().then(() => {
 
   // Set forward reference for nightly scheduler
   triggerServerAutoEvalFn = triggerServerAutoEval;
+
+  // Initialize nightly scheduler if enabled
+  console.log("[nightly] Initializing scheduler (function pointer set)");
+  if (nightlyConfig.enabled) {
+    scheduleNightlyEvals();
+    console.log(`[nightly] Scheduled to start at ${new Date(nightlyNextRun!).toLocaleString()}`);
+  }
 
   const defaultCwd = process.env.HOME || "/Users/abereyes";
   const cwdFile = require("path").join(process.cwd(), "..", ".last-cwd");
@@ -1408,11 +1431,6 @@ app.prepare().then(() => {
     if (serverAutoEvalEnabled) {
       resetServerIdleTimer();
       console.log("> Auto-eval enabled — idle timer started (15 min)");
-    }
-    // Start nightly scheduler if enabled
-    if (nightlyConfig.enabled) {
-      scheduleNightlyEvals();
-      console.log(`> Nightly evals enabled — next run at ${new Date(nightlyNextRun!).toLocaleString()}`);
     }
   });
 

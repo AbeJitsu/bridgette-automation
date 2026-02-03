@@ -102,6 +102,19 @@ export default function Automations({ onSendToTerminal, onSendToChat }: Automati
     }
   }, []);
 
+  // Debug logging for nightly schedule state
+  useEffect(() => {
+    if (nightly) {
+      console.log("[Automations] Nightly schedule state from server:", {
+        enabled: nightly.enabled,
+        startHour: nightly.startHour,
+        startMinute: nightly.startMinute,
+        intervalMinutes: nightly.intervalMinutes,
+        nextRun: nightly.nextRun ? new Date(nightly.nextRun).toLocaleString() : "not set"
+      });
+    }
+  }, [nightly]);
+
   const viewPrompt = useCallback(async (name: string) => {
     if (expandedPrompt === name) {
       setExpandedPrompt(null);
