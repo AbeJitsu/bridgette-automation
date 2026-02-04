@@ -16,10 +16,10 @@
     <string>/Users/abereyes/Projects/Personal/bridgette-automation/app</string>
 
     <key>RunAtLoad</key>
-    <true/>
+    <false/>
 
     <key>KeepAlive</key>
-    <true/>
+    <false/>
 
     <key>StandardOutPath</key>
     <string>/Users/abereyes/Library/Logs/Bridgette/server.log</string>
